@@ -1,0 +1,33 @@
+# =====================================================
+# .gitignore - Dépôt PowerBi (agileohdain)
+# =====================================================
+
+# === Power BI - Format PBIP (Power BI Project) ===
+# Paramètres utilisateur locaux (préférences par poste, à ne pas partager)
+*.pbi/localSettings.json
+*.pbi/editorSettings.json
+# Cache et pipelines de déploiement
+*.pbi/cache/
+*.pbi/.pipelines/
+# Fichiers binaires .pbix (décommenter si tu ne veux PAS versionner les .pbix)
+# *.pbix
+
+# === Excel / Office ===
+# Fichiers temporaires/lock créés quand un fichier est ouvert
+~$*.xlsx
+~$*.xls
+~$*.xlsm
+~$*.xlsb
+*.tmp
+
+# === OS ===
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# === Éditeurs / IDE ===
+.vscode/
+.idea/
+
+# === Divers ===
+*.log
