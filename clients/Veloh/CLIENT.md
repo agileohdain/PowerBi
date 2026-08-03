@@ -20,8 +20,8 @@
 > chaque valeur par un code hexadécimal (ex. `#00A1B1`).
 
 * Primary / Banner Accent: #B69E7F   <!-- bandeau pptx, "Filtres", onglets actifs, série primaire -->
-* Surface / Cards:        #FFFFFF    <!-- zone logo, texte sur primaire, cards, pane filtres -->
-* Canvas Background:      #F1F5F9    <!-- fond du canevas, footer -->
+* Surface / Cards:        #FFFFFF    <!-- zone logo, texte sur primaire, cards -->
+* Canvas Background:      #F1F5F9    <!-- fond du canevas, pane filtres, footer -->
 * Card Frame Color:       #FFFFFF    <!-- couleur des encadrés (défaut = Surface) -->
 * Border / Divider:       #CBD5E1
 
@@ -59,4 +59,3 @@
 * Sub-page 2.2: Répartition par marque
   * KPI 2.2.1: Vélos par marque
   * KPI 2.2.2: Marque dominante
-
