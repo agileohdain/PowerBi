@@ -4,8 +4,8 @@
 > `powerbi-prototype` le lit pour générer la maquette. En mode **Téléguidé**,
 > le skill l'écrit pour vous à partir de vos réponses ; en mode
 > **Personnaliser**, vous l'éditez vous-même. Les **données** (`donnees.xlsx`)
-> sont déposées par vous ou générées par le skill. Déposez aussi `logo.png`
-> (fond transparent) dans le même dossier.
+> et le **logo** (`logo.png`, fond transparent) sont **toujours fournis par
+> vous** — déposez-les dans ce dossier.
 
 ## Identité
 

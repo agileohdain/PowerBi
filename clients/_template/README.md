@@ -12,6 +12,9 @@ Contenu du template :
 
 Procédure complète : voir le README.md à la racine du dépôt (étapes 1 à 4).
 
+Fichiers à déposer par l'utilisateur (le skill ne les crée jamais) :
+- `logo.png` — le logo du client (fond transparent)
+- `donnees.xlsx` — les données source (feuilles = tables)
+
 Fichiers produits par le skill (ne pas créer à la main) :
-- `donnees.xlsx` (données fictives si nécessaire)
 - `maquette/index.html` (la maquette)

@@ -1,6 +1,6 @@
 ---
 name: powerbi-prototype
-description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Au lancement, le skill demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — nom du client puis identité/couleurs/titre/arbre de navigation/KPIs — crée clients/<client>/ dès que le nom est connu et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER LUI-MÊME (il prépare clients/<client>/ en amont, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. "maquette power bi", "crée la maquette", "nouvelle maquette client".
+description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Dès que l'utilisateur lance "crée la maquette" (sans nom), le skill demande le nom du client (en respectant majuscules/minuscules), crée automatiquement clients/<client>/ avec CLIENT.md, demande de déposer données (donnees.xlsx) et logo (logo.png) — jamais générés par le skill — puis demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — couleurs/titre/arbre de navigation/KPIs — et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER (l'utilisateur édite lui-même CLIENT.md, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. "maquette power bi", "crée la maquette", "nouvelle maquette client".
 triggers:
   - maquette power bi
   - maquette powerbi
@@ -14,45 +14,55 @@ Je produis des maquettes de dashboards Power BI en HTML auto-suffisant, fidèles
 langage visuel Power BI (canevas 16:9 fixe, bandeau et fond dessinés en CSS,
 cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
 
-**Deux modes de démarrage** (demandé au lancement) :
-- **Téléguidé** — je pose les questions une à une (nom du client, puis couleurs,
-  titre, arbre de navigation, KPIs). Dès que le nom est connu, je crée le dossier
-  `clients/<client>/` avec ses fichiers de base, puis j'écris `CLIENT.md` au fil
-  du questionnement et je génère.
-- **Personnaliser** — l'utilisateur prépare tout en amont dans `clients/<client>/`
-  (voir README.md), je lis, je génère, je finis sans question de fond.
+**Flux de démarrage** (déclenché par « Crée la maquette », sans nom) :
+1. Je demande le **nom du client** (en respectant **majuscules/minuscules**).
+2. Je **crée automatiquement le dossier** `clients/<client>/` (casse exacte) avec
+   ses fichiers de base : `CLIENT.md` (copie du template, nom pré-rempli) et un
+   placeholder `logo.png`.
+3. Je **demande de déposer les données et le logo** (`donnees.xlsx` et `logo.png`)
+   puis je m'arrête pour attendre. Je **ne génère jamais** les données.
+4. Une fois le dépôt confirmé, je demande le **mode** :
+   - **Téléguidé** — je pose les questions une à une (couleurs, titre, arbre de
+     navigation, KPIs) et j'écris `CLIENT.md` au fil du questionnement.
+   - **Personnaliser** — l'utilisateur édite lui-même `CLIENT.md` (voir README.md),
+     je lis, je génère, je finis sans question de fond.
 
-## Phase 0 — Questions d'ouverture (TOUJOURS, via l'outil `question`)
+## Phase 0 — Nom du client + création du dossier
 
-Poser ces deux questions **avant toute autre action** :
+1. **Demander le nom du client** (question libre en français). Précisez qu'il
+   faut **respecter les majuscules/minuscules** : le nom servira tel quel, avec
+   la casse exacte, à nommer le dossier (ex. `Diallo` → `clients/Diallo/`).
+   Ne pas transformer en slug minuscule.
+2. **Créer immédiatement le dossier `clients/<client>/`** (dès que le nom est
+   connu) avec ses fichiers de base :
+   - `CLIENT.md` (copie de `templates/CLIENT.template.md`, nom client pré-rempli,
+     le reste à remplir aux étapes suivantes),
+   - `logo.png` (placeholder + rappel de déposer le vrai logo du client).
+3. **Demander le dépôt des données et du logo** : `donnees.xlsx` et `logo.png`
+   dans `clients/<client>/`. **S'arrêter** et attendre que l'utilisateur ait
+   déposé les deux fichiers avant de continuer.
 
-1. **Mode de démarrage** :
-   > Souhaitez-vous être **téléguidé** par moi (je vous pose les questions et je
-   > prépare tout), ou préférez-vous **personnaliser vous-même** (vous suivez les
-   > étapes 1 à 3 du README et je génère ensuite) ?
-2. **Données** :
-   > Avez-vous **déjà les données** (`donnees.xlsx`), ou souhaitez-vous
-   > que je les **crée pour vous** (jeu fictif réaliste) ?
+## Phase 1 — Choix du mode (après dépôt des données et du logo, via l'outil `question`)
+
+Poser cette question :
+
+> Souhaitez-vous être **téléguidé** par moi (je vous pose les questions et je
+> prépare tout), ou préférez-vous **personnaliser vous-même** (vous suivez les
+> étapes 1 à 3 du README et je génère ensuite) ?
 
 Ensuite :
-- Si **Personnaliser** → aller directement en Phase 2 (vérifier les entrées
+- Si **Personnaliser** → aller directement en Phase 3 (vérifier les entrées
   préparées par l'utilisateur).
-- Si **Téléguidé** → continuer en Phase 1 (questionnement guidé).
+- Si **Téléguidé** → continuer en Phase 2 (questionnement guidé).
 
-## Phase 1 — Questionnement téléguidé (uniquement en mode Téléguidé)
+## Phase 2 — Questionnement téléguidé (uniquement en mode Téléguidé)
 
 Poser les questions **une par une** (outil `question` quand il y a des choix à
 proposer, sinon question libre en français). Ordre obligatoire :
 
-1. **Nom du client** → sert à nommer le dossier `clients/<client>/`
-   (slug minuscule, espaces → tirets).
-2. **Créer immédiatement le dossier `clients/<client>/`** avec ses fichiers de
-   base (le dossier existe donc **dès que le nom est connu**, avant le reste du
-   questionnement) :
-   - `CLIENT.md` (copie de `templates/CLIENT.template.md`, nom client pré-rempli,
-     le reste à remplir aux étapes suivantes),
-   - `logo.png` (placeholder + rappel de déposer le vrai logo du client).
-3. **Thème de couleurs** — proposer des préréglages (et remplir `CLIENT.md`) :
+Le dossier `clients/<client>/` et son `CLIENT.md` ont déjà été créés en Phase 0.
+
+1. **Thème de couleurs** — proposer des préréglages (et remplir `CLIENT.md`) :
    - **Défaut** : Primary `#00A1B1`, Surface `#FFFFFF`, Canvas `#F1F5F9`,
      Card Frame `#FFFFFF`, Border `#CBD5E1`.
    - **Blanc** : Primary `#0F172A`, Surface `#FFFFFF`, Canvas `#FFFFFF`,
@@ -75,14 +85,14 @@ proposer, sinon question libre en français). Ordre obligatoire :
      `[En consolidation]`).
    - À la fin de la page : **« page suivante ou c'est terminé ? »** → boucler ou
      sortir.
-6. **Finaliser `clients/<client>/CLIENT.md`** : le template copié en étape 2 est
-   rempli de façon incrémentale (couleurs, titre, arbre) au fil des étapes 3-5 ;
-   vérifier qu'il est complet avant de passer à la Phase 2.
+6. **Finaliser `clients/<client>/CLIENT.md`** : le template copié en Phase 0 est
+   rempli de façon incrémentale (couleurs, titre, arbre) au fil des étapes 1-5 ;
+   vérifier qu'il est complet avant de passer à la Phase 3.
 
-## Phase 2 — Logo, fond et entrées
+## Phase 3 — Logo, fond et entrées
 
 1. **Mode Téléguidé** : `clients/<client>/` (et son `CLIENT.md`) existent déjà —
-   ils ont été créés en Phase 1 étape 2. **Mode Personnaliser** : vérifier que
+   ils ont été créés en Phase 0. **Mode Personnaliser** : vérifier que
    `clients/<client>/` et `CLIENT.md` existent (sinon → stop, renvoyer au README
    étapes 1-2).
 2. **Logo (obligatoire)** : vérifier `clients/<client>/logo.png`. Si absent →
@@ -95,24 +105,16 @@ proposer, sinon question libre en français). Ordre obligatoire :
    ce n'est **pas bloquant**.
 4. Lire `CLIENT.md`.
 
-## Phase 3 — Données (selon la réponse « Données » de la Phase 0)
+## Phase 4 — Données
 
-- Si l'utilisateur **a les données** : vérifier `donnees.xlsx` dans
-  `clients/<client>/`. Lire le `.xlsx` et déduire modèle de données
-  (tables/feuilles), formules KPI, colonnes source et carte visuelle par page.
-  Si absent → **stop** et demander de déposer `donnees.xlsx`, ou proposer de
-  les créer.
-- Si l'utilisateur veut que je **crée les données** (ou si `donnees.xlsx` est
-  absent) :
-  1. Déduire de `CLIENT.md` un modèle en flocon (1 table de faits + 2-3 dimensions).
-  2. Générer `donnees.xlsx` fictif réaliste (volumes 100-5000 lignes, période
-     cohérente avec le titre/sous-titre) : feuilles = tables, valeurs réalistes.
-  3. Déduire du fichier généré le modèle de données, le glossaire KPI
-     (définition + formule + valeur de référence) et la carte visuelle par page
-     (type de chart · titre · colonnes source).
-  Faire des choix cohérents et poursuivre — pas de question de suivi ici.
+Les **données sont toujours fournies par l'utilisateur** (déposées en Phase 0) —
+le skill **ne génère jamais** `donnees.xlsx`. Vérifier que `donnees.xlsx` est
+présent dans `clients/<client>/`. Lire le `.xlsx` et en déduire le modèle de
+données (tables/feuilles), les formules KPI, les colonnes source et la carte
+visuelle par page. Si absent → **stop** et demander de déposer `donnees.xlsx`
+avant de continuer.
 
-## Phase 4 — Génération de la maquette HTML
+## Phase 5 — Génération de la maquette HTML
 
 1. Lire `CLIENT.md` (+ `references/POWERBI_LAYOUT.md` et
    `POWERBI_COMPONENTS.md`), et les données dans `donnees.xlsx` (model/filtres).
@@ -146,10 +148,10 @@ proposer, sinon question libre en français). Ordre obligatoire :
   l'utilisateur en mode Personnaliser) : identité de marque (couleurs via
   `--primary`/`--surface`/`--canvas`/`--border`/`--card-bg`), titre, arbre de
   navigation (pages / sous-pages / KPIs, flags `[En consolidation]`).
-- `donnees.xlsx` — **données source** (déposées par l'utilisateur ou générées par
-  le skill en Phase 3). Le skill en déduit le modèle de données, le glossaire KPI
-  (formules) et la carte visuelle par page ; le skill s'appuie sur l'Excel seul,
-  sans fichier de glossaire séparé.
+- `donnees.xlsx` — **données source, toujours fournies par l'utilisateur**
+  (déposées en Phase 0 ; le skill ne les génère jamais). Le skill en déduit le
+  modèle de données, le glossaire KPI (formules) et la carte visuelle par page ;
+  il s'appuie sur l'Excel seul, sans fichier de glossaire séparé.
 - Exemple complet de référence : `clients/veloh/`.
 
 ## Règles de qualité

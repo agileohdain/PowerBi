@@ -14,27 +14,32 @@ clients (pré-vente / démo).
 
 ## Workflow — créer une maquette pour un client
 
-Le skill propose **deux modes** au lancement (dans opencode) :
+Dans opencode, lancez simplement :
 
 ```powershell
 opencode
 # puis dans opencode :
-> Crée la maquette pour le client <mon-client>
+> Crée la maquette
 ```
 
-1. **Téléguidé** — le skill vous pose toutes les questions (nom du client,
-   couleurs avec thèmes préréglés, titre/sous-titre, arbre de navigation
-   pages → sous-pages → KPIs avec flags consolidation), écrit `CLIENT.md` pour
-   vous, crée (si besoin) les données fictives, puis génère la maquette.
+Le skill déroule alors le processus : il vous demande le **nom du client** (en
+respectant **majuscules/minuscules**), **crée automatiquement** le dossier
+`clients/<client>/`, puis vous demande de **déposer les données et le logo**.
+Ensuite, vous choisissez le mode :
+
+1. **Téléguidé** — le skill vous pose toutes les questions (couleurs avec
+   thèmes préréglés, titre/sous-titre, arbre de navigation pages → sous-pages →
+   KPIs avec flags consolidation), écrit `CLIENT.md` pour vous, puis génère la
+   maquette.
 2. **Personnaliser vous-même** — vous préparez tout en amont (étapes 1 à 3
    ci-dessous), puis le skill génère la maquette en une seule passe.
 
-Dans les deux cas, il vous sera aussi demandé si vous **avez déjà les données**
-(`donnees.xlsx`) ou si le skill doit les **créer pour vous** (jeu fictif
-réaliste). Les données vivent **uniquement** dans `donnees.xlsx` — le skill
-s'appuie sur l'Excel seul, sans fichier de glossaire séparé.
+Les **données** (`donnees.xlsx`) sont **toujours fournies par vous** — le skill
+ne génère pas de données fictives. Elles vivent **uniquement** dans
+`donnees.xlsx` ; le skill s'appuie sur l'Excel seul, sans fichier de glossaire
+séparé.
 
-### Mode Personnaliser — préparation manuelle
+### Préparation manuelle (mode Personnaliser)
 
 #### Étape 1 — Créer le dossier client
 
@@ -49,26 +54,27 @@ C'est le **seul fichier à éditer**. Il contient :
 - Le **titre / sous-titre** du rapport
 - L'**arbre de navigation** : pages → sous-pages → KPIs (avec flags `[En consolidation]`)
 
-#### Étape 3 — Déposer le logo
+#### Étape 3 — Déposer le logo et les données
 
-Déposez le **logo du client** dans `clients/<mon-client>/logo.png` (idéalement
-**fond transparent**). Le skill l'affiche dans la zone logo du bandeau.
+Déposez dans `clients/<mon-client>/` :
+- le **logo** `logo.png` (idéalement **fond transparent**) — affiché dans la
+  zone logo du bandeau ;
+- les **données** `donnees.xlsx` (feuilles = tables).
 
-> **Optionnel — fond PowerPoint** : le bandeau et le fond sont désormais
-> **dessinés en CSS** par le skill. Si vous préférez un fond personnalisé
-> authored dans PowerPoint, ouvrez `Maquette Power BI.pptx`, ajustez la forme
-> « Banniere » (même couleur que `Primary`) puis **exportez** : tout sélectionner
-> (Ctrl+A) → **clic droit → Enregistrer en tant qu'image** → dossier
+> **Optionnel — fond PowerPoint** : le bandeau et le fond sont **dessinés en
+> CSS** par le skill. Si vous préférez un fond personnalisé authored dans
+> PowerPoint, ouvrez `Maquette Power BI.pptx`, ajustez la forme « Banniere »
+> (même couleur que `Primary`) puis **exportez** : tout sélectionner (Ctrl+A) →
+> **clic droit → Enregistrer en tant qu'image** → dossier
 > `clients/<mon-client>/`, nom **`bg`**, format **SVG** (PNG accepté). Si un
 > `bg.*` est présent, il est utilisé en priorité sur le rendu CSS.
 
 ### Génération
 
 Le skill :
-1. Pose les questions d'ouverture (mode + données).
-2. Lit (ou écrit, en mode Téléguidé) `CLIENT.md`.
-3. Si pas de `donnees.xlsx` et création demandée : génère un Excel fictif
-   réaliste.
+1. Demande le nom du client puis crée le dossier `clients/<client>/`.
+2. Demande de déposer `donnees.xlsx` et `logo.png`, puis le mode.
+3. Lit (ou écrit, en mode Téléguidé) `CLIENT.md`.
 4. Déduit de `donnees.xlsx` le modèle de données, les formules KPI et la carte
    visuelle, puis génère `clients/<mon-client>/maquette/index.html` (canevas
    1920×1080, bandeau/fond en CSS, KPIs et graphiques ECharts par-dessus).
