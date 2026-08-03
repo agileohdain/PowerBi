@@ -371,7 +371,7 @@ function optionFor(spec){
   if(spec.type==='donut') return {
     backgroundColor:'transparent', tooltip:{...baseTooltip,trigger:'item'},
     legend:{orient:'vertical',right:8,top:'center',itemGap:10,textStyle:{color:TEXT2,fontSize:11}},
-    title:{text:spec.center||'',subtext:spec.centerSub||'',left:'26%',top:'36%',textAlign:'center',textStyle:{color:TEXT1,fontSize:22,fontWeight:700},subtextStyle:{color:TEXT2,fontSize:11}},
+    title:{text:spec.center||'',subtext:spec.centerSub||'',left:'30%',top:'middle',textAlign:'center',textVerticalAlign:'middle',textStyle:{color:TEXT1,fontSize:22,fontWeight:700},subtextStyle:{color:TEXT2,fontSize:11}},
     series:[{type:'pie',radius:['52%','72%'],center:['30%','50%'],label:{show:true,formatter:'{d}%',distanceToLabelLine:5,fontSize:10,color:TEXT2},itemStyle:{borderRadius:4,borderColor:SURFACE,borderWidth:2},data:spec.items}]
   };
   if(spec.type==='hbar') return {
