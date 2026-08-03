@@ -14,24 +14,26 @@ clients (pré-vente / démo).
 
 ## Workflow — créer une maquette pour un client
 
-Dans opencode, lancez simplement en **saisissant le nom du client** :
+Dans opencode, lancez la **commande `/maquette`** suivie du nom du client :
 
 ```powershell
 opencode
 # puis dans opencode :
-> Veloh
+> /maquette Veloh
 ```
 
 Le skill déroule alors le processus :
-1. Le **nom du client que vous saisissez est le déclencheur** (la **casse est
-   conservée telle quelle** ; il **ne propose pas de nom**, vous saisissez
-   vous-même le client).
-2. Il **confirme le nom** — « Est-ce bien le client « Veloh » ? — **Oui /**
+1. Le **nom du client est passé en argument** de `/maquette` (la **casse est
+   conservée telle quelle** ; si aucun nom n'est fourni, il vous le demande, et
+   il **ne propose pas de nom**).
+2. Il **confirme le nom** — « Est-ce bien le client « Veloh » ? — **Oui /
    Modifier** » — et n'avance que si le nom est validé.
-3. S'il détecte que vous êtes en mode **PLAN**, il vous demande de passer en
-   mode **BUILD** (créer le dossier nécessite d'écrire sur le disque).
-4. Il **crée automatiquement** le dossier `clients/<client>/`.
-5. Il vous demande de **repasser en mode PLAN**.
+3. Si `clients/<nom>/` **existe déjà**, il vous demande de choisir :
+   **régénérer** la maquette de ce client, ou **modifier le nom**.
+4. S'il détecte que vous êtes en mode **PLAN**, il vous demande de passer en
+   mode **BUILD** (créer le dossier nécessite d'écrire sur le disque) — une
+   seule fois, sans retour PLAN par la suite.
+5. Il **crée automatiquement** le dossier `clients/<client>/`.
 6. Il vous demande de **déposer le logo et les données Excel** (`logo.png` et
    `donnees.xlsx`) avec le bon nom.
 7. Ensuite, vous choisissez le mode :
@@ -81,10 +83,10 @@ Déposez dans `clients/<mon-client>/` :
 ### Génération
 
 Le skill :
-1. Le **nom du client que vous saisissez est le déclencheur** ; il le **confirme**
-   par écrit (« Est-ce bien le client « X » ? — Oui / Modifier »), fait passer en
-   BUILD si besoin, puis crée le dossier `clients/<client>/` et fait repasser en
-   PLAN.
+1. Le **nom du client est passé en argument de `/maquette`** ; il le **confirme**
+   par écrit (« Est-ce bien le client « X » ? — Oui / Modifier »), gère le cas
+   où le dossier existe déjà, fait passer en BUILD une fois si besoin, puis crée
+   le dossier `clients/<client>/`.
 2. Demande de déposer `donnees.xlsx` et `logo.png` (bon nom), puis le mode.
 3. Lit (ou écrit, en mode Téléguidé) `CLIENT.md`.
 4. Déduit de `donnees.xlsx` le modèle de données, les formules KPI et la carte

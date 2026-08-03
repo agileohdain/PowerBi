@@ -1,11 +1,6 @@
 ---
 name: powerbi-prototype
-description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Le déclencheur du début du processus est le nom du client saisi directement par l'utilisateur (ex. "Veloh") — respect strict des majuscules/minuscules, sans proposer de nom : le skill confirme le nom ("Est-ce bien le client « X » ? Oui / Modifier"), puis demande de passer en mode BUILD si nécessaire, crée automatiquement clients/<client>/ avec CLIENT.md, demande de repasser en mode PLAN, demande de déposer les données (donnees.xlsx) et le logo (logo.png) — jamais générés par le skill — puis demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — couleurs/titre/arbre de navigation/KPIs — et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER (l'utilisateur édite lui-même CLIENT.md, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. typing a client name like "Veloh", "maquette power bi", "nouvelle maquette client".
-triggers:
-  - maquette power bi
-  - maquette powerbi
-  - génère la maquette
-  - nouvelle maquette
+description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond en CSS, cartes KPI, slicers, visuels ECharts, navigation deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Déclencheur principal : la commande /maquette suivie du nom du client (ex. "/maquette Veloh"). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. a slash command /maquette, or natural phrasing like "maquette power bi", "crée la maquette", "nouvelle maquette client". Le corps du skill décrit le processus complet (confirmation nom, création du dossier client, dépôt données/logo, modes Téléguidé/Personnaliser).
 ---
 
 ## Ce que je fais
@@ -13,20 +8,23 @@ Je produis des maquettes de dashboards Power BI en HTML auto-suffisant, fidèles
 langage visuel Power BI (canevas 16:9 fixe, bandeau et fond dessinés en CSS,
 cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
 
-**Flux de démarrage** (déclenché par le nom du client) :
-1. Le **déclencheur est le nom du client** saisi directement par l'utilisateur
-   (ex. « Veloh »), sans mot-clé préalable. La **casse est respectée telle
-   quelle** (majuscules/minuscules), **je ne propose pas de nom**.
+**Flux de démarrage** (déclenché par la commande `/maquette <Nom>`) :
+1. Le **déclencheur est la commande `/maquette`** suivie du nom du client (ex.
+   `/maquette Veloh`). Le nom vient de l'argument de la commande ; si absent,
+   je le demande. La **casse est respectée telle quelle**
+   (majuscules/minuscules), **je ne propose pas de nom**.
 2. Je **confirme le nom** par écrit : « Est-ce bien le client « X » ? — Oui /
    Modifier » (l'utilisateur peut corriger). **Je ne crée rien tant que le nom
    n'est pas confirmé.**
-3. Si l'utilisateur est en mode **PLAN**, je lui demande de se mettre en
-   mode **BUILD** (une fois, sans boucler plusieurs fois).
-4. Je **crée automatiquement le dossier** `clients/<client>/` (casse exacte)
+3. **Garde client existant** : si `clients/<Nom>/` existe déjà, je demande quoi
+   faire (régénérer la maquette de ce client, ou modifier le nom) avant de créer
+   quoique ce soit.
+4. Si l'utilisateur est en mode **PLAN**, je lui demande de se mettre en
+   mode **BUILD** une seule fois (pas de retour PLAN par la suite). Tout le
+   reste du processus se déroule en BUILD.
+5. Je **crée automatiquement le dossier** `clients/<client>/` (casse exacte)
    avec ses fichiers de base : `CLIENT.md` (copie du template, nom pré-rempli)
    et un placeholder `logo.png`.
-5. Une fois le dossier créé, je demande à l'utilisateur de **repasser en mode
-   PLAN** (et pas en BUILD).
 6. Je **demande de déposer le logo du client et les données Excel** avec le
    bon nom (`donnees.xlsx` et `logo.png`), puis je m'arrête pour attendre. Je
    **ne génère jamais** les données.
@@ -38,25 +36,29 @@ cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
 
 ## Phase 0 — Nom du client (déclencheur) + confirmation + création du dossier
 
-1. **Le nom du client est le déclencheur** : il est saisi directement par
-   l'utilisateur au lancement (ex. `Veloh`), sans mot-clé préalable. La **casse
-   est respectée telle quelle** (majuscules/minuscules) : le nom servira tel
-   quel, avec la casse exacte, à nommer le dossier (ex. `Veloh` →
-   `clients/Veloh/`). **Ne proposer aucun nom** — l'utilisateur saisit
-   lui-même le nouveau client. Ne pas transformer en slug minuscule.
+1. **Le nom du client vient de l'argument de `/maquette`** (ex. `/maquette
+   Veloh`). Si la commande est lancée sans argument, je demande le nom. La
+   **casse est respectée telle quelle** (majuscules/minuscules) : le nom
+   servira tel quel, avec la casse exacte, à nommer le dossier (ex. `Veloh` →
+   `clients/Veloh/`). **Ne proposer aucun nom** — l'utilisateur saisit lui-même
+   le client. Ne pas transformer en slug minuscule.
 2. **Confirmer le nom** : reformuler par écrit, de façon claire et accueillante,
    « Est-ce bien le client « X » ? — Oui / Modifier ». L'utilisateur peut
    corriger ; boucler tant que le nom n'est pas validé. **Ne créer rien** tant
    que le nom n'est pas confirmé.
-3. **Vérifier le mode** : si l'utilisateur est en mode **PLAN**, lui demander de
+3. **Garde client existant** : si `clients/<Nom>/` existe déjà (par exemple le
+   dossier d'un client déjà traité), demander via l'outil `question` :
+   - **Régénérer la maquette de ce client** → sauter la création du dossier,
+     vérifier le logo et les données (Phase 3), puis générer.
+   - **Modifier le nom** → revenir à l'étape 2 (nouveau nom).
+4. **Vérifier le mode** : si l'utilisateur est en mode **PLAN**, lui demander de
    se mettre en mode **BUILD** (nécessaire pour écrire le dossier). **Demander
-   une seule fois, sans boucler plusieurs fois.**
-4. **Créer immédiatement le dossier `clients/<client>/`** (dès que le nom est
-   confirmé) avec ses fichiers de base :
+   une seule fois, sans boucler plusieurs fois** — on ne revient pas en mode PLAN.
+5. **Créer immédiatement le dossier `clients/<client>/`** (dès que le nom est
+   confirmé et le dossier inexistant) avec ses fichiers de base :
    - `CLIENT.md` (copie de `templates/CLIENT.template.md`, nom client pré-rempli,
      le reste à remplir aux étapes suivantes),
    - `logo.png` (placeholder + rappel de déposer le vrai logo du client).
-5. **Demander de repasser en mode PLAN** (et pas en BUILD).
 6. **Demander le dépôt du logo du client et des données Excel**, avec le bon
    nom : `logo.png` et `donnees.xlsx` dans `clients/<client>/`. **S'arrêter**
    et attendre que l'utilisateur ait déposé les deux fichiers avant de
