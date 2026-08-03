@@ -3,9 +3,9 @@
 > **C'est le SEUL fichier de configuration** pour un client. Le skill
 > `powerbi-prototype` le lit pour générer la maquette. En mode **Téléguidé**,
 > le skill l'écrit pour vous à partir de vos réponses ; en mode
-> **Personnaliser**, vous l'éditez vous-même. `DATA.md` (modèle de données +
-> formules KPI) est généré par le skill. Déposez aussi `logo.png` (fond
-> transparent) dans le même dossier.
+> **Personnaliser**, vous l'éditez vous-même. Les **données** (`donnees.xlsx`)
+> sont déposées par vous ou générées par le skill. Déposez aussi `logo.png`
+> (fond transparent) dans le même dossier.
 
 ## Identité
 

@@ -30,8 +30,9 @@ opencode
    ci-dessous), puis le skill génère la maquette en une seule passe.
 
 Dans les deux cas, il vous sera aussi demandé si vous **avez déjà les données**
-(`donnees.xlsx` / `DATA.md`) ou si le skill doit les **créer pour vous** (jeu
-fictif réaliste).
+(`donnees.xlsx`) ou si le skill doit les **créer pour vous** (jeu fictif
+réaliste). Les données vivent **uniquement** dans `donnees.xlsx` — le skill
+s'appuie sur l'Excel seul, sans fichier de glossaire séparé.
 
 ### Mode Personnaliser — préparation manuelle
 
@@ -67,9 +68,10 @@ Le skill :
 1. Pose les questions d'ouverture (mode + données).
 2. Lit (ou écrit, en mode Téléguidé) `CLIENT.md`.
 3. Si pas de `donnees.xlsx` et création demandée : génère un Excel fictif
-   réaliste + `DATA.md`.
-4. Génère `clients/<mon-client>/maquette/index.html` (canevas 1920×1080,
-   bandeau/fond en CSS, KPIs et graphiques ECharts par-dessus).
+   réaliste.
+4. Déduit de `donnees.xlsx` le modèle de données, les formules KPI et la carte
+   visuelle, puis génère `clients/<mon-client>/maquette/index.html` (canevas
+   1920×1080, bandeau/fond en CSS, KPIs et graphiques ECharts par-dessus).
 
 Ouvrez `clients/<mon-client>/maquette/index.html` dans un navigateur.
 
@@ -96,7 +98,7 @@ Ouvrez `clients/<mon-client>/maquette/index.html` dans un navigateur.
 ## Exemple : `clients/veloh/`
 
 Client complet (flotte cyclable, thème sombre) :
-`CLIENT.md`, `DATA.md`, `donnees.xlsx`, `logo.png`, `bg.png`, et la maquette
+`CLIENT.md`, `donnees.xlsx`, `logo.png`, `bg.png`, et la maquette
 `maquette/index.html`.
 
 ---

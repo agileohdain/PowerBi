@@ -13,5 +13,5 @@ Contenu du template :
 Procédure complète : voir le README.md à la racine du dépôt (étapes 1 à 4).
 
 Fichiers produits par le skill (ne pas créer à la main) :
-- `donnees.xlsx`, `DATA.md` (données fictives + glossaire)
+- `donnees.xlsx` (données fictives si nécessaire)
 - `maquette/index.html` (la maquette)

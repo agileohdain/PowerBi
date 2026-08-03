@@ -76,7 +76,7 @@ mode automatically.
   active `CLIENT.md` (see its Dynamic Navigation Structure KPI lists). If a KPI
   has no such marker, render it as a normal §1.1 card. Never apply the
   consolidation frame on your own initiative. The flag lives **only** in
-  `CLIENT.md` — do not duplicate it in `DATA.md` (which never carries flags).
+  `CLIENT.md`.
 * **CSS / Tailwind Rules:**
   * Start from §1.1, then override the container border:
     `border-2 border-dashed border-[#FF0000]`

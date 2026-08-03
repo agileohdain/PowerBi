@@ -88,9 +88,9 @@ background image — the skill only overlays the **slicer controls** on top of i
 
 > **Data sources for this area:** the navigation tree (pages → sub-pages →
 > KPIs) comes from `CLIENT.md`; the **chart choices per sub-page** (type +
-> source columns) come from the per-client `DATA.md` visual map. Render the
-> KPIs/visuals of the active sub-page as specified there — do not improvise
-> alternative chart types when a `DATA.md` map exists.
+> source columns) are deduced from the per-client `donnees.xlsx` (deduced in
+> Phase 3). Render the KPIs/visuals of the active sub-page as specified there —
+> do not improvise alternative chart types.
 
 ### Row 0a — Primary navigation (Level-1 tabs)
 - Rendered dynamically from `CLIENT.md` Page list.

@@ -2,8 +2,8 @@
 
 > **Pilot file.** This is the single file to edit for a client — brand
 > identity, navigation tree, KPI labels, and `[En consolidation]` flags.
-> `DATA.md` holds the data model + per-KPI formulas + visual map, keyed by KPI
-> ID; it follows this file and never re-declares flags or labels.
+> The data model, per-KPI formulas and visual map are deduced from
+> `donnees.xlsx`; this file never re-declares flags or labels.
 
 * Brand Name: VELOH
 * Logo Path: ./logo.png
