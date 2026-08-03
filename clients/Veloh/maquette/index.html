@@ -62,15 +62,17 @@
   .nav-l2 .sub{font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;background:transparent;border:0;padding:0 0 9px;user-select:none;}
   .nav-l2 .sub.active{color:var(--primary);font-weight:700;border-bottom:2px solid var(--primary);}
   .content{flex:1;min-height:0;margin-top:12px;display:flex;flex-direction:column;gap:12px;}
-  .kpi-row{display:grid;gap:12px;height:132px;flex:none;}
-  .kpi-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;}
+  .kpi-row{display:grid;gap:12px;height:100px;flex:none;}
+  .kpi-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 16px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;}
   .kpi-card.consol{border:2px dashed var(--consolidation);}
   .kpi-card .accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);}
-  .kpi-card .label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;}
-  .kpi-card .value{font-size:30px;font-weight:800;color:var(--text-primary);letter-spacing:-.5px;margin:6px 0 2px;}
-  .kpi-card .sub{font-size:11px;color:var(--text-secondary);}
-  .kpi-card .trend{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600;margin-top:6px;width:max-content;}
+  .kpi-card .label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;height:14px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kpi-card .value{font-size:26px;font-weight:800;color:var(--text-primary);letter-spacing:-.5px;height:32px;line-height:32px;margin:4px 0 2px;white-space:nowrap;}
+  .kpi-card .sub{font-size:11px;color:var(--text-secondary);height:14px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .trend-slot{height:20px;margin-top:5px;display:flex;align-items:center;}
+  .kpi-card .trend{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600;width:max-content;}
   .trend.good{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;}
+  .trend.bad{background:#fff1f2;color:#be123c;border:1px solid #fecdd3;}
   .consol-pill{position:absolute;bottom:6px;right:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--consolidation);background:rgba(255,0,0,.08);padding:2px 6px;border-radius:4px;}
   .viz-grid{flex:1;min-height:0;display:grid;gap:12px;}
   .viz-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;min-height:0;}
@@ -196,7 +198,21 @@ function aggregates(){
   }
   let actifs=0;
   for(const u in USER_MASKS) if(USER_MASKS[u]&mask) actifs++;
-  return {km, rides, minutes, actifs, labels, kmArr, ridesArr, kmPays, kmMarque};
+  /* Comparaison vs année précédente : mois comparables (i ≥ 12 vs i-12) */
+  let cKm=0,pKm=0,cRides=0,pRides=0,cMin=0,pMin=0,cMask=0,pMask=0;
+  for(let i=12;i<N_MONTHS;i++){
+    if(!monthPass(i)) continue;
+    cKm+=KM[i]; cRides+=RIDES[i]; cMin+=MINUTES[i]; cMask|=(1<<i);
+    const j=i-12;
+    pKm+=KM[j]; pRides+=RIDES[j]; pMin+=MINUTES[j]; pMask|=(1<<j);
+  }
+  let cActifs=0,pActifs=0;
+  for(const u in USER_MASKS){
+    if(USER_MASKS[u]&cMask) cActifs++;
+    if(USER_MASKS[u]&pMask) pActifs++;
+  }
+  const yoy={has:cMask!==0, cKm,pKm, cRides,pRides, cMin,pMin, cActifs,pActifs};
+  return {km, rides, minutes, actifs, labels, kmArr, ridesArr, kmPays, kmMarque, yoy};
 }
 
 /* ============ Navigation & layouts ============ */
@@ -231,11 +247,11 @@ const TABLE_MARQUES = `<div class="table-wrap"><table><thead><tr><th>Marque</th>
 const PAGE_DATA = {
   "1.1":{
     kpis:[
-      {label:"Cyclistes actifs", dyn:"actifs", sub:"sur 50 enregistrés", consol:true},
-      {label:"Kilomètres totaux", dyn:"km", sub:"période affichée", trend:"+12,4 % vs PY"},
-      {label:"Sorties", dyn:"sorties", sub:"période affichée", trend:"+8,1 % vs PY"},
-      {label:"Km / cycliste", dyn:"kmpc", sub:"moyenne cyclistes actifs"},
-      {label:"Durée moy. / sortie", dyn:"duree", sub:"moyenne période affichée"}
+      {label:"Cyclistes actifs", dyn:"actifs", yoy:true, sub:"sur 50 enregistrés", consol:true},
+      {label:"Kilomètres totaux", dyn:"km", yoy:true, sub:"période affichée"},
+      {label:"Sorties", dyn:"sorties", yoy:true, sub:"période affichée"},
+      {label:"Km / cycliste", dyn:"kmpc", yoy:true, sub:"moyenne cyclistes actifs"},
+      {label:"Durée moy. / sortie", dyn:"duree", yoy:true, sub:"moyenne période affichée"}
     ],
     row2Cols:"2fr 1fr",
     row2:[
@@ -275,7 +291,7 @@ const PAGE_DATA = {
       {label:"Vélos en flotte", value:"80", sub:"parc actif"},
       {label:"Marques distinctes", value:"25", sub:"fournisseurs"},
       {label:"Année moyenne du parc", value:"2023", sub:"2021 – 2024"},
-      {label:"Km total parcouru", dyn:"km", sub:"période affichée"}
+      {label:"Km total parcouru", dyn:"km", yoy:true, sub:"période affichée"}
     ],
     row2Cols:"2fr 1fr",
     row2:[
@@ -311,6 +327,20 @@ function dynValue(key, agg){
     case 'duree': return agg.rides ? fr(agg.minutes/agg.rides)+' min' : '0 min';
   }
   return '';
+}
+const _pct = (c,p) => p ? (c-p)/p*100 : null;
+function dynTrend(key, agg){
+  const y = agg.yoy;
+  if(!y.has) return null;
+  let v = null;
+  switch(key){
+    case 'actifs': v = _pct(y.cActifs, y.pActifs); break;
+    case 'km': v = _pct(y.cKm, y.pKm); break;
+    case 'sorties': v = _pct(y.cRides, y.pRides); break;
+    case 'kmpc': v = (y.cActifs && y.pActifs) ? _pct(y.cKm/y.cActifs, y.pKm/y.pActifs) : null; break;
+    case 'duree': v = (y.cRides && y.pRides) ? _pct(y.cMin/y.cRides, y.pMin/y.pRides) : null; break;
+  }
+  return (v===null || !isFinite(v)) ? null : v;
 }
 function resolveSpec(c, agg){
   if(c.dyn==='line') return {type:'line', labels:agg.labels, data:agg.kmArr, area:true};
@@ -365,13 +395,21 @@ function disposeCharts(){ while(charts.length){ charts.pop().dispose(); } }
 /* ============ Rendu ============ */
 function kpiCard(k, agg){
   const value = k.dyn ? dynValue(k.dyn, agg) : k.value;
-  const trend = (k.trend && !isFiltered()) ? `<span class="trend good">${k.trend}</span>` : '';
+  let trendHtml = '';
+  if(k.yoy){
+    const v = dynTrend(k.dyn, agg);
+    if(v!==null){
+      const cls = v>=0 ? 'good' : 'bad';
+      const sign = v>=0 ? '+' : '−';
+      trendHtml = `<span class="trend ${cls}">${sign}${Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})} % vs N-1</span>`;
+    }
+  }
   return `<div class="kpi-card ${k.consol?'consol':''}">
     <div class="accent"></div>
     <div class="label">${k.label}</div>
     <div class="value">${value}</div>
     <div class="sub">${k.sub}</div>
-    ${trend}
+    <div class="trend-slot">${trendHtml}</div>
     ${k.consol?'<span class="consol-pill">En consolidation</span>':''}
   </div>`;
 }
@@ -393,7 +431,7 @@ function renderPage(){
     <div class="content">
       <div class="kpi-row" style="grid-template-columns:repeat(${layout.kpis.length},1fr)">${layout.kpis.map(k=>kpiCard(k,agg)).join('')}</div>
       <div class="viz-grid" style="grid-template-columns:${layout.row2Cols}">${layout.row2.map(c=>vizCard(c.title,c.unit,c.id)).join('')}</div>
-      <div class="viz-card" style="flex:none;height:190px" id="row3card"></div>
+      <div class="viz-card" style="flex:none;height:260px" id="row3card"></div>
     </div>`;
 
   // Navigation L1
