@@ -1,11 +1,10 @@
 # Client : <CLIENT_NAME>
 
 > **C'est le SEUL fichier de configuration** pour un client. Le skill
-> `powerbi-prototype` le lit pour générer la maquette. En mode **Téléguidé**,
-> le skill l'écrit pour vous à partir de vos réponses ; en mode
-> **Personnaliser**, vous l'éditez vous-même. Les **données** (`donnees.xlsx`)
-> et le **logo** (`logo.png`, fond transparent) sont **toujours fournis par
-> vous** — déposez-les dans ce dossier.
+> `powerbi-prototype` le lit pour générer la maquette. Remplissez **toute**
+> valeur entre `<...>` (elles servent de marqueurs « à compléter »). Les
+> **données** (`donnees.xlsx`) et le **logo** (`logo.png`, fond transparent)
+> sont **toujours fournis par vous** — déposez-les dans ce dossier.
 
 ## Identité
 
@@ -17,13 +16,14 @@
 
 > **Note :** le bandeau est dessiné en CSS avec `Primary`. Si vous fournissez un
 > fond `bg.*` exporté du `.pptx` (optionnel), sa couleur de bandeau **doit être
-> la même** que `Primary` pour que graphiques et onglets matchent.
+> la même** que `Primary` pour que graphiques et onglets matchent. Remplissez
+> chaque valeur par un code hexadécimal (ex. `#00A1B1`).
 
-* Primary / Banner Accent: #00A1B1   <!-- bandeau pptx, "Filtres", onglets actifs, série primaire -->
-* Surface / Cards:        #FFFFFF    <!-- zone logo, texte sur primaire, cards -->
-* Canvas Background:      #F1F5F9    <!-- fond du canevas, pane filtres, footer -->
-* Card Frame Color:       #FFFFFF    <!-- couleur des encadrés (défaut = Surface) -->
-* Border / Divider:       #CBD5E1
+* Primary / Banner Accent: <Primary>   <!-- bandeau pptx, "Filtres", onglets actifs, série primaire -->
+* Surface / Cards:        <Surface>    <!-- zone logo, texte sur primaire, cards -->
+* Canvas Background:      <Canvas Background>   <!-- fond du canevas, pane filtres, footer -->
+* Card Frame Color:       <Card Frame> <!-- couleur des encadrés (défaut = Surface) -->
+* Border / Divider:       <Border>
 
 ## Arbre de navigation
 

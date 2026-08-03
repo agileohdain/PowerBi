@@ -33,29 +33,33 @@ Le skill déroule alors le processus :
 4. S'il détecte que vous êtes en mode **PLAN**, il vous demande de passer en
    mode **BUILD** (créer le dossier nécessite d'écrire sur le disque) — une
    seule fois, sans retour PLAN par la suite.
-5. Il **crée automatiquement** le dossier `clients/<client>/`.
-6. Il vous demande de **déposer le logo et les données Excel** (`logo.png` et
-   `donnees.xlsx`) avec le bon nom.
-7. Ensuite, vous choisissez le mode :
+5. Il **crée automatiquement** le dossier `clients/<client>/` avec `CLIENT.md`
+   (nom pré-rempli) — **il ne crée aucun logo**.
+6. Il vous demande de **déposer** dans `clients/<client>/` :
+   - le **logo** `logo.png` (idéalement **fond transparent**) ;
+   - les **données** `donnees.xlsx` (feuilles = tables) ;
+   - le **`CLIENT.md` rempli** (voir « Remplir `CLIENT.md` » ci-dessous).
+7. Il **parcourt `CLIENT.md`** : si une information n'est **pas renseignée**
+   (encore sous forme `<...>`), ou si le logo / les données manquent, il
+   **s'arrête** et vous demande de saisir **précisément** les informations
+   manquantes. Il re-vérifie en boucle jusqu'à ce que tout soit complet.
+8. Il génère la maquette.
 
-1. **Téléguidé** — le skill vous pose toutes les questions (couleurs avec
-   thèmes préréglés, titre/sous-titre, arbre de navigation pages → sous-pages →
-   KPIs avec flags consolidation), écrit `CLIENT.md` pour vous, puis génère la
-   maquette.
-2. **Personnaliser vous-même** — vous préparez tout en amont (étapes 1 à 3
-   ci-dessous), puis le skill génère la maquette en une seule passe.
+Il n'y a **pas** de mode « Téléguidé » : `CLIENT.md` est **toujours rempli par
+vous** ; le skill se contente de le vérifier et de demander les champs
+manquants.
 
 Les **données** (`donnees.xlsx`) sont **toujours fournies par vous** — le skill
 ne génère pas de données fictives. Elles vivent **uniquement** dans
 `donnees.xlsx` ; le skill s'appuie sur l'Excel seul, sans fichier de glossaire
 séparé.
 
-### Préparation manuelle (mode Personnaliser)
-
 #### Étape 1 — Créer le dossier client
 
-Dans l'explorateur de fichiers, **copiez le dossier `clients/_template/`** et
-**renommez la copie** en `clients/<mon-client>/`.
+Le skill crée automatiquement le dossier `clients/<client>/` (commande
+`/maquette <client>`). En **manuel**, dans l'explorateur de fichiers, **copiez
+le dossier `clients/_template/`** et **renommez la copie** en
+`clients/<mon-client>/`.
 
 #### Étape 2 — Remplir `CLIENT.md`
 
@@ -64,6 +68,11 @@ C'est le **seul fichier à éditer**. Il contient :
 - Les **couleurs** (voir tableau ci-dessous)
 - Le **titre / sous-titre** du rapport
 - L'**arbre de navigation** : pages → sous-pages → KPIs (avec flags `[En consolidation]`)
+
+Remplissez **toute** valeur entre `<...>` (ex. `<Primary>`, `<Surface>`,
+`<Canvas Background>`, `<Titre du rapport>`, `<Titre sous-page>`,
+`<Libellé KPI>`). Si un champ reste non renseigné, le skill l'identifie et
+s'arrête pour vous le demander.
 
 #### Étape 3 — Déposer le logo et les données
 
@@ -86,9 +95,11 @@ Le skill :
 1. Le **nom du client est passé en argument de `/maquette`** ; il le **confirme**
    par écrit (« Est-ce bien le client « X » ? — Oui / Modifier »), gère le cas
    où le dossier existe déjà, fait passer en BUILD une fois si besoin, puis crée
-   le dossier `clients/<client>/`.
-2. Demande de déposer `donnees.xlsx` et `logo.png` (bon nom), puis le mode.
-3. Lit (ou écrit, en mode Téléguidé) `CLIENT.md`.
+   le dossier `clients/<client>/` (sans logo).
+2. Demande de déposer `logo.png`, `donnees.xlsx` et le `CLIENT.md` rempli.
+3. **Vérifie `CLIENT.md`** : s'il reste un champ non renseigné (marqueur
+   `<...>`), ou si le logo / les données manquent, il **s'arrête** et demande
+   les informations manquantes, puis re-vérifie.
 4. Déduit de `donnees.xlsx` le modèle de données, les formules KPI et la carte
    visuelle, puis génère `clients/<mon-client>/maquette/index.html` (canevas
    1920×1080, bandeau/fond en CSS, KPIs et graphiques ECharts par-dessus).
