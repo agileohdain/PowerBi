@@ -14,46 +14,7 @@ clients (pré-vente / démo).
 
 ## Workflow — créer une maquette pour un client
 
-Le principe : **vous préparez tout en amont** (identité, navigation, fond
-visuel), puis le skill génère la maquette en une seule passe — sans questions,
-pour économiser les tokens.
-
-### Étape 1 — Créer le dossier client
-
-Dans l'explorateur de fichiers, **copiez le dossier `clients/_template/`** et
-**renommez la copie** en `clients/<mon-client>/`.
-
-Vous obtenez un dossier contenant un `CLIENT.md` à remplir **et** une copie de
-`Maquette Power BI.pptx` (le fond à personnaliser).
-
-### Étape 2 — Remplir `CLIENT.md`
-
-C'est le **seul fichier à éditer**. Il contient :
-- L'identité de marque (nom)
-- Les **couleurs** (voir tableau ci-dessous)
-- Le **titre / sous-titre** du rapport
-- L'**arbre de navigation** : pages → sous-pages → KPIs (avec flags `[En consolidation]`)
-
-### Étape 3 — Personnaliser et exporter le fond (PowerPoint)
-
-Le visuel du bandeau / fond est authored dans PowerPoint, pas en CSS. Toutes
-ces manipulations se font **à la main dans PowerPoint** (aucun script — pour
-économiser les tokens).
-
-1. Ouvrir `clients/<mon-client>/Maquette Power BI.pptx` (la copie du template).
-2. Sélectionner la forme **« Banniere »** → changer sa couleur de remplissage
-   (mettre la **même couleur que `Primary`** dans `CLIENT.md`).
-3. Ajouter le **logo** du client dans la zone « Zone logo » (en haut à gauche).
-4. **Exporter le fond** : sélectionnez tout (Ctrl+A) → **clic droit →
-   Enregistrer en tant qu'image** → choisissez le dossier
-   `clients/<mon-client>/`, le nom **`bg`** et le format **SVG**.
-
-> **Pourquoi SVG ?** Vectoriel, donc toujours net (l'export PNG manuel de
-> PowerPoint sort à basse résolution). Le **PNG est aussi accepté** (`bg.png`),
-> et il est même **préféré si vous comptez réutiliser ce fond dans un vrai
-> rapport Power BI Desktop** (Power BI gère mieux le raster en fond de canevas).
-
-### Étape 4 — Lancer le skill opencode
+Le skill propose **deux modes** au lancement (dans opencode) :
 
 ```powershell
 opencode
@@ -61,11 +22,54 @@ opencode
 > Crée la maquette pour le client <mon-client>
 ```
 
+1. **Téléguidé** — le skill vous pose toutes les questions (nom du client,
+   couleurs avec thèmes préréglés, titre/sous-titre, arbre de navigation
+   pages → sous-pages → KPIs avec flags consolidation), écrit `CLIENT.md` pour
+   vous, crée (si besoin) les données fictives, puis génère la maquette.
+2. **Personnaliser vous-même** — vous préparez tout en amont (étapes 1 à 3
+   ci-dessous), puis le skill génère la maquette en une seule passe.
+
+Dans les deux cas, il vous sera aussi demandé si vous **avez déjà les données**
+(`donnees.xlsx` / `DATA.md`) ou si le skill doit les **créer pour vous** (jeu
+fictif réaliste).
+
+### Mode Personnaliser — préparation manuelle
+
+#### Étape 1 — Créer le dossier client
+
+Dans l'explorateur de fichiers, **copiez le dossier `clients/_template/`** et
+**renommez la copie** en `clients/<mon-client>/`.
+
+#### Étape 2 — Remplir `CLIENT.md`
+
+C'est le **seul fichier à éditer**. Il contient :
+- L'identité de marque (nom)
+- Les **couleurs** (voir tableau ci-dessous)
+- Le **titre / sous-titre** du rapport
+- L'**arbre de navigation** : pages → sous-pages → KPIs (avec flags `[En consolidation]`)
+
+#### Étape 3 — Déposer le logo
+
+Déposez le **logo du client** dans `clients/<mon-client>/logo.png` (idéalement
+**fond transparent**). Le skill l'affiche dans la zone logo du bandeau.
+
+> **Optionnel — fond PowerPoint** : le bandeau et le fond sont désormais
+> **dessinés en CSS** par le skill. Si vous préférez un fond personnalisé
+> authored dans PowerPoint, ouvrez `Maquette Power BI.pptx`, ajustez la forme
+> « Banniere » (même couleur que `Primary`) puis **exportez** : tout sélectionner
+> (Ctrl+A) → **clic droit → Enregistrer en tant qu'image** → dossier
+> `clients/<mon-client>/`, nom **`bg`**, format **SVG** (PNG accepté). Si un
+> `bg.*` est présent, il est utilisé en priorité sur le rendu CSS.
+
+### Génération
+
 Le skill :
-1. Lit `CLIENT.md` (+ `bg.svg`/`bg.png`).
-2. Si pas de `donnees.xlsx` : génère un Excel fictif réaliste + `DATA.md`.
-3. Génère `clients/<mon-client>/maquette/index.html` (canevas 1920×1080,
-   `bg.*` en fond, KPIs et graphiques ECharts par-dessus).
+1. Pose les questions d'ouverture (mode + données).
+2. Lit (ou écrit, en mode Téléguidé) `CLIENT.md`.
+3. Si pas de `donnees.xlsx` et création demandée : génère un Excel fictif
+   réaliste + `DATA.md`.
+4. Génère `clients/<mon-client>/maquette/index.html` (canevas 1920×1080,
+   bandeau/fond en CSS, KPIs et graphiques ECharts par-dessus).
 
 Ouvrez `clients/<mon-client>/maquette/index.html` dans un navigateur.
 
@@ -75,15 +79,17 @@ Ouvrez `clients/<mon-client>/maquette/index.html` dans un navigateur.
 
 | Variable      | Rôle                                                        |
 | ------------- | ----------------------------------------------------------- |
-| `--primary`   | Bandeau, "Filtres" + icône, onglets actifs, série principale |
+| `--primary`   | Bandeau (CSS), "Filtres" + icône, onglets actifs, série principale |
 | `--surface`   | Zone logo, texte sur primaire                               |
 | `--canvas`    | Fond du canevas (couleur)                                   |
 | `--card-bg`   | Couleur des encadrés / cards                                |
 | `--border`    | Bordures, séparateurs                                       |
 
-> **Important** : la couleur du bandeau dans le `.pptx` (étape 3) **doit être la
-> même** que `--primary` dans `CLIENT.md` — le skill l'utilise pour les graphiques
-> et onglets, qui doivent visuellement matcher le bandeau.
+> Le bandeau est dessiné en CSS avec `--primary`. Si vous fournissez un fond
+> `bg.*` (optionnel), la couleur du bandeau dans le `.pptx` **doit être la
+> même** que `--primary` pour que graphiques et onglets matchent le bandeau.
+> Les couleurs de texte (`--text-primary` / `--text-secondary`) sont dérivées
+> automatiquement selon la luminance du canvas.
 
 ---
 

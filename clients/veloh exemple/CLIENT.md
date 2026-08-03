@@ -16,7 +16,7 @@
 > du bandeau que vous réglez dans le `.pptx` (étape 3 du README). Le skill
 > l'utilise pour les graphiques et onglets, qui doivent matcher le bandeau.
 
-* Primary / Banner Accent: #00A1B1   <!-- bandeau pptx, "Filtres", onglets actifs, série primaire -->
+* Primary / Banner Accent: #B69E7F   <!-- bandeau pptx, "Filtres", onglets actifs, série primaire -->
 * Surface / Cards:        #FFFFFF    <!-- zone logo, texte sur primaire, cards -->
 * Canvas Background:      #F1F5F9    <!-- fond du canevas, pane filtres, footer -->
 * Card Frame Color:       #FFFFFF    <!-- couleur des encadrés (défaut = Surface) -->
