@@ -151,7 +151,8 @@ Phase 1.)
   (déposées en Phase 0 ; le skill ne les génère jamais). Le skill en déduit le
   modèle de données, le glossaire KPI (formules) et la carte visuelle par page ;
   il s'appuie sur l'Excel seul, sans fichier de glossaire séparé.
-- Exemple complet de référence : `clients/veloh/`.
+- Modèle de départ : `clients/_template/` (à copier pour chaque nouveau
+  client).
 
 ## Règles de qualité
 - **Ne jamais coder une couleur en dur** : toujours via `var(--xxx)`.

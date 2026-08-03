@@ -7,7 +7,8 @@ clients (pré-vente / démo).
 
 | Dossier          | Description                                                            |
 | ---------------- | --------------------------------------------------------------------- |
-| `clients/`       | **1 dossier par client** : `CLIENT.md` (à remplir), `.pptx` du fond, `bg.*`, maquette HTML |
+| `clients/`       | **1 dossier par client** : `CLIENT.md` (à remplir), logo, données, `bg.*` optionnel, maquette HTML |
+| `clients/_template/` | Dossier modèle à copier pour créer un nouveau client              |
 | `.opencode/`     | Skill opencode `powerbi-prototype` (génération des maquettes HTML)    |
 
 ---
@@ -19,14 +20,14 @@ Dans opencode, lancez la **commande `/maquette`** suivie du nom du client :
 ```powershell
 opencode
 # puis dans opencode :
-> /maquette Veloh
+> /maquette MonClient
 ```
 
 Le skill déroule alors le processus :
 1. Le **nom du client est passé en argument** de `/maquette` (la **casse est
    conservée telle quelle** ; si aucun nom n'est fourni, il vous le demande, et
    il **ne propose pas de nom**).
-2. Il **confirme le nom** — « Est-ce bien le client « Veloh » ? — **Oui /
+2. Il **confirme le nom** — « Est-ce bien le client « MonClient » ? — **Oui /
    Modifier** » — et n'avance que si le nom est validé.
 3. Si `clients/<nom>/` **existe déjà**, il vous demande de choisir :
    **régénérer** la maquette de ce client, ou **modifier le nom**.
@@ -43,7 +44,10 @@ Le skill déroule alors le processus :
    (encore sous forme `<...>`), ou si le logo / les données manquent, il
    **s'arrête** et vous demande de saisir **précisément** les informations
    manquantes. Il re-vérifie en boucle jusqu'à ce que tout soit complet.
-8. Il génère la maquette.
+8. Il déduit de `donnees.xlsx` le modèle de données, les formules KPI et la
+   carte visuelle, puis **génère** `clients/<client>/maquette/index.html`
+   (canevas 1920×1080, bandeau/fond en CSS, KPIs et graphiques ECharts
+   par-dessus). Ouvrez ce fichier dans un navigateur.
 
 Il n'y a **pas** de mode « Téléguidé » : `CLIENT.md` est **toujours rempli par
 vous** ; le skill se contente de le vérifier et de demander les champs
@@ -54,14 +58,11 @@ ne génère pas de données fictives. Elles vivent **uniquement** dans
 `donnees.xlsx` ; le skill s'appuie sur l'Excel seul, sans fichier de glossaire
 séparé.
 
-#### Étape 1 — Créer le dossier client
+> **Création manuelle (alternative sans opencode)** : dans l'explorateur de
+> fichiers, **copiez le dossier `clients/_template/`** et **renommez la copie**
+> en `clients/<mon-client>/`, puis suivez les étapes ci-dessous.
 
-Le skill crée automatiquement le dossier `clients/<client>/` (commande
-`/maquette <client>`). En **manuel**, dans l'explorateur de fichiers, **copiez
-le dossier `clients/_template/`** et **renommez la copie** en
-`clients/<mon-client>/`.
-
-#### Étape 2 — Remplir `CLIENT.md`
+### Remplir `CLIENT.md`
 
 C'est le **seul fichier à éditer**. Il contient :
 - L'identité de marque (nom)
@@ -74,7 +75,7 @@ Remplissez **toute** valeur entre `<...>` (ex. `<Primary>`, `<Surface>`,
 `<Libellé KPI>`). Si un champ reste non renseigné, le skill l'identifie et
 s'arrête pour vous le demander.
 
-#### Étape 3 — Déposer le logo et les données
+### Déposer le logo et les données
 
 Déposez dans `clients/<mon-client>/` :
 - le **logo** `logo.png` (idéalement **fond transparent**) — affiché dans la
@@ -88,23 +89,6 @@ Déposez dans `clients/<mon-client>/` :
 > **clic droit → Enregistrer en tant qu'image** → dossier
 > `clients/<mon-client>/`, nom **`bg`**, format **SVG** (PNG accepté). Si un
 > `bg.*` est présent, il est utilisé en priorité sur le rendu CSS.
-
-### Génération
-
-Le skill :
-1. Le **nom du client est passé en argument de `/maquette`** ; il le **confirme**
-   par écrit (« Est-ce bien le client « X » ? — Oui / Modifier »), gère le cas
-   où le dossier existe déjà, fait passer en BUILD une fois si besoin, puis crée
-   le dossier `clients/<client>/` (sans logo).
-2. Demande de déposer `logo.png`, `donnees.xlsx` et le `CLIENT.md` rempli.
-3. **Vérifie `CLIENT.md`** : s'il reste un champ non renseigné (marqueur
-   `<...>`), ou si le logo / les données manquent, il **s'arrête** et demande
-   les informations manquantes, puis re-vérifie.
-4. Déduit de `donnees.xlsx` le modèle de données, les formules KPI et la carte
-   visuelle, puis génère `clients/<mon-client>/maquette/index.html` (canevas
-   1920×1080, bandeau/fond en CSS, KPIs et graphiques ECharts par-dessus).
-
-Ouvrez `clients/<mon-client>/maquette/index.html` dans un navigateur.
 
 ---
 
@@ -123,14 +107,6 @@ Ouvrez `clients/<mon-client>/maquette/index.html` dans un navigateur.
 > même** que `--primary` pour que graphiques et onglets matchent le bandeau.
 > Les couleurs de texte (`--text-primary` / `--text-secondary`) sont dérivées
 > automatiquement selon la luminance du canvas.
-
----
-
-## Exemple : `clients/veloh/`
-
-Client complet (flotte cyclable, thème sombre) :
-`CLIENT.md`, `donnees.xlsx`, `logo.png`, `bg.png`, et la maquette
-`maquette/index.html`.
 
 ---
 
