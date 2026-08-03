@@ -26,11 +26,12 @@
 ## 2. Header — imported background image (`bg.svg`/`bg.png`)
 
 The entire header (logo zone + accent + diagonal primary banner) is **authored
-in PowerPoint** by the user (`powerpoint/Maquette Power BI.pptx`) and **exported
-as a background image** — preferably `bg.svg` (vector, crisp), or `bg.png` as a
-fallback (e.g. via `powerpoint/export-bg.ps1`). The skill does **NOT** draw the
-header in CSS — it applies the background image on the canvas and overlays only
-the title/subtitle and content.
+in PowerPoint** by the user (`clients/<client>/Maquette Power BI.pptx`, copied
+from `clients/_template/`) and **exported by hand as a background image** —
+preferably `bg.svg` (vector, crisp) via PowerPoint's "Enregistrer en tant
+qu'image", or `bg.png` as a fallback. The skill does **NOT** draw the header in
+CSS — it applies the background image on the canvas and overlays only the
+title/subtitle and content.
 
 ```
 ┌─────────────┬╲──────────────────────────────────────────────┐

@@ -20,19 +20,19 @@ en amont par l'utilisateur dans `clients/<client>/`. Je lis, je génère, je fin
 Avant de me lancer, le dossier `clients/<client>/` doit contenir :
 - **`CLIENT.md`** — fichier pilote (obligatoire) : identité, couleurs, titre,
   arbre de navigation (pages / sous-pages / KPIs, flags `[En consolidation]`).
-- **Fond `bg.*`** — fond visuel exporté depuis `powerpoint/Maquette Power BI.pptx`.
-  Format **`bg.svg`** (préféré, vectoriel) ou **`bg.png`** (fallback). Contient le
-  bandeau, la zone logo, le fond canevas et le pane filtres.
+- **Fond `bg.*`** — fond visuel exporté par l'utilisateur depuis son
+  `Maquette Power BI.pptx` (commande PowerPoint « Enregistrer en tant
+  qu'image »). Format **`bg.svg`** (préféré, vectoriel) ou **`bg.png`**
+  (fallback). Contient le bandeau, la zone logo, le fond canevas et le pane
+  filtres.
 - **`logo.png`** — logo du client (déjà intégré au `.pptx`/fond par
   l'utilisateur ; ce fichier est optionnel pour le rendu HTML si le logo est
   dans l'image de fond).
 
-Si le fond (`bg.svg` **ou** `bg.png`) est absent → appeler
-`powerpoint/export-bg.ps1 -Path clients/<client>/fond.pptx -Output
-clients/<client>/bg.png` (produit un PNG 2× ; ou `-Template` pour générer depuis
-le master avec les couleurs de `CLIENT.md`). Si `CLIENT.md` est
-absent → **stop** et demander à l'utilisateur de le créer depuis
-`clients/_template/`.
+Si le fond (`bg.svg` **ou** `bg.png`) est absent → **stop** et demander à
+l'utilisateur de l'exporter depuis son `.pptx` (« Enregistrer en tant
+qu'image → SVG »). Si `CLIENT.md` est absent → **stop** et demander à
+l'utilisateur de le créer depuis `clients/_template/`.
 
 ## Sources de données
 - `CLIENT.md` — **fichier pilote** (édité par l'utilisateur) : identité de marque
@@ -61,10 +61,9 @@ absent → **stop** et demander à l'utilisateur de le créer depuis
    inféré du dossier le plus récent).
 2. Vérifier `CLIENT.md` présent. Si non → stop, demander de créer depuis
    `clients/_template/`.
-3. Vérifier le fond présent (`bg.svg` **ou** `bg.png`). Si aucun des deux :
-   - si `fond.pptx` existe → `export-bg.ps1 -Path .../fond.pptx -Output .../bg.png`
-   - sinon → `export-bg.ps1 -Template -Output .../bg.png -Primary <p> -Surface <s> -Canvas <c>`
-     (couleurs lues dans `CLIENT.md`)
+3. Vérifier le fond présent (`bg.svg` **ou** `bg.png`). Si aucun des deux →
+   **stop** : demander à l'utilisateur de l'exporter depuis son `.pptx`
+   (« Enregistrer en tant qu'image → SVG »).
 4. Lire `CLIENT.md` (+ `DATA.md` si présent).
 
 ## Phase 1 — Données (si `donnees.xlsx` / `DATA.md` absents)
