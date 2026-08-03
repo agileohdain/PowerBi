@@ -19,14 +19,14 @@ Dans opencode, lancez simplement en **saisissant le nom du client** :
 ```powershell
 opencode
 # puis dans opencode :
-> Diallo
+> Veloh
 ```
 
 Le skill déroule alors le processus :
 1. Le **nom du client que vous saisissez est le déclencheur** (la **casse est
    conservée telle quelle** ; il **ne propose pas de nom**, vous saisissez
    vous-même le client).
-2. Il **confirme le nom** — « Est-ce bien le client « Diallo » ? — **Oui /**
+2. Il **confirme le nom** — « Est-ce bien le client « Veloh » ? — **Oui /**
    Modifier** » — et n'avance que si le nom est validé.
 3. S'il détecte que vous êtes en mode **PLAN**, il vous demande de passer en
    mode **BUILD** (créer le dossier nécessite d'écrire sur le disque).

@@ -1,6 +1,6 @@
 ---
 name: powerbi-prototype
-description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Le déclencheur du début du processus est le nom du client saisi directement par l'utilisateur (ex. "Diallo") — respect strict des majuscules/minuscules, sans proposer de nom : le skill confirme le nom ("Est-ce bien le client « X » ? Oui / Modifier"), puis demande de passer en mode BUILD si nécessaire, crée automatiquement clients/<client>/ avec CLIENT.md, demande de repasser en mode PLAN, demande de déposer les données (donnees.xlsx) et le logo (logo.png) — jamais générés par le skill — puis demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — couleurs/titre/arbre de navigation/KPIs — et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER (l'utilisateur édite lui-même CLIENT.md, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. typing a client name like "Diallo", "maquette power bi", "nouvelle maquette client".
+description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Le déclencheur du début du processus est le nom du client saisi directement par l'utilisateur (ex. "Veloh") — respect strict des majuscules/minuscules, sans proposer de nom : le skill confirme le nom ("Est-ce bien le client « X » ? Oui / Modifier"), puis demande de passer en mode BUILD si nécessaire, crée automatiquement clients/<client>/ avec CLIENT.md, demande de repasser en mode PLAN, demande de déposer les données (donnees.xlsx) et le logo (logo.png) — jamais générés par le skill — puis demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — couleurs/titre/arbre de navigation/KPIs — et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER (l'utilisateur édite lui-même CLIENT.md, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. typing a client name like "Veloh", "maquette power bi", "nouvelle maquette client".
 triggers:
   - maquette power bi
   - maquette powerbi
@@ -15,7 +15,7 @@ cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
 
 **Flux de démarrage** (déclenché par le nom du client) :
 1. Le **déclencheur est le nom du client** saisi directement par l'utilisateur
-   (ex. « Diallo »), sans mot-clé préalable. La **casse est respectée telle
+   (ex. « Veloh »), sans mot-clé préalable. La **casse est respectée telle
    quelle** (majuscules/minuscules), **je ne propose pas de nom**.
 2. Je **confirme le nom** par écrit : « Est-ce bien le client « X » ? — Oui /
    Modifier » (l'utilisateur peut corriger). **Je ne crée rien tant que le nom
@@ -39,10 +39,10 @@ cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
 ## Phase 0 — Nom du client (déclencheur) + confirmation + création du dossier
 
 1. **Le nom du client est le déclencheur** : il est saisi directement par
-   l'utilisateur au lancement (ex. `Diallo`), sans mot-clé préalable. La **casse
+   l'utilisateur au lancement (ex. `Veloh`), sans mot-clé préalable. La **casse
    est respectée telle quelle** (majuscules/minuscules) : le nom servira tel
-   quel, avec la casse exacte, à nommer le dossier (ex. `Diallo` →
-   `clients/Diallo/`). **Ne proposer aucun nom** — l'utilisateur saisit
+   quel, avec la casse exacte, à nommer le dossier (ex. `Veloh` →
+   `clients/Veloh/`). **Ne proposer aucun nom** — l'utilisateur saisit
    lui-même le nouveau client. Ne pas transformer en slug minuscule.
 2. **Confirmer le nom** : reformuler par écrit, de façon claire et accueillante,
    « Est-ce bien le client « X » ? — Oui / Modifier ». L'utilisateur peut
