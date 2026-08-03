@@ -259,11 +259,21 @@ For all ECharts integrated into the dashboard:
 * **Inactive Button:** `px-3 py-1 text-xs font-medium text-[var(--text-secondary)] rounded-md hover:text-[var(--text-primary)] cursor-pointer`
 * **Active Button:** `px-3 py-1 text-xs font-semibold text-[var(--text-primary)] bg-[var(--surface)] rounded-md shadow-xs cursor-default`
 
-### 4.3. Information / Tooltip Button
-* **Usage:** Triggers a popup card or helper modal explaining a visual or metric calculation. Placed in the header (top-right) or inline next to a card title.
-* **Size:** the header info button must be clearly visible — **`w-7 h-7` (28px)** with a `text-base` glyph. Do not render it as a tiny dot.
-* **CSS / Tailwind Rules:**
-  * `w-7 h-7 rounded-full bg-[var(--canvas)] hover:bg-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] inline-flex items-center justify-center text-base font-serif font-bold cursor-pointer transition-colors border border-[var(--border)]`
+### 4.3. Info / Tooltip (single header button + hover popover)
+* **Usage:** **one** info button `i`, large, in the top-right of the **header
+  banner**. On **hover** it opens a popover explaining the **active page and all
+  of its sub-pages**. Do **not** render a separate `i` icon on each visual/card.
+* **Size:** clearly visible — **`w-9 h-9` (36px)**-ish circle with a serif
+  `i` glyph (`text-lg`, bold).
+* **CSS / Tailwind Rules (icon):**
+  * `w-9 h-9 rounded-full bg-[var(--surface)] text-[var(--primary)] inline-flex items-center justify-center text-lg font-serif font-extrabold cursor-help shadow-md`
+* **Popover (hover):** a white card (`var(--surface)`, `border`,
+  `border-radius: 10px`, shadow) anchored under the icon (`top` below header,
+  `right: 16px`, `z-index` high, width ~400px). Content: the page title
+  (`var(--primary)`, uppercase), the page description, a divider, then each
+  sub-page with a colored dot (blue = active sub-page, `var(--primary)` =
+  inactive), sub-page name and its description. Content is re-rendered on every
+  navigation change.
 
 ---
 

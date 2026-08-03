@@ -46,10 +46,13 @@ In both cases the skill only overlays the title/subtitle and content.
   (right of the diagonal break), e.g. `left:360px; right:48px; text-align:center`.
 - **Logo zone (trapezoid):** `clip-path: polygon(0 0, 320px 0, 244px 97px, 0 97px)`
   — top edge 0→320 px, bottom edge 0→244 px (aligned with the filter pane below).
-  Only `logo.png` goes there; do **not** place content over it.
-- **Filter pane:** left 0-245 px (matches the logo zone bottom edge), below the
-  header.
-- **Main content area:** x > 245 px, y > ~97 px (after the L1/L2 navigation rows).
+  Only `logo.png` goes there; do **not** place content over it. **Center the logo
+  on the trapezoid centroid (~142 px), not on the full 320 px box** — add
+  `padding-right: 36px` to the flex container so it doesn't appear shifted right
+  toward the slanted edge.
+- **Filter pane:** a rounded panel, `left: 11px`, `top: 116px` (~19 px gap under
+  the header), width `235px`, `border-radius: 10px`, no border.
+- **Main content area:** x > ~262 px, y > ~97 px (after the L1/L2 navigation rows).
 
 ### Header drawing rules
 - **Default (no `bg.*`)**: draw in CSS —
@@ -66,16 +69,21 @@ In both cases the skill only overlays the title/subtitle and content.
   the PNG fallback, 3840×2160 = 2× the 1920×1080 design) and **never redraw**
   the banner, logo zone, canvas fill, or filter panel in CSS.
 - The **title/subtitle** are overlaid on the banner in `var(--surface)`.
+- A **single info button `i`** (~36 px circle) sits at the far right of the
+  banner (`right: ~18px`, vertically centered). On **hover** it opens a popover
+  explaining the **active page and all its sub-pages** (from `desc` fields in
+  the navigation data). No per-visual info icons — only this one header icon.
 - `--primary` (in `CLIENT.md`) is used for the charts/tabs ("Filtres", active
   pills, KPI accent bars) so they match the banner.
 
-## 3. Left Filter Pane (width: ~245px)
+## 3. Left Filter Pane (rounded panel)
 
-Positioned directly beneath the header on the far left. **Default (no `bg.*`)**:
-the pane is drawn in CSS — a **white panel `var(--surface)`** (identical to
-Surface/Cards) with a `border-right: 1px solid var(--border)` separation, a
-"Filtres" label + funnel icon in `var(--primary)`, and the slicer controls
-stacked inside. **If `bg.*` is present**: the pane
+Positioned beneath the header on the far left — a **white panel `var(--surface)`**
+(identical to Surface/Cards), **rounded** (`border-radius: 10px`), **floating**
+with margins matching the `.pptx` template: `left: 11px`, `top: 116px`
+(~19 px gap below the header), `width: 235px`, `bottom` leaves a small gap above
+the footer, **no border**. A "Filtres" label + funnel icon in `var(--primary)`
+and the slicer controls are stacked inside. **If `bg.*` is present**: the pane
 background (rounded panel + "Filtres" label + funnel icon) comes from the
 background image — the skill only overlays the **slicer controls** on top of it.
 

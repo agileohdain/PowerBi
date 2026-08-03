@@ -139,8 +139,12 @@ Phase 1.)
       bandeau** (à droite de la cassure, ex. `left:360px; right:48px;
       text-align:center`).
     - Pane filtres à gauche avec **"Filtres" + icône en `var(--primary)`**,
-      fond **`var(--surface)`** (blanc, identique à Surface/Cards) avec
-      séparation `border-right`.
+      fond **`var(--surface)`** (blanc, identique à Surface/Cards), **panneau
+      arrondi flottant** fidèle au template : `left:11px`, `top:116px` (gap ~19px
+      sous le bandeau), `width:235px`, `border-radius:10px`, **sans bordure**.
+    - **Icône information unique** en haut à droite du bandeau (~36px, circulaire,
+      sur `var(--surface)`) : au **survol**, un popover explique la **page active
+      et ses sous-pages** (champs `desc`). **Aucun** « i » par carte visuelle.
     - Navigation L1 (pills) + L2 (liens texte) rendue depuis `CLIENT.md`, avec
       un **petit routeur JS** (`state = { page, subpage }`) rendant la **page et
       les sous-pages cliquables** ; chaque sous-page de `CLIENT.md` reçoit un

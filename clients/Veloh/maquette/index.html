@@ -32,19 +32,24 @@ html, body { margin: 0; padding: 0; background: #0f172a; height: 100%; overflow:
 
     <!-- HEADER : cassure (trapèzes) + zone logo -->
     <div style="position:absolute; top:0; left:0; right:0; height:97px;">
-      <div class="logo-zone" style="position:absolute; top:0; left:0; width:320px; height:97px; display:flex; align-items:center; justify-content:center;">
+      <div class="logo-zone" style="position:absolute; top:0; left:0; width:320px; height:97px; display:flex; align-items:center; justify-content:center; padding-right:36px; box-sizing:border-box;">
         <img src="../logo.png" alt="logo" style="max-height:68px; max-width:190px; object-fit:contain;">
       </div>
       <div class="banner" style="position:absolute; top:0; left:0; width:100%; height:97px;"></div>
       <!-- Titre + sous-titre centrés dans le bandeau -->
-      <div style="position:absolute; left:360px; right:48px; top:14px; text-align:center; color:var(--surface);">
+      <div style="position:absolute; left:360px; right:68px; top:14px; text-align:center; color:var(--surface);">
         <div style="font-size:30px; font-weight:700; letter-spacing:-0.02em; line-height:1.1;">VELOH — Pilotage de flotte cyclable</div>
         <div style="font-size:16px; font-weight:400; opacity:0.92; margin-top:4px;">Cyclistes · Flotte · Sorties · Composants — Janv. 2024 – Juil. 2025</div>
       </div>
+      <!-- Icône info unique (haut droite du bandeau) + popover au survol -->
+      <div id="infoBtn" style="position:absolute; right:18px; top:0; bottom:0; width:36px; display:flex; align-items:center; justify-content:center; cursor:help;">
+        <div style="width:34px; height:34px; border-radius:99px; background:var(--surface); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; font-family:Georgia,serif; box-shadow:0 2px 6px rgba(0,0,0,0.18);">i</div>
+      </div>
+      <div id="infoPop" style="display:none; position:absolute; top:92px; right:16px; width:400px; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,0.18); padding:18px 20px; z-index:80; text-align:left;"></div>
     </div>
 
-    <!-- FILTER PANE (Surface / blanc) -->
-    <div id="paneFiltres" style="position:absolute; top:97px; left:0; width:245px; bottom:28px; background:var(--surface); border-right:1px solid var(--border); padding:18px 16px;">
+    <!-- FILTER PANE (Surface / blanc, géométrie = PPTX : marge 11, gap 19 sous bandeau, largeur 235, coins arrondis) -->
+    <div id="paneFiltres" style="position:absolute; top:116px; left:11px; width:235px; bottom:43px; background:var(--surface); border-radius:10px; padding:18px 16px;">
       <div style="display:flex; align-items:center; gap:8px; padding-bottom:12px; margin-bottom:16px; border-bottom:1px solid var(--border);">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         <span style="color:var(--primary); font-weight:600; font-size:15px;">Filtres</span>
@@ -92,7 +97,7 @@ html, body { margin: 0; padding: 0; background: #0f172a; height: 100%; overflow:
     </div>
 
     <!-- CONTENT AREA -->
-    <div style="position:absolute; top:97px; left:261px; right:16px; bottom:28px;">
+    <div style="position:absolute; top:97px; left:262px; right:16px; bottom:28px;">
 
       <!-- L1 -->
       <div id="navL1" style="display:flex; gap:12px; margin-top:14px;"></div>
@@ -244,21 +249,46 @@ function hideList(el){ el.style.display='none'; }
 
 /* ============ NAVIGATION (2 pages / 5 sous-pages) ============ */
 var pages = [
-  { id:'cyclistes', name:'Cyclistes',
+  { id:'cyclistes', name:'Cyclistes', desc:"Activité des cyclistes : effectifs, kilométrage, sorties et affectations de vélos sur la période filtrée.",
     subs:[
-      { id:'s11', name:"Vue d'ensemble", active:true },
-      { id:'s12', name:'Répartition géographique' },
-      { id:'s13', name:'Affectations vélos' }
+      { id:'s11', name:"Vue d'ensemble", active:true, desc:"KPIs d'activité globale (cyclistes actifs, km, sorties, moyennes), tendances mensuelles et top cyclistes." },
+      { id:'s12', name:'Répartition géographique', desc:"Localisation des cyclistes par pays et par ville, avec le kilométrage associé." },
+      { id:'s13', name:'Affectations vélos', desc:"Attribution des vélos aux cyclistes : couverture, ratio et marques affectées." }
     ]
   },
-  { id:'flotte', name:'Flotte vélos',
+  { id:'flotte', name:'Flotte vélos', desc:"Pilotage du parc : composition, ancienneté et utilisation des vélos de la flotte.",
     subs:[
-      { id:'s21', name:"Vue d'ensemble" },
-      { id:'s22', name:'Répartition par marque' }
+      { id:'s21', name:"Vue d'ensemble", desc:"Taille et âge du parc, kilométrage cumulé et vélos les plus utilisés." },
+      { id:'s22', name:'Répartition par marque', desc:"Composition du parc par marque : effectifs et kilomètres cumulés." }
     ]
   }
 ];
 var state = { page:'cyclistes', sub:'s11' };
+
+function renderInfoPop(){
+  var p = pages.find(function(p){ return p.id===state.page; });
+  var h = '<div style="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--primary);margin-bottom:4px;">'+p.name+'</div>'+
+    '<div style="font-size:13px;color:var(--text-primary);line-height:1.4;margin-bottom:12px;">'+esc(p.desc)+'</div>'+
+    '<div style="height:1px;background:var(--border);margin-bottom:10px;"></div>';
+  p.subs.forEach(function(s){
+    h += '<div style="display:flex;gap:8px;margin-bottom:8px;">'+
+      '<span style="width:7px;height:7px;border-radius:99px;background:'+(s.id===state.sub?'#2563EB':'var(--primary)')+';margin-top:5px;flex-shrink:0;"></span>'+
+      '<div><span style="font-size:13px;font-weight:600;color:'+(s.id===state.sub?'var(--text-primary)':'var(--text-secondary)')+';">'+esc(s.name)+'</span>'+
+      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.4;">'+esc(s.desc)+'</div></div></div>';
+  });
+  document.getElementById('infoPop').innerHTML = h;
+}
+
+function initInfoBtn(){
+  var btn = document.getElementById('infoBtn'), pop = document.getElementById('infoPop');
+  function show(){ renderInfoPop(); pop.style.display='block'; }
+  function hide(){ pop.style.display='none'; }
+  btn.addEventListener('mouseenter', show);
+  btn.addEventListener('mouseleave', hide);
+  pop.addEventListener('mouseenter', show);
+  pop.addEventListener('mouseleave', hide);
+  renderInfoPop();
+}
 
 function resetNav(){ state={page:'cyclistes', sub:'s11'}; renderNav(); }
 
@@ -283,6 +313,7 @@ function renderNav(){
     l2.appendChild(d);
   });
   renderBody();
+  renderInfoPop();
 }
 
 /* ============ BODY RENDERERS ============ */
@@ -300,11 +331,10 @@ function kpiCard(label, value, badge, consolidate, accent, kpiKey){
     '<div '+(kpiKey?'data-kpi="'+esc(kpiKey)+'"':'')+' style="font-size:36px;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em;line-height:1;">'+value+'</div>'+badgeHtml+'</div>';
 }
 
-function visualCard(title, subtitle, chartId, height, infoText){
+function visualCard(title, subtitle, chartId, height){
   return '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:6px;">'+
       '<div><span style="font-size:14px;font-weight:600;color:var(--text-primary);">'+esc(title)+'</span>'+(subtitle?'<span style="font-size:11px;color:var(--text-secondary);margin-left:8px;">'+esc(subtitle)+'</span>':'')+'</div>'+
-      '<div title="'+(infoText||'')+'" style="width:28px;height:28px;border-radius:99px;background:var(--canvas);border:1px solid var(--border);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer;">i</div>'+
     '</div>'+
     '<div id="'+chartId+'" style="width:100%;height:'+height+'px;"></div></div>';
 }
@@ -588,6 +618,7 @@ function startKpiAnimation(){
 }
 
 /* ============ INIT ============ */
+initInfoBtn();
 buildDropdowns();
 refreshFilterUI();
 renderNav();
