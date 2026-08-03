@@ -1,10 +1,11 @@
 ---
 name: powerbi-prototype
-description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Dès que l'utilisateur lance "crée la maquette" (sans nom), le skill demande le nom du client (en respectant majuscules/minuscules), crée automatiquement clients/<client>/ avec CLIENT.md, demande de déposer données (donnees.xlsx) et logo (logo.png) — jamais générés par le skill — puis demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — couleurs/titre/arbre de navigation/KPIs — et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER (l'utilisateur édite lui-même CLIENT.md, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. "maquette power bi", "crée la maquette", "nouvelle maquette client".
+description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Dès que l'utilisateur lance "AgileDSS", le skill demande "Quel est le nouveau client ?" (respect strict des majuscules/minuscules, sans proposer de nom — l'utilisateur saisit lui-même), demande de passer en mode BUILD si nécessaire, crée automatiquement clients/<client>/ avec CLIENT.md, demande de repasser en mode PLAN, demande de déposer les données (donnees.xlsx) et le logo (logo.png) — jamais générés par le skill — puis demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — couleurs/titre/arbre de navigation/KPIs — et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER (l'utilisateur édite lui-même CLIENT.md, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. "AgileDSS", "maquette power bi", "nouvelle maquette client".
 triggers:
+  - AgileDSS
+  - agiledss
   - maquette power bi
   - maquette powerbi
-  - crée la maquette
   - génère la maquette
   - nouvelle maquette
 ---
@@ -14,33 +15,48 @@ Je produis des maquettes de dashboards Power BI en HTML auto-suffisant, fidèles
 langage visuel Power BI (canevas 16:9 fixe, bandeau et fond dessinés en CSS,
 cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
 
-**Flux de démarrage** (déclenché par « Crée la maquette », sans nom) :
-1. Je demande le **nom du client** (en respectant **majuscules/minuscules**).
-2. Je **crée automatiquement le dossier** `clients/<client>/` (casse exacte) avec
-   ses fichiers de base : `CLIENT.md` (copie du template, nom pré-rempli) et un
-   placeholder `logo.png`.
-3. Je **demande de déposer les données et le logo** (`donnees.xlsx` et `logo.png`)
-   puis je m'arrête pour attendre. Je **ne génère jamais** les données.
-4. Une fois le dépôt confirmé, je demande le **mode** :
+**Flux de démarrage** (déclenché par « AgileDSS ») :
+1. Je demande **« Quel est le nouveau client ? »** — formulation soignée et
+   attractive, en précisant que la **casse est respectée telle quelle**
+   (majuscules/minuscules). **Je ne propose pas de nom** : l'utilisateur
+   saisit lui-même le client.
+2. Si l'utilisateur est en mode **PLAN**, je lui demande de se mettre en
+   mode **BUILD** (une fois, sans boucler plusieurs fois).
+3. Je **crée automatiquement le dossier** `clients/<client>/` (casse exacte)
+   avec ses fichiers de base : `CLIENT.md` (copie du template, nom pré-rempli)
+   et un placeholder `logo.png`.
+4. Une fois le dossier créé, je demande à l'utilisateur de **repasser en mode
+   PLAN** (et pas en BUILD).
+5. Je **demande de déposer le logo du client et les données Excel** avec le
+   bon nom (`donnees.xlsx` et `logo.png`), puis je m'arrête pour attendre. Je
+   **ne génère jamais** les données.
+6. Une fois le dépôt confirmé, je demande le **mode** :
    - **Téléguidé** — je pose les questions une à une (couleurs, titre, arbre de
      navigation, KPIs) et j'écris `CLIENT.md` au fil du questionnement.
    - **Personnaliser** — l'utilisateur édite lui-même `CLIENT.md` (voir README.md),
      je lis, je génère, je finis sans question de fond.
 
-## Phase 0 — Nom du client + création du dossier
+## Phase 0 — Nouveau client + création du dossier
 
-1. **Demander le nom du client** (question libre en français). Précisez qu'il
-   faut **respecter les majuscules/minuscules** : le nom servira tel quel, avec
-   la casse exacte, à nommer le dossier (ex. `Diallo` → `clients/Diallo/`).
+1. **Demander : « Quel est le nouveau client ? »** — question libre en français,
+   formulée de façon claire et accueillante. Précisez que **la casse est
+   respectée telle quelle** (majuscules/minuscules) : le nom servira tel quel,
+   avec la casse exacte, à nommer le dossier (ex. `Diallo` → `clients/Diallo/`).
+   **Ne proposer aucun nom** — l'utilisateur saisit lui-même le nouveau client.
    Ne pas transformer en slug minuscule.
-2. **Créer immédiatement le dossier `clients/<client>/`** (dès que le nom est
+2. **Vérifier le mode** : si l'utilisateur est en mode **PLAN**, lui demander de
+   se mettre en mode **BUILD** (nécessaire pour écrire le dossier). **Demander
+   une seule fois, sans boucler plusieurs fois.**
+3. **Créer immédiatement le dossier `clients/<client>/`** (dès que le nom est
    connu) avec ses fichiers de base :
    - `CLIENT.md` (copie de `templates/CLIENT.template.md`, nom client pré-rempli,
      le reste à remplir aux étapes suivantes),
    - `logo.png` (placeholder + rappel de déposer le vrai logo du client).
-3. **Demander le dépôt des données et du logo** : `donnees.xlsx` et `logo.png`
-   dans `clients/<client>/`. **S'arrêter** et attendre que l'utilisateur ait
-   déposé les deux fichiers avant de continuer.
+4. **Demander de repasser en mode PLAN** (et pas en BUILD).
+5. **Demander le dépôt du logo du client et des données Excel**, avec le bon
+   nom : `logo.png` et `donnees.xlsx` dans `clients/<client>/`. **S'arrêter**
+   et attendre que l'utilisateur ait déposé les deux fichiers avant de
+   continuer.
 
 ## Phase 1 — Choix du mode (après dépôt des données et du logo, via l'outil `question`)
 

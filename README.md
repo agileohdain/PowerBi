@@ -19,13 +19,20 @@ Dans opencode, lancez simplement :
 ```powershell
 opencode
 # puis dans opencode :
-> Crée la maquette
+> AgileDSS
 ```
 
-Le skill déroule alors le processus : il vous demande le **nom du client** (en
-respectant **majuscules/minuscules**), **crée automatiquement** le dossier
-`clients/<client>/`, puis vous demande de **déposer les données et le logo**.
-Ensuite, vous choisissez le mode :
+Le skill déroule alors le processus :
+1. Il vous demande **« Quel est le nouveau client ? »** (question soignée, en
+   respectant **majuscules/minuscules** — la casse est conservée telle quelle ;
+   il **ne propose pas de nom**, vous saisissez vous-même le client).
+2. S'il détecte que vous êtes en mode **PLAN**, il vous demande de passer en
+   mode **BUILD** (créer le dossier nécessite d'écrire sur le disque).
+3. Il **crée automatiquement** le dossier `clients/<client>/`.
+4. Il vous demande de **repasser en mode PLAN**.
+5. Il vous demande de **déposer le logo et les données Excel** (`logo.png` et
+   `donnees.xlsx`) avec le bon nom.
+6. Ensuite, vous choisissez le mode :
 
 1. **Téléguidé** — le skill vous pose toutes les questions (couleurs avec
    thèmes préréglés, titre/sous-titre, arbre de navigation pages → sous-pages →
@@ -72,8 +79,10 @@ Déposez dans `clients/<mon-client>/` :
 ### Génération
 
 Le skill :
-1. Demande le nom du client puis crée le dossier `clients/<client>/`.
-2. Demande de déposer `donnees.xlsx` et `logo.png`, puis le mode.
+1. Demande « Quel est le nouveau client ? » (casse respectée, sans nom proposé),
+   fait passer en BUILD si besoin, puis crée le dossier `clients/<client>/` et
+   fait repasser en PLAN.
+2. Demande de déposer `donnees.xlsx` et `logo.png` (bon nom), puis le mode.
 3. Lit (ou écrit, en mode Téléguidé) `CLIENT.md`.
 4. Déduit de `donnees.xlsx` le modèle de données, les formules KPI et la carte
    visuelle, puis génère `clients/<mon-client>/maquette/index.html` (canevas
