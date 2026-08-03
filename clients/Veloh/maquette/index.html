@@ -34,21 +34,26 @@
   .popover .sp{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:11px;color:var(--text-primary);}
   .popover .dot{width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0;}
   .filter-pane{position:absolute;left:11px;top:116px;width:235px;bottom:44px;background:var(--surface);border-radius:10px;padding:16px;display:flex;flex-direction:column;}
-  .pane-title{display:flex;align-items:center;gap:8px;color:var(--primary);font-weight:700;font-size:14px;padding-bottom:10px;margin-bottom:14px;border-bottom:1px solid var(--border);}
+  .pane-title{display:flex;align-items:center;gap:8px;color:var(--primary);font-weight:700;font-size:14px;padding-bottom:10px;margin-bottom:6px;border-bottom:1px solid var(--border);}
   .pane-title svg{width:16px;height:16px;fill:var(--primary);}
   .slicer-label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;}
   .chiclets{display:flex;flex-wrap:wrap;gap:6px;}
-  .chiclet{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text-secondary);background:var(--canvas);border:1px solid var(--border);cursor:pointer;}
+  .chiclet{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text-secondary);background:var(--canvas);border:1px solid var(--border);cursor:pointer;user-select:none;}
+  .chiclet:hover{border-color:var(--primary);}
   .chiclet.active{color:var(--surface);background:var(--primary);border-color:var(--primary);}
-  .select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-primary);background:var(--surface);}
+  .select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-primary);background:var(--surface);cursor:pointer;}
+  .select:focus{outline:none;border-color:var(--primary);}
   .date-row{display:flex;gap:6px;}
-  .date-input{flex:1;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);background:var(--surface);}
-  .slider{margin-top:8px;}
+  .date-input{flex:1;min-width:0;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);background:var(--surface);}
+  .date-input:focus{outline:none;border-color:var(--primary);}
+  .slider{margin-top:10px;padding:4px 0 6px;}
   .slider-track{position:relative;height:6px;background:var(--border);border-radius:99px;}
   .slider-fill{position:absolute;height:100%;background:var(--primary);border-radius:99px;}
-  .slider-handle{position:absolute;top:50%;transform:translate(-50%,-50%);width:15px;height:15px;background:var(--surface);border:2.5px solid var(--primary);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+  .slider-handle{position:absolute;top:50%;transform:translate(-50%,-50%);width:15px;height:15px;background:var(--surface);border:2.5px solid var(--primary);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:grab;touch-action:none;}
+  .slider-handle:active{cursor:grabbing;}
   .clear-btn{margin-top:auto;width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:12px;cursor:pointer;}
   .clear-btn:hover{color:var(--primary);border-color:var(--primary);}
+  .filter-badge{font-size:10px;color:var(--primary);font-weight:600;margin-top:4px;min-height:14px;}
   .main-area{position:absolute;left:262px;top:116px;right:16px;bottom:44px;display:flex;flex-direction:column;}
   .nav-l1{display:flex;gap:12px;}
   .nav-l1 .pill{flex:1;padding:11px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text-secondary);text-align:center;cursor:pointer;user-select:none;}
@@ -101,32 +106,34 @@
       <svg viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>
       Filtres
     </div>
-    <div class="slicer-label">Année fiscale</div>
+    <div class="filter-badge" id="filterBadge"></div>
+    <div class="slicer-label">Année</div>
     <div class="chiclets">
-      <span class="chiclet active">FY 2024</span>
-      <span class="chiclet">FY 2025</span>
+      <span class="chiclet" data-year="2024">2024</span>
+      <span class="chiclet" data-year="2025">2025</span>
     </div>
     <div class="slicer-label">Trimestre</div>
-    <select class="select">
-      <option>Tous les trimestres</option><option>T1</option><option>T2</option><option>T3</option><option>T4</option>
+    <select class="select" id="selQuarter">
+      <option value="0">Tous les trimestres</option><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option>
     </select>
     <div class="slicer-label">Mois</div>
-    <select class="select">
-      <option>Tous les mois</option><option>Janvier</option><option>Février</option><option>Mars</option><option>Avril</option><option>Mai</option><option>Juin</option><option>Juillet</option><option>Août</option><option>Septembre</option><option>Octobre</option><option>Novembre</option><option>Décembre</option>
+    <select class="select" id="selMonth">
+      <option value="0">Tous les mois</option><option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option><option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option><option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
     </select>
     <div class="slicer-label">Période</div>
     <div class="date-row">
-      <input class="date-input" type="text" value="01/01/2024">
+      <input class="date-input" id="dateStart" type="text" value="01/01/2024" title="JJ/MM/AAAA">
       <span style="align-self:center;color:var(--text-secondary);font-size:11px">→</span>
-      <input class="date-input" type="text" value="31/07/2025">
+      <input class="date-input" id="dateEnd" type="text" value="31/07/2025" title="JJ/MM/AAAA">
     </div>
     <div class="slider">
-      <div class="slider-track"><div class="slider-fill" style="left:0%;width:100%"></div>
-        <div class="slider-handle" style="left:0%"></div>
-        <div class="slider-handle" style="left:100%"></div>
+      <div class="slider-track" id="sliderTrack">
+        <div class="slider-fill" id="sliderFill" style="left:0%;width:100%"></div>
+        <div class="slider-handle" id="handleStart" style="left:0%"></div>
+        <div class="slider-handle" id="handleEnd" style="left:100%"></div>
       </div>
     </div>
-    <button class="clear-btn">Effacer tous les filtres</button>
+    <button class="clear-btn" id="clearFilters">Effacer tous les filtres</button>
   </div>
 
   <div class="main-area" id="mainArea"></div>
@@ -144,21 +151,55 @@ const BORDER = CSS.getPropertyValue('--border').trim();
 
 const charts = [];
 
-/* ---------- Données issues de donnees.xlsx ---------- */
+/* ============ Données mensuelles (donnees.xlsx, 19 mois : janv. 2024 → juil. 2025) ============ */
 const KM_LABELS = ["Janv 24","Févr 24","Mars 24","Avr 24","Mai 24","Juin 24","Juil 24","Août 24","Sept 24","Oct 24","Nov 24","Déc 24","Janv 25","Févr 25","Mars 25","Avr 25","Mai 25","Juin 25","Juil 25"];
+const N_MONTHS = KM_LABELS.length;
+const MONTH_META = KM_LABELS.map((_,i)=>({year: i<12?2024:2025, month: i%12+1, quarter: Math.floor((i%12)/3)+1}));
 const KM = [2225,3832,11129,19791,24686,24642,27417,25161,21115,16203,8698,3946,2235,5006,11521,18638,23816,25865,24323];
 const RIDES = [40,66,185,335,410,391,449,417,350,273,145,64,38,75,190,325,404,424,419];
+const MINUTES = [4805,8243,24198,43638,53392,53502,60042,54636,46192,35629,19172,8660,4816,10776,24800,41084,52251,56505,52748];
+/* Masque de 19 bits par cycliste : bit i = actif sur le mois i */
+const USER_MASKS = {"49":483326,"34":524287,"42":524286,"37":524287,"21":518140,"38":520191,"11":522236,"41":520191,"29":524287,"25":520190,"43":516095,"6":520191,"45":519165,"10":524287,"22":524287,"33":518143,"16":524287,"3":524287,"15":524287,"2":511998,"48":524284,"26":509949,"39":524284,"31":522238,"20":518132,"9":524287,"50":524287,"28":511998,"8":510974,"44":524285,"30":524286,"47":524287,"17":524285,"14":517116,"32":514046,"36":522237,"46":520190,"27":514044,"40":500731,"5":518140};
+const KM_PAYS_M = {"Canada":[1944,2763,6889,14414,16001,16874,18778,18627,14162,11360,6557,2522,1698,3669,8158,13073,16719,17890,17000],"France":[117,542,2574,2922,5198,5493,5540,4714,4800,2405,918,968,331,901,1584,3501,4321,5182,4798],"Belgique":[164,526,1666,2454,3487,2275,3098,1821,2153,2437,1223,456,206,436,1778,2064,2776,2793,2525]};
+const KM_MARQUE_M = {"Factor":[325,365,1307,2419,3983,3934,2757,3204,2985,1674,1078,787,403,569,1682,3178,3022,4099,3803],"Giant":[110,588,1242,2616,2819,3370,3338,3564,2670,2228,1380,352,78,501,1189,2930,3638,4080,2754],"Merida":[202,500,2068,2685,3269,2742,2635,2253,1916,2281,814,554,496,510,2003,1771,2394,3246,2069],"Specialized":[106,312,1004,1987,2068,2014,2145,2585,1298,1337,722,113,211,445,1014,1448,2123,2513,2572],"Canyon":[109,426,564,1382,1879,1106,2045,1242,1816,1077,694,197,104,389,676,1391,1604,1667,1733],"Trek":[57,235,517,806,882,1210,1563,1569,1240,859,502,314,204,383,768,872,1114,1161,1459]};
+
+/* Données dimensionnelles (statiques) */
 const PAYS = [{name:'Canada',value:36},{name:'France',value:9},{name:'Belgique',value:5}];
 const VILLES = [{name:'Saint-Bruno',value:23},{name:'Liège',value:4},{name:'Lyon',value:3},{name:'Repentigny',value:3},{name:'Annecy',value:2},{name:'Gatineau',value:2},{name:'Nantes',value:2},{name:'Bordeaux',value:2}];
-const KM_PAYS = [{name:'Canada',value:209098},{name:'France',value:56812},{name:'Belgique',value:34338}];
 const VELOS_CYCLISTE = [{name:'1 vélo',value:14},{name:'2 vélos',value:27},{name:'3 vélos',value:9}];
 const MARQUES_ATTR = [{name:'Pinarello',value:9},{name:'Giant',value:7},{name:'Canyon',value:7},{name:'Scott',value:7},{name:'Orbea',value:6},{name:'Colnago',value:5},{name:'Trek',value:5},{name:'Factor',value:5}];
 const ANNEES_FLOTTE = [{name:'2021',value:1},{name:'2022',value:20},{name:'2023',value:34},{name:'2024',value:25}];
-const KM_MARQUE = [{name:'Factor',value:41575},{name:'Giant',value:39448},{name:'Merida',value:34407},{name:'Specialized',value:26017},{name:'Canyon',value:20099},{name:'Trek',value:15717}];
 const MARQUES_TOP = [{name:'Trek',value:6},{name:'Giant',value:6},{name:'Specialized',value:5},{name:'Cervelo',value:5},{name:'Canyon',value:5},{name:'Pinarello',value:4},{name:'BMC',value:4},{name:'Scott',value:4}];
 const MARQUES_TOP5 = [{name:'Trek',value:6},{name:'Giant',value:6},{name:'Specialized',value:5},{name:'Cervelo',value:5},{name:'Canyon',value:5}];
 
-/* ---------- Navigation ---------- */
+/* ============ État des filtres ============ */
+const FILT = {years:new Set(), quarter:0, month:0, start:0, end:N_MONTHS-1};
+function isFiltered(){ return FILT.years.size>0 || FILT.quarter>0 || FILT.month>0 || FILT.start>0 || FILT.end<N_MONTHS-1; }
+function monthPass(i){
+  const m = MONTH_META[i];
+  if(FILT.years.size && !FILT.years.has(m.year)) return false;
+  if(FILT.quarter && m.quarter!==FILT.quarter) return false;
+  if(FILT.month && m.month!==FILT.month) return false;
+  return i>=FILT.start && i<=FILT.end;
+}
+function aggregates(){
+  let km=0, rides=0, minutes=0, mask=0;
+  const labels=[], kmArr=[], ridesArr=[];
+  const kmPays={Canada:0,France:0,Belgique:0};
+  const kmMarque={Factor:0,Giant:0,Merida:0,Specialized:0,Canyon:0,Trek:0};
+  for(let i=0;i<N_MONTHS;i++){
+    if(!monthPass(i)) continue;
+    km+=KM[i]; rides+=RIDES[i]; minutes+=MINUTES[i]; mask|=(1<<i);
+    labels.push(KM_LABELS[i]); kmArr.push(KM[i]); ridesArr.push(RIDES[i]);
+    for(const p in kmPays) kmPays[p]+=KM_PAYS_M[p][i];
+    for(const b in kmMarque) kmMarque[b]+=KM_MARQUE_M[b][i];
+  }
+  let actifs=0;
+  for(const u in USER_MASKS) if(USER_MASKS[u]&mask) actifs++;
+  return {km, rides, minutes, actifs, labels, kmArr, ridesArr, kmPays, kmMarque};
+}
+
+/* ============ Navigation & layouts ============ */
 const NAV = {
   "Cyclistes": {
     desc:"Pilotage des cyclistes de la flotte : activité, répartition géographique et affectations de vélos.",
@@ -170,7 +211,6 @@ const NAV = {
   }
 };
 
-/* ---------- Layouts par sous-page ---------- */
 const TABLE_AFFECT = `<div class="table-wrap"><table><thead><tr><th>Cycliste</th><th class="num">Vélos</th><th>Marques attribuées</th></tr></thead><tbody>
 <tr><td>Pierre Bouchard</td><td class="num">2</td><td>Giant · Scott</td></tr>
 <tr><td>Alexandre Moreau</td><td class="num">3</td><td>Canyon · Pinarello · Trek</td></tr>
@@ -187,21 +227,22 @@ const TABLE_MARQUES = `<div class="table-wrap"><table><thead><tr><th>Marque</th>
 <tr><td>Canyon</td><td class="num">5</td><td class="num">6,3 %</td><td class="num">20 099</td></tr>
 <tr><td>Pinarello</td><td class="num">4</td><td class="num">5,0 %</td><td class="num">15 463</td></tr></tbody></table></div>`;
 
+/* dyn : la valeur est recalculée selon les filtres */
 const PAGE_DATA = {
   "1.1":{
     kpis:[
-      {label:"Cyclistes actifs", value:"40", sub:"sur 50 enregistrés", consol:true},
-      {label:"Kilomètres totaux", value:"300,2 k", sub:"Janv. 2024 – Juil. 2025", trend:"+12,4 % vs PY"},
-      {label:"Sorties", value:"5 000", sub:"sur 19 mois", trend:"+8,1 % vs PY"},
-      {label:"Km / cycliste", value:"7 506", sub:"moyenne cyclistes actifs"},
-      {label:"Durée moy. / sortie", value:"131 min", sub:"≈ 2 h 11"}
+      {label:"Cyclistes actifs", dyn:"actifs", sub:"sur 50 enregistrés", consol:true},
+      {label:"Kilomètres totaux", dyn:"km", sub:"période affichée", trend:"+12,4 % vs PY"},
+      {label:"Sorties", dyn:"sorties", sub:"période affichée", trend:"+8,1 % vs PY"},
+      {label:"Km / cycliste", dyn:"kmpc", sub:"moyenne cyclistes actifs"},
+      {label:"Durée moy. / sortie", dyn:"duree", sub:"moyenne période affichée"}
     ],
     row2Cols:"2fr 1fr",
     row2:[
-      {title:"Évolution kilométrique mensuelle", unit:"km / mois", id:"c11", spec:{type:'line',labels:KM_LABELS,data:KM,area:true}},
+      {title:"Évolution kilométrique mensuelle", unit:"km / mois", id:"c11", dyn:"line"},
       {title:"Cyclistes par pays", unit:"50 cyclistes", id:"c12", spec:{type:'donut',items:PAYS,center:'50',centerSub:'cyclistes'}}
     ],
-    row3:{type:'chart', title:"Sorties par mois", id:"c13", spec:{type:'bar',labels:KM_LABELS,data:RIDES}}
+    row3:{type:'chart', title:"Sorties par mois", id:"c13", dyn:"bar"}
   },
   "1.2":{
     kpis:[
@@ -214,7 +255,7 @@ const PAGE_DATA = {
       {title:"Cyclistes par pays", unit:"effectifs", id:"c21", spec:{type:'bar',labels:['Canada','France','Belgique'],data:[36,9,5]}},
       {title:"Top villes de pratique", unit:"cyclistes", id:"c22", spec:{type:'hbar',items:VILLES}}
     ],
-    row3:{type:'chart', title:"Kilomètres parcourus par pays", id:"c23", spec:{type:'hbar',items:KM_PAYS}}
+    row3:{type:'chart', title:"Kilomètres parcourus par pays", id:"c23", dyn:"hbarPays"}
   },
   "1.3":{
     kpis:[
@@ -234,14 +275,14 @@ const PAGE_DATA = {
       {label:"Vélos en flotte", value:"80", sub:"parc actif"},
       {label:"Marques distinctes", value:"25", sub:"fournisseurs"},
       {label:"Année moyenne du parc", value:"2023", sub:"2021 – 2024"},
-      {label:"Km total parcouru", value:"300,2 k", sub:"cumul sorties"}
+      {label:"Km total parcouru", dyn:"km", sub:"période affichée"}
     ],
     row2Cols:"2fr 1fr",
     row2:[
-      {title:"Kilomètres par mois (flotte)", unit:"km / mois", id:"c41", spec:{type:'line',labels:KM_LABELS,data:KM,area:true}},
+      {title:"Kilomètres par mois (flotte)", unit:"km / mois", id:"c41", dyn:"line"},
       {title:"Flotte par année de sortie", unit:"vélos", id:"c42", spec:{type:'donut',items:ANNEES_FLOTTE,center:'80',centerSub:'vélos'}}
     ],
-    row3:{type:'chart', title:"Top marques par km parcouru", id:"c43", spec:{type:'hbar',items:KM_MARQUE}}
+    row3:{type:'chart', title:"Top marques par km parcouru", id:"c43", dyn:"hbarMarque"}
   },
   "2.2":{
     kpis:[
@@ -258,7 +299,28 @@ const PAGE_DATA = {
   }
 };
 
-/* ---------- ECharts builders ---------- */
+/* ============ Formatage ============ */
+const fr = n => Math.round(n).toLocaleString('fr-FR');
+const frk = n => n>=1000 ? (n/1000).toLocaleString('fr-FR',{maximumFractionDigits:1})+' k' : fr(n);
+function dynValue(key, agg){
+  switch(key){
+    case 'actifs': return fr(agg.actifs);
+    case 'km': return frk(agg.km);
+    case 'sorties': return fr(agg.rides);
+    case 'kmpc': return agg.actifs ? fr(agg.km/agg.actifs) : '0';
+    case 'duree': return agg.rides ? fr(agg.minutes/agg.rides)+' min' : '0 min';
+  }
+  return '';
+}
+function resolveSpec(c, agg){
+  if(c.dyn==='line') return {type:'line', labels:agg.labels, data:agg.kmArr, area:true};
+  if(c.dyn==='bar') return {type:'bar', labels:agg.labels, data:agg.ridesArr};
+  if(c.dyn==='hbarPays') return {type:'hbar', items:Object.entries(agg.kmPays).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value)};
+  if(c.dyn==='hbarMarque') return {type:'hbar', items:Object.entries(agg.kmMarque).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value)};
+  return c.spec;
+}
+
+/* ============ ECharts ============ */
 const baseTooltip = {trigger:'axis',backgroundColor:'#ffffff',borderColor:BORDER,borderWidth:1,padding:[8,12],textStyle:{color:'#0f172a',fontSize:12},extraCssText:'box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border-radius:6px;'};
 
 function optionFor(spec){
@@ -300,14 +362,16 @@ function initChart(id, spec){
 }
 function disposeCharts(){ while(charts.length){ charts.pop().dispose(); } }
 
-/* ---------- Rendu ---------- */
-function kpiCard(k){
+/* ============ Rendu ============ */
+function kpiCard(k, agg){
+  const value = k.dyn ? dynValue(k.dyn, agg) : k.value;
+  const trend = (k.trend && !isFiltered()) ? `<span class="trend good">${k.trend}</span>` : '';
   return `<div class="kpi-card ${k.consol?'consol':''}">
     <div class="accent"></div>
     <div class="label">${k.label}</div>
-    <div class="value">${k.value}</div>
+    <div class="value">${value}</div>
     <div class="sub">${k.sub}</div>
-    ${k.trend?`<span class="trend good">${k.trend}</span>`:''}
+    ${trend}
     ${k.consol?'<span class="consol-pill">En consolidation</span>':''}
   </div>`;
 }
@@ -318,6 +382,7 @@ function vizCard(title, unit, id){
 let state = {page:0, subpage:0};
 
 function renderPage(){
+  const agg = aggregates();
   const key = (state.page+1) + '.' + (state.subpage+1);
   const layout = PAGE_DATA[key];
   const main = document.getElementById('mainArea');
@@ -326,7 +391,7 @@ function renderPage(){
     <div class="nav-l1" id="nav1"></div>
     <div class="nav-l2" id="nav2"></div>
     <div class="content">
-      <div class="kpi-row" style="grid-template-columns:repeat(${layout.kpis.length},1fr)">${layout.kpis.map(kpiCard).join('')}</div>
+      <div class="kpi-row" style="grid-template-columns:repeat(${layout.kpis.length},1fr)">${layout.kpis.map(k=>kpiCard(k,agg)).join('')}</div>
       <div class="viz-grid" style="grid-template-columns:${layout.row2Cols}">${layout.row2.map(c=>vizCard(c.title,c.unit,c.id)).join('')}</div>
       <div class="viz-card" style="flex:none;height:190px" id="row3card"></div>
     </div>`;
@@ -357,7 +422,7 @@ function renderPage(){
   if(layout.row3.type==='table'){
     r3.innerHTML = `<div class="vh"><div class="vt">${layout.row3.title}</div></div>${layout.row3.html}`;
   } else {
-    r3.innerHTML = vizCard(layout.row3.title, '', layout.row3.id).replace('class="viz-card"','style="flex:1;min-height:0;display:flex;flex-direction:column"');
+    r3.innerHTML = `<div class="vh"><div class="vt">${layout.row3.title}</div></div><div id="${layout.row3.id}" class="chart"></div>`;
   }
 
   // Popover info
@@ -368,15 +433,105 @@ function renderPage(){
   });
   document.getElementById('popover').innerHTML = html;
 
+  // Badge filtres actifs
+  document.getElementById('filterBadge').textContent = isFiltered() ? '● Filtres actifs' : '';
+
   // Charts (après insertion DOM)
   disposeCharts();
   requestAnimationFrame(()=>{
-    layout.row2.forEach(c=>initChart(c.id, c.spec));
-    if(layout.row3.type==='chart') initChart(layout.row3.id, layout.row3.spec);
+    layout.row2.forEach(c=>initChart(c.id, resolveSpec(c,agg)));
+    if(layout.row3.type==='chart') initChart(layout.row3.id, resolveSpec(layout.row3,agg));
   });
 }
 
-/* ---------- Scaling 1920×1080 ---------- */
+/* ============ Filtres : câblage ============ */
+const MOIS_NOMS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+function dateStr(idx, lastDay){
+  const m = MONTH_META[idx];
+  const d = lastDay ? new Date(m.year, m.month, 0).getDate() : 1;
+  return String(d).padStart(2,'0')+'/'+String(m.month).padStart(2,'0')+'/'+m.year;
+}
+function syncFilterUI(){
+  document.getElementById('dateStart').value = dateStr(FILT.start,false);
+  document.getElementById('dateEnd').value = dateStr(FILT.end,true);
+  const p0 = FILT.start/(N_MONTHS-1)*100, p1 = FILT.end/(N_MONTHS-1)*100;
+  document.getElementById('handleStart').style.left = p0+'%';
+  document.getElementById('handleEnd').style.left = p1+'%';
+  const fill = document.getElementById('sliderFill');
+  fill.style.left = p0+'%'; fill.style.width = (p1-p0)+'%';
+}
+
+// Chiclets année (multi-sélection)
+document.querySelectorAll('.chiclet').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const y = +el.dataset.year;
+    if(FILT.years.has(y)){ FILT.years.delete(y); el.classList.remove('active'); }
+    else { FILT.years.add(y); el.classList.add('active'); }
+    renderPage();
+  });
+});
+// Trimestre
+document.getElementById('selQuarter').addEventListener('change', e=>{
+  FILT.quarter = +e.target.value;
+  if(FILT.quarter){ FILT.month = 0; document.getElementById('selMonth').value = '0'; }
+  renderPage();
+});
+// Mois
+document.getElementById('selMonth').addEventListener('change', e=>{
+  FILT.month = +e.target.value;
+  if(FILT.month){ FILT.quarter = 0; document.getElementById('selQuarter').value = '0'; }
+  renderPage();
+});
+// Dates (JJ/MM/AAAA)
+function monthIndexFromDate(str){
+  const m = str.trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if(!m) return null;
+  const idx = (+m[3]-2024)*12 + (+m[2]-1);
+  return Math.max(0, Math.min(N_MONTHS-1, idx));
+}
+document.getElementById('dateStart').addEventListener('change', e=>{
+  const idx = monthIndexFromDate(e.target.value);
+  if(idx===null){ e.target.value = dateStr(FILT.start,false); return; }
+  FILT.start = idx; if(FILT.start>FILT.end) FILT.end = FILT.start;
+  syncFilterUI(); renderPage();
+});
+document.getElementById('dateEnd').addEventListener('change', e=>{
+  const idx = monthIndexFromDate(e.target.value);
+  if(idx===null){ e.target.value = dateStr(FILT.end,true); return; }
+  FILT.end = idx; if(FILT.end<FILT.start) FILT.start = FILT.end;
+  syncFilterUI(); renderPage();
+});
+// Slider double poignée (drag)
+(function(){
+  const track = document.getElementById('sliderTrack');
+  let dragging = null;
+  function idxFromEvent(e){
+    const r = track.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - r.left)/r.width));
+    return Math.round(pct*(N_MONTHS-1));
+  }
+  function onMove(e){
+    if(dragging===null) return;
+    const idx = idxFromEvent(e);
+    if(dragging==='start'){ FILT.start = Math.min(idx, FILT.end); }
+    else { FILT.end = Math.max(idx, FILT.start); }
+    syncFilterUI(); renderPage();
+  }
+  function onUp(){ dragging = null; window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); }
+  document.getElementById('handleStart').addEventListener('pointerdown', e=>{ e.preventDefault(); dragging='start'; window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); });
+  document.getElementById('handleEnd').addEventListener('pointerdown', e=>{ e.preventDefault(); dragging='end'; window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); });
+})();
+// Effacer tous les filtres
+document.getElementById('clearFilters').addEventListener('click', ()=>{
+  FILT.years.clear(); FILT.quarter = 0; FILT.month = 0; FILT.start = 0; FILT.end = N_MONTHS-1;
+  document.querySelectorAll('.chiclet').forEach(el=>el.classList.remove('active'));
+  document.getElementById('selQuarter').value = '0';
+  document.getElementById('selMonth').value = '0';
+  syncFilterUI();
+  renderPage();
+});
+
+/* ============ Scaling 1920×1080 ============ */
 function resize(){
   const vw = window.innerWidth, vh = window.innerHeight;
   const s = Math.min(vw/1920, vh/1080);
@@ -386,6 +541,7 @@ function resize(){
 window.addEventListener('resize', ()=>{ resize(); charts.forEach(c=>c.resize()); });
 
 resize();
+syncFilterUI();
 renderPage();
 </script>
 </body>
