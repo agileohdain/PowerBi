@@ -23,84 +23,59 @@
 - **Outer padding:** 16px around canvas edges.
 - **Card gaps:** 12px between visual cards.
 
-## 2. Header — Logo column + accent line + diagonal banner (height: 80px)
+## 2. Header — imported background image (`bg.png`)
 
-The header has three parts: a **rectangular logo zone** on the left whose right
-edge **aligns with the filter pane below it**, a slim **accent line** in the
-primary color marking that edge, and a **primary banner** with a diagonal left
-edge filling the rest. All backgrounds are driven by the active `CLIENT.md`.
+The entire header (logo zone + accent + diagonal primary banner) is **authored
+in PowerPoint** by the user (`powerpoint/Maquette Power BI.pptx`) and **exported
+as `bg.png`** (via `powerpoint/export-bg.ps1`). The skill does **NOT** draw the
+header in CSS — it applies `bg.png` as the canvas background and overlays only
+the title/subtitle and content.
 
 ```
-┌──────────┬─┬╲──────────────────────────────────────────────┐
-│ Zone A   │A│╲╲  Zone C (banner)                             │
-│ (logo)   │c│ ╲╲  background: var(--primary)                  │
-│ var(--   │c│   ╲╲  title + subtitle           ⓘ  (right)     │
-│ surface) │e│    ╲╲                                          │
-│          │n│     ╲╲                                         │
-└──────────┴─t──────╲╲────────────────────────────────────────┘
-  width = filter pane (200px) — right edges aligned
+┌─────────────┬╲──────────────────────────────────────────────┐
+│  Zone logo  │ ╲  Bannière (Primary)                          │
+│  (Surface)  │  ╲  → titre + sous-titre (var(--surface))      │
+└─────────────┴───╲────────────────────────────────────────────┘
+└── height ≈ 97 px (de 1080) ─┘   Corps : Canvas
 ```
 
-### Zone A — Logo (left, width = filter pane = 200px)
-- **Background:** `var(--surface)` (cards/surface from `CLIENT.md`).
-- **Shape:** **rectangle** (no diagonal). Its **right edge is vertical and
-  exactly aligned with the filter pane's right edge** below it — both are the
-  same width (200px), forming one continuous left column. Do **not** let the
-  logo zone overhang past the filter pane.
-- **Content:** client logo (`./logo.png`), **centered horizontally and
-  vertically** (`flex items-center justify-center`).
-- **Size:** logo height ≈ 60–70% of the header height (≈ 48–56px), `object-fit:
-  contain`, max-width ≈ 88% of the 200px zone (≈ 176px).
+### Geometry (for content placement — the chrome itself comes from the image)
+- **Header height:** ~97 px at the 1080 design height (~0 to ~618 000 EMU on a
+  6 858 000 EMU slide). Place the **title/subtitle** in this band.
+- **Logo zone right edge:** ~245 px (≈ 1 558 925 EMU) — aligned with the filter
+  pane below. Do **not** place content over the logo zone.
+- **Filter pane:** left 0-245 px, below the header. Its background is part of
+  `bg.png` (white rounded panel + "Filtres" label + funnel icon, in
+  `var(--primary)`).
+- **Main content area:** x > 245 px, y > ~97 px (after the L1/L2 navigation rows).
 
-### Accent line — primary edge marker
-- **What:** a slim vertical bar in `var(--primary)` marking the logo zone /
-  filter pane right edge.
-- **Geometry:** `position: absolute; left: 200px; top: 0; height: 100%;
-  width: 4px; background: var(--primary)`.
+### Background image rules
+- Apply on the canvas: `background: url(./bg.png) center top / cover no-repeat;`
+  (the image is 3840×2160, i.e. 2× the 1920×1080 design — crisp on retina).
+- **Never redraw** the banner, logo zone, canvas fill, or filter panel in CSS.
+- The **title/subtitle** are overlaid on the banner in `var(--surface)`.
+- The user keeps `--primary` (in `CLIENT.md`) **in sync** with the banner color
+  they set in the `.pptx` — so the charts/tabs ("Filtres", active pills, KPI
+  accent bars) match the banner.
 
-### Zone C — Primary banner (from x=204px to the right edge)
-- **Background:** `var(--primary)` (primary / banner accent from `CLIENT.md`).
-- **Left edge:** diagonal cut — the banner starts flush at the accent line at
-  the bottom and recedes to the right toward the top (~48px over the header
-  height). The canvas shows through the small diagonal gap.
-- **CSS hint:** `left: 204px; clip-path: polygon(48px 0, 100% 0, 100% 100%, 0 100%);`
-- **Content:**
-  - **Title:** report title, centered, bold, `var(--surface)` text color
-    (readable on the primary banner).
-  - **Subtitle:** one-line context under the title, **same color as the title**
-    (`var(--surface)`), only a lighter weight / slightly smaller size. **Never**
-    render the subtitle in `var(--primary)` on the `var(--primary)` banner — it
-    would be invisible.
-  - **Info icon (ⓘ):** top-right corner, `var(--surface)` tint, opens a help
-    popover explaining the report or a metric. See `POWERBI_COMPONENTS.md` §4.3
-    for its size.
+## 3. Left Filter Pane (width: ~245px)
 
-> **Theme note:** Because every zone reads a CSS variable from `CLIENT.md`, the
-> same layout renders light (e.g. white surface + teal banner) or dark
-> (e.g. slate surface + yellow banner) with no code change.
-
-## 3. Left Filter Pane (width: 200px)
-
-Positioned directly beneath the header on the far left. Keep it **compact** —
-the pane must not force any horizontal overflow of the canvas.
+Positioned directly beneath the header on the far left. The pane **background**
+(rounded panel + "Filtres" label + funnel icon) comes from `bg.png` — the skill
+only overlays the **slicer controls** on top of it.
 
 - **Alignment & spacing:** the pane starts immediately under the header (no gap
   above). Its left edge is flush with the canvas left edge; the gap to the main
   content area is the standard 16px. Internal padding 16px.
-- **Right edge aligned with the logo zone:** the pane is exactly as wide as the
-  header logo zone (both 200px), so their right edges form one continuous
-  vertical line — marked in the header by the primary accent line (see §2).
-- **Pane header:** funnel icon + "Filtres" label, both **colored in
-  `var(--primary)`** (the primary accent), with a bottom border `var(--border)`.
-  The icon (fill/stroke) and the "Filtres" text MUST read in `var(--primary)` —
-  not in `--text-secondary` / `--text-primary`. This makes the filter pane
-  header part of the brand re-skin (it changes with the client's primary).
-- **Slicers (stacked vertically, full-width of the 200px pane):**
+- **Right edge:** ~245px (≈ 1 558 925 EMU), aligned with the logo zone above —
+  both edges form one continuous vertical line in `bg.png`.
+- **Pane header ("Filtres" + funnel icon):** rendered in `bg.png` in
+  `var(--primary)`. Do **not** redraw it.
+- **Slicers (stacked vertically, overlaid on the pane):**
   - Fiscal year (button slicer / chiclet).
   - Quarter (dropdown).
   - Month (dropdown).
   - Date range (dual-handle slider with start/end date inputs).
-- **Background:** `var(--canvas)`.
 - **Clear all filters button** at the bottom of the pane, full-width.
 
 ## 4. Main Canvas Area (right of filter pane, under header)

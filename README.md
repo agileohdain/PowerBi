@@ -1,95 +1,131 @@
 # PowerBi
 
 Dépôt Power BI — génération de **maquettes dashboard haute-fidélité** pour
-clients (pré-vente / démo) + apprentissage (rapports PBIP, Excel, tutoriels).
+clients (pré-vente / démo) + apprentissage (rapports PBIP, tutoriels).
 
 ## Contenu du dépôt
 
-| Dossier          | Description                                                              |
-| ---------------- | ----------------------------------------------------------------------- |
-| `.opencode/`     | **Skill opencode `powerbi-prototype`** (génération de maquettes HTML)   |
-| `brands/`        | Identité par client (`CLIENT.md`, `DATA.md`, logo, Excel, Output)       |
-| `mockups/`       | Maquettes HTML générées (1 sous-dossier par client)                     |
-| `rapports/`      | Projets Power BI au format **PBIP** (Power BI Project)                  |
-| `excel/`         | Fichiers Excel utilisés comme sources de données                        |
-| `tutoriels/`     | Notes, guides et exercices d'apprentissage                              |
+| Dossier          | Description                                                            |
+| ---------------- | --------------------------------------------------------------------- |
+| `clients/`       | **1 dossier par client** : `CLIENT.md` (à remplir), données, `bg.png`, maquette HTML |
+| `powerpoint/`    | Template PowerPoint du fond (`Maquette Power BI.pptx`) + `export-bg.ps1` |
+| `rapports/`      | Projets Power BI au format **PBIP** (Power BI Project)                |
+| `tutoriels/`     | Notes, guides et exercices d'apprentissage                            |
+| `.opencode/`     | Skill opencode `powerbi-prototype` (génération des maquettes HTML)    |
 
 ---
 
-## Skill `powerbi-prototype` — maquettes Power BI en HTML
+## Workflow — créer une maquette pour un client
 
-Génère des dashboards Power BI en HTML/ECharts **auto-suffisants** (ouvrables
-dans un navigateur), re-skinables par client via des variables CSS.
+Le principe : **vous préparez tout en amont** (identité, navigation, fond
+visuel), puis le skill génère la maquette en une seule passe — sans questions,
+pour économiser les tokens.
 
-### Pré-requis
-- [opencode](https://opencode.ai) installé
-- Le skill est déclaré dans `opencode.json` (`skills.paths: [".opencode/skills"]`)
+### Étape 1 — Créer le dossier client
 
-### Utilisation
-1. Démarrer opencode à la racine du dépôt.
-2. Lancer le skill, par exemple :
-   > *"Crée une maquette Power BI pour le client acme-commerce"*
-3. Le skill enchaîne **3 phases guidées** :
-   - **Brief** : nom, secteur, couleurs (primaire, fond, encadrés), image de fond,
-     logo, arbre de navigation, KPIs.
-   - **Données** : génère un Excel fictif réaliste + un `DATA.md` (modèle,
-     formules, carte visuelle), affiné par 2-3 questions.
-   - **Maquette** : produit `mockups/<client>/index.html` (canevas 1920×1080,
-     ECharts, navigation 2-niveaux, footer "données fictives").
-4. Ouvrir `mockups/<client>/index.html` dans un navigateur.
+```powershell
+# Depuis la racine du dépôt
+Copy-Item -Recurse clients/_template clients/<mon-client>
+```
 
-### Exemple de référence
-`brands/veloh/` — client complet (cycling fleet) avec :
-`CLIENT.md`, `DATA.md`, `donnees.xlsx`, `logo.png`, et le rendu
-`Output/veloh-dashboard.html`.
+Vous obtenez un dossier `clients/<mon-client>/` avec un `CLIENT.md` à remplir.
 
-### Variables de marque (`CLIENT.md` → CSS `:root`)
-| Variable      | Rôle                                                    |
-| ------------- | ------------------------------------------------------- |
-| `--primary`   | Header banner, "Filtres" + icône, onglets actifs, série |
-| `--surface`   | Zone logo, texte sur primaire                           |
-| `--canvas`    | Fond du canevas (couleur)                               |
-| `--card-bg`   | Couleur des encadrés / cards                            |
-| `--bg-image`  | Image de fond optionnelle (`url(...)` ou `none`)        |
-| `--border`    | Bordures, séparateurs                                   |
+### Étape 2 — Remplir `CLIENT.md`
 
-Voir `.opencode/skills/powerbi-prototype/references/POWERBI_LAYOUT.md` §6 pour
-le contract complet.
+C'est le **seul fichier à éditer**. Il contient :
+- L'identité de marque (nom)
+- Les **couleurs** (voir tableau ci-dessous)
+- Le **titre / sous-titre** du rapport
+- L'**arbre de navigation** : pages → sous-pages → KPIs (avec flags `[En consolidation]`)
+
+### Étape 3 — Personnaliser le fond visuel (PowerPoint)
+
+Le visuel du bandeau / fond est authored dans PowerPoint, pas en CSS.
+
+1. Dupliquer `powerpoint/Maquette Power BI.pptx` (ne pas modifier l'original).
+2. Dans la copie : sélectionner la forme **« Banniere »** → changer sa couleur
+   de remplissage (mettre la **même couleur que `Primary`** dans `CLIENT.md`).
+3. Ajouter le **logo** du client dans la zone « Zone logo » (en haut à gauche).
+4. Enregistrer la copie, par exemple `clients/<mon-client>/fond.pptx`.
+
+### Étape 4 — Exporter le fond (`bg.png`)
+
+```powershell
+./powerpoint/export-bg.ps1 -Path clients/<mon-client>/fond.pptx `
+                           -Output clients/<mon-client>/bg.png
+```
+
+Le script ouvre le `.pptx` via PowerPoint et exporte la diapo en PNG 2×
+(3840×2160) — net, léger, compatible HTML et Power BI Desktop.
+> Vous pouvez ignorer cette étape et la laisser au skill : il appellera
+> lui-même `export-bg.ps1` si `bg.png` est absent.
+
+### Étape 5 — Lancer le skill opencode
+
+```powershell
+opencode
+# puis dans opencode :
+> Crée la maquette pour le client <mon-client>
+```
+
+Le skill :
+1. Lit `CLIENT.md` (+ `bg.png`).
+2. Si pas de `donnees.xlsx` : génère un Excel fictif réaliste + `DATA.md`.
+3. Génère `clients/<mon-client>/maquette/index.html` (canevas 1920×1080,
+   `bg.png` en fond, KPIs et graphiques ECharts par-dessus).
+
+Ouvrez `clients/<mon-client>/maquette/index.html` dans un navigateur.
+
+---
+
+## Variables de marque (`CLIENT.md` → CSS `:root`)
+
+| Variable      | Rôle                                                        |
+| ------------- | ----------------------------------------------------------- |
+| `--primary`   | Bandeau, "Filtres" + icône, onglets actifs, série principale |
+| `--surface`   | Zone logo, texte sur primaire                               |
+| `--canvas`    | Fond du canevas (couleur)                                   |
+| `--card-bg`   | Couleur des encadrés / cards                                |
+| `--border`    | Bordures, séparateurs                                       |
+
+> **Important** : la couleur du bandeau dans le `.pptx` (étape 3) **doit être la
+> même** que `--primary` dans `CLIENT.md` — le skill l'utilise pour les graphiques
+> et onglets, qui doivent visuellement matcher le bandeau.
+
+---
+
+## Exemple : `clients/veloh/`
+
+Client complet (flotte cyclable, thème sombre) :
+`CLIENT.md`, `DATA.md`, `donnees.xlsx`, `logo.png`, `bg.png`, et la maquette
+`maquette/index.html`.
 
 ---
 
 ## Prise en main (Git)
 
-### 1. Cloner le dépôt
 ```bash
 gh repo clone agileohdain/PowerBi
 ```
 
-### 2. Activer le format PBIP dans Power BI Desktop (pour les rapports .pbip)
+### Activer le format PBIP dans Power BI Desktop
 `File` → `Options and settings` → `Options` → `Preview features`
 → cocher **Power BI Project (.pbip) save option**.
 
-### 3. Workflow Git usuel
+### Workflow Git usuel
 ```bash
 git add .                          # indexer les modifications
 git commit -m "message explicite"  # créer un commit
 git push origin main               # envoyer vers GitHub
 ```
 
-## Format PBIP — pourquoi ?
+> Le format **PBIP** sauvegarde un rapport sous forme de fichiers JSON/XML
+> lisibles : Git affiche les différences et suit l'historique (impossible avec
+> un `.pbix` binaire).
 
-Le format **PBIP** sauvegarde un rapport sous forme de **dossier** contenant des fichiers
-JSON/XML lisibles. Cela permet à Git de :
-- afficher les **différences** entre versions,
-- suivre l'historique des modifications du modèle et des visuels,
-- faciliter la **collaboration** (revue de code, merge).
-
-> Le format `.pbix` classique est binaire : Git ne peut pas afficher les différences.
-
-## Conventions de commit
-
-- Messages en français, à l'infinitif : `Ajoute rapport ventes 2024`
-- Un commit = un changement logique (ne pas mélanger sujets)
+### Conventions de commit
+- Messages en français, à l'infinitif : `Ajoute maquette client acme`
+- Un commit = un changement logique
 
 ## Auteur
 
