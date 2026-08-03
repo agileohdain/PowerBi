@@ -20,8 +20,8 @@
 > chaque valeur par un code hexadécimal (ex. `#00A1B1`).
 
 * Primary / Banner Accent: <Primary>   <!-- bandeau pptx, "Filtres", onglets actifs, série primaire -->
-* Surface / Cards:        <Surface>    <!-- zone logo, texte sur primaire, cards -->
-* Canvas Background:      <Canvas Background>   <!-- fond du canevas, pane filtres, footer -->
+* Surface / Cards:        <Surface>    <!-- zone logo, texte sur primaire, cards, pane filtres -->
+* Canvas Background:      <Canvas Background>   <!-- fond du canevas, footer -->
 * Card Frame Color:       <Card Frame> <!-- couleur des encadrés (défaut = Surface) -->
 * Border / Divider:       <Border>
 

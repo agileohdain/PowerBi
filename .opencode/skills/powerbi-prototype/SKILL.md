@@ -123,22 +123,36 @@ Phase 1.)
      - Si `bg.svg`/`bg.png` présent → `background: url(./bg.svg) center/cover
        no-repeat` (adapter l'extension) ; **ne pas redessiner** le bandeau ni la
        zone logo en CSS (ils sont dans l'image).
-     - Sinon → **dessiner en CSS** : bandeau haut (~97px) en `var(--primary)`
-       avec zone logo (~245px) en `var(--surface)` contenant `logo.png`, fond
-       canevas en `var(--canvas)`, pane filtres à gauche (fond `var(--canvas)`).
+    - Sinon → **dessiner en CSS** : bandeau haut (~97px) en `var(--primary)`
+      avec zone logo (~245px) en `var(--surface)` contenant `logo.png`, fond
+      canevas en `var(--canvas)`, pane filtres à gauche (fond `var(--surface)`).
+    - **Cassure de l'en-tête** : la zone logo et la bannière sont des **trapèzes**
+      (bords diagonaux) fidèles au `.pptx` template — le léger intervalle
+      diagonal entre les deux laisse voir le fond canevas. Via `clip-path` :
+      zone logo `polygon(0 0, 320px 0, 244px 97px, 0 97px)` ; bannière
+      `polygon(342px 0, 100% 0, 100% 97px, 267px 97px)`.
    - Variables CSS en `:root` lues depuis `CLIENT.md` :
      `--primary`, `--surface`, `--canvas`, `--border`, `--card-bg`,
      `--text-primary`, `--text-secondary`.
    - **Titre + sous-titre** positionnés par-dessus le bandeau (zone haute,
-     ~0-97px), en `var(--surface)`.
-   - Pane filtres à gauche avec **"Filtres" + icône en `var(--primary)`**.
-   - Navigation L1 (pills) + L2 (liens texte) rendue depuis `CLIENT.md`.
+      ~0-97px), en `var(--surface)`, **centrés horizontalement dans la zone du
+      bandeau** (à droite de la cassure, ex. `left:360px; right:48px;
+      text-align:center`).
+    - Pane filtres à gauche avec **"Filtres" + icône en `var(--primary)`**,
+      fond **`var(--surface)`** (blanc, identique à Surface/Cards) avec
+      séparation `border-right`.
+    - Navigation L1 (pills) + L2 (liens texte) rendue depuis `CLIENT.md`, avec
+      un **petit routeur JS** (`state = { page, subpage }`) rendant la **page et
+      les sous-pages cliquables** ; chaque sous-page de `CLIENT.md` reçoit un
+      **layout complet** (KPIs + visuels ECharts).
    - Cartes KPI (avec état consolidation si flag présent) + visuels ECharts
      depuis la carte visuelle déduite de `donnees.xlsx`.
    - Logo `logo.png` affiché dans la zone logo (en haut à gauche).
    - Footer disclaimer "Données fictives".
-3. Copier `logo.png` (+ `bg.*` si présent) à côté de `index.html` dans
-   `maquette/` (la maquette doit être auto-portable).
+3. **Référencer** `logo.png` (+ `bg.*` si présent) **depuis le dossier parent**
+   via `src="../logo.png"` — **ne pas copier** le logo dans `maquette/`
+   (pas de doublon). La maquette assume que le dossier parent `clients/<client>/`
+   contient `logo.png` et `donnees.xlsx`.
 4. Indiquer à l'utilisateur comment ouvrir le rendu (`start index.html`).
 
 ## Sources de données

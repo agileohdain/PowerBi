@@ -12,7 +12,7 @@ visual components. All brand-driven colors use CSS variables bound to the active
 | `var(--primary)` | Primary / Banner Accent | Active tabs, accent bars, primary chart series, banners, **"Filtres" label + funnel icon** |
 | `var(--surface)` | Surface / Cards | Logo zone, on-primary text. Card backgrounds fall back to this when `--card-bg` is not set |
 | `var(--card-bg)` | Card Frame Color (default = `--surface`) | Card / KPI frame backgrounds. **Prefer `var(--card-bg)` over `var(--surface)` for any card container** so the user can pick a card color independently from the logo zone (e.g. white cards on a colored surface) |
-| `var(--canvas)` | Canvas Background | Page background, filter pane, footer |
+| `var(--canvas)` | Canvas Background | Page background, footer |
 | `var(--bg-image)` | Background Image (optional) | Optional `url(...)` on the canvas. `none` by default |
 | `var(--border)` | Border / Divider | Card borders, dividers, table gridlines |
 | `var(--text-primary)` | derived (canvas luminance) | Primary text |

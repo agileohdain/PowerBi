@@ -42,17 +42,24 @@ In both cases the skill only overlays the title/subtitle and content.
 
 ### Geometry (for content placement)
 - **Header height:** ~97 px at the 1080 design height. Place the
-  **title/subtitle** in this band.
-- **Logo zone right edge:** ~245 px — aligned with the filter pane below. Do
-  **not** place content over the logo zone; only `logo.png` goes there.
-- **Filter pane:** left 0-245 px, below the header.
+  **title/subtitle** in this band, **centered horizontally in the banner zone**
+  (right of the diagonal break), e.g. `left:360px; right:48px; text-align:center`.
+- **Logo zone (trapezoid):** `clip-path: polygon(0 0, 320px 0, 244px 97px, 0 97px)`
+  — top edge 0→320 px, bottom edge 0→244 px (aligned with the filter pane below).
+  Only `logo.png` goes there; do **not** place content over it.
+- **Filter pane:** left 0-245 px (matches the logo zone bottom edge), below the
+  header.
 - **Main content area:** x > 245 px, y > ~97 px (after the L1/L2 navigation rows).
 
 ### Header drawing rules
 - **Default (no `bg.*`)**: draw in CSS —
-  - full-width banner band, height ~97px, background `var(--primary)`;
-  - logo zone: left 0-245px, background `var(--surface)`, containing
-    `logo.png` (max height ~70px, centered);
+  - **Bannière** (trapezoid) `var(--primary)`: full-width band, `clip-path:
+    polygon(342px 0, 100% 0, 100% 97px, 267px 97px)`. The diagonal gap between
+    this and the logo zone (342→320 px at top, 267→244 px at bottom) lets the
+    canvas background show through = the **cassure** (diagonal break) seen in
+    the `.pptx` template.
+  - **Zone logo** (trapezoid) `var(--surface)`: left 0-320 px, height 97 px,
+    containing `logo.png` (max height ~70px, centered).
   - canvas body background `var(--canvas)`.
 - **If `bg.svg`/`bg.png` is present**: apply on the canvas
   `background: url(./bg.svg) center top / cover no-repeat;` (use `./bg.png` for
@@ -65,9 +72,10 @@ In both cases the skill only overlays the title/subtitle and content.
 ## 3. Left Filter Pane (width: ~245px)
 
 Positioned directly beneath the header on the far left. **Default (no `bg.*`)**:
-the pane is drawn in CSS — a rounded panel on `var(--canvas)` (or `var(--surface)`
-card over the canvas) with a "Filtres" label + funnel icon in `var(--primary)`,
-and the slicer controls stacked inside. **If `bg.*` is present**: the pane
+the pane is drawn in CSS — a **white panel `var(--surface)`** (identical to
+Surface/Cards) with a `border-right: 1px solid var(--border)` separation, a
+"Filtres" label + funnel icon in `var(--primary)`, and the slicer controls
+stacked inside. **If `bg.*` is present**: the pane
 background (rounded panel + "Filtres" label + funnel icon) comes from the
 background image — the skill only overlays the **slicer controls** on top of it.
 
@@ -130,8 +138,8 @@ background image — the skill only overlays the **slicer controls** on top of i
 | CSS variable | CLIENT.md field | Usage |
 |---|---|---|
 | `--primary` | Primary / Banner Accent | Header banner, "Filtres" label + funnel icon, active tabs, KPI accent bars, chart primary series |
-| `--surface` | Surface / Cards | Card backgrounds (when `--card-bg` not set), logo zone, active-tab text on primary |
-| `--canvas` | Canvas Background | Page background color, filter pane bg, footer bg |
+| `--surface` | Surface / Cards | Card backgrounds (when `--card-bg` not set), logo zone, **filter pane bg**, active-tab text on primary |
+| `--canvas` | Canvas Background | Page background color, footer bg |
 | `--card-bg` | Card Frame Color (default = `--surface`) | Explicit color for the "encadrés" / card frames — lets the user choose a different card color than the surface |
 | `--bg-image` | Background Image (optional) | Optional `url(...)` applied to the canvas background. `none` by default. When set, render the image with a subtle dark/white overlay (per canvas luminance) to preserve readability |
 | `--border` | Border / Divider | Card borders, dividers, table gridlines |

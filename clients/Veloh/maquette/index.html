@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOH — Pilotage de flotte cyclable</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','sans-serif'] } } } };
+</script>
+<style>
+:root {
+  --primary: #B69E7F;
+  --surface: #FFFFFF;
+  --canvas: #F1F5F9;
+  --card-bg: #FFFFFF;
+  --border: #CBD5E1;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+}
+html, body { margin: 0; padding: 0; background: #0f172a; height: 100%; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
+#stage { position: fixed; inset: 0; overflow: hidden; }
+.slide { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: top left; background: var(--canvas); }
+.logo-zone { background: var(--surface); clip-path: polygon(0 0, 320px 0, 244px 97px, 0 97px); }
+.banner { background: var(--primary); clip-path: polygon(342px 0, 100% 0, 100% 97px, 267px 97px); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="slide" id="slide">
+
+    <!-- HEADER : cassure (trapèzes) + zone logo -->
+    <div style="position:absolute; top:0; left:0; right:0; height:97px;">
+      <div class="logo-zone" style="position:absolute; top:0; left:0; width:320px; height:97px; display:flex; align-items:center; justify-content:center;">
+        <img src="../logo.png" alt="logo" style="max-height:68px; max-width:190px; object-fit:contain;">
+      </div>
+      <div class="banner" style="position:absolute; top:0; left:0; width:100%; height:97px;"></div>
+      <!-- Titre + sous-titre centrés dans le bandeau -->
+      <div style="position:absolute; left:360px; right:48px; top:14px; text-align:center; color:var(--surface);">
+        <div style="font-size:30px; font-weight:700; letter-spacing:-0.02em; line-height:1.1;">VELOH — Pilotage de flotte cyclable</div>
+        <div style="font-size:16px; font-weight:400; opacity:0.92; margin-top:4px;">Cyclistes · Flotte · Sorties · Composants — Janv. 2024 – Juil. 2025</div>
+      </div>
+    </div>
+
+    <!-- FILTER PANE (Surface / blanc) -->
+    <div id="paneFiltres" style="position:absolute; top:97px; left:0; width:245px; bottom:28px; background:var(--surface); border-right:1px solid var(--border); padding:18px 16px;">
+      <div style="display:flex; align-items:center; gap:8px; padding-bottom:12px; margin-bottom:16px; border-bottom:1px solid var(--border);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        <span style="color:var(--primary); font-weight:600; font-size:15px;">Filtres</span>
+      </div>
+
+      <div style="font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Année fiscale</div>
+      <div id="filtersAnnee" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">
+        <span data-year="2024" style="padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">2024</span>
+        <span data-year="2025" style="padding:6px 12px; border-radius:6px; font-size:12px; font-weight:500; cursor:pointer;">2025</span>
+      </div>
+
+      <div style="font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Trimestre</div>
+      <div style="position:relative; margin-bottom:16px;">
+        <div id="ddTrimestre" style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:var(--card-bg); border:1px solid var(--border); border-radius:6px; font-size:12px; color:var(--text-primary); cursor:pointer;">Tous les trimestres
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2.4" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="listTrimestre" style="display:none; position:absolute; z-index:60; top:40px; left:0; right:0; background:var(--surface); border:1px solid var(--border); border-radius:6px; box-shadow:0 8px 20px rgba(0,0,0,0.12); overflow:hidden;"></div>
+      </div>
+
+      <div style="font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Mois</div>
+      <div style="position:relative; margin-bottom:16px;">
+        <div id="ddMois" style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:var(--card-bg); border:1px solid var(--border); border-radius:6px; font-size:12px; color:var(--text-primary); cursor:pointer;">Tous les mois
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2.4" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="listMois" style="display:none; position:absolute; z-index:60; top:40px; left:0; right:0; max-height:210px; overflow:auto; background:var(--surface); border:1px solid var(--border); border-radius:6px; box-shadow:0 8px 20px rgba(0,0,0,0.12);"></div>
+      </div>
+
+      <div style="font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Période</div>
+      <div style="display:flex; gap:6px; margin-bottom:6px;">
+        <input id="dateDebut" value="01/01/2024" style="width:50%; padding:7px 6px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card-bg); color:var(--text-primary);">
+        <input id="dateFin" value="31/07/2025" style="width:50%; padding:7px 6px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card-bg); color:var(--text-primary);">
+      </div>
+      <div style="height:6px; background:var(--border); border-radius:99px; position:relative; margin:18px 6px 0;">
+        <div id="rangeBar" style="position:absolute; top:0; height:100%; background:var(--primary); border-radius:99px;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; position:relative; margin-top:-4px;">
+        <div id="handleStart" style="width:16px; height:16px; border-radius:99px; background:var(--surface); border:2px solid var(--primary);"></div>
+        <div id="handleEnd" style="width:16px; height:16px; border-radius:99px; background:var(--surface); border:2px solid var(--primary);"></div>
+      </div>
+
+      <div id="btnReset" style="margin-top:24px; display:flex; align-items:center; justify-content:center; gap:6px; padding:8px 10px; font-size:12px; font-weight:500; color:var(--text-secondary); background:var(--card-bg); border:1px solid var(--border); border-radius:6px; cursor:pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+        Réinitialiser les filtres
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div style="position:absolute; top:97px; left:261px; right:16px; bottom:28px;">
+
+      <!-- L1 -->
+      <div id="navL1" style="display:flex; gap:12px; margin-top:14px;"></div>
+
+      <!-- L2 -->
+      <div id="navL2" style="display:flex; align-items:center; gap:28px; margin:12px 0 16px; padding-bottom:10px; border-bottom:1px solid var(--border);"></div>
+
+      <!-- BODY (re-rendered per sub-page) -->
+      <div id="body"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="position:absolute; left:0; right:0; bottom:0; height:28px; background:var(--canvas); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-secondary);">
+      Données fictives — Maquette haute-fidélité Power BI.
+    </div>
+  </div>
+</div>
+
+<script>
+(function scale() {
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    var slide = document.getElementById('slide');
+    slide.style.transform = 'translate(' + ((window.innerWidth - 1920 * s) / 2) + 'px,' + ((window.innerHeight - 1080 * s) / 2) + 'px) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+})();
+
+var primary = '#B69E7F';
+var textMain = '#0F172A';
+var textMuted = '#64748B';
+var gridColor = '#e2e8f0';
+var tooltipBase = { trigger: 'axis', backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1, padding: [8, 12], textStyle: { color: '#0f172a', fontSize: 12 }, extraCssText: 'box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); border-radius: 6px;' };
+
+var months = ['Jan 24','Fév 24','Mar 24','Avr 24','Mai 24','Juin 24','Juil 24','Août 24','Sept 24','Oct 24','Nov 24','Déc 24','Jan 25','Fév 25','Mar 25','Avr 25','Mai 25','Juin 25','Juil 25'];
+var kmData = [2225, 3832, 11129, 19791, 24686, 24642, 27417, 25161, 21115, 16203, 8698, 3946, 2234, 5006, 11521, 18638, 23816, 25865, 24323];
+var sortiesData = [38, 61, 182, 328, 410, 412, 456, 420, 352, 270, 145, 66, 37, 83, 192, 310, 396, 430, 405];
+
+/* ============ FILTRES ============ */
+var selYears = { '2024': true, '2025': true };
+var selQuarter = 'all';   // all | T1..T4
+var selMonth = 'all';     // all | 1..12
+var quarterOf = [1,1,1,2,2,2,3,3,3,4,4,4,1,1,1,2,2,2,3]; // per month index
+var monthOf = [1,2,3,4,5,6,7,8,9,10,11,12,1,2,3,4,5,6,7];
+
+function monthYear(i){ return i < 12 ? 2024 : 2025; }
+
+function activeIndices(){
+  var out = [];
+  for (var i=0;i<months.length;i++){
+    var y = monthYear(i);
+    if (!selYears[String(y)]) continue;
+    if (selQuarter !== 'all' && quarterOf[i] !== parseInt(selQuarter.slice(1))) continue;
+    if (selMonth !== 'all' && monthOf[i] !== parseInt(selMonth)) continue;
+    out.push(i);
+  }
+  return out;
+}
+
+function dateInputOf(i){
+  var y = monthYear(i); var m = monthOf[i];
+  var mm = String(m).padStart(2,'0');
+  if (m===1) return '01/01/'+y;
+  if (m===12) return '31/12/'+y;
+  return '15/'+mm+'/'+y;
+}
+
+function refreshFilterUI(){
+  var yearsBox = document.getElementById('filtersAnnee');
+  yearsBox.querySelectorAll('[data-year]').forEach(function(el){
+    var on = selYears[el.getAttribute('data-year')];
+    if (on){ el.style.background = primary; el.style.color = '#fff'; el.style.border='none'; }
+    else { el.style.background = 'var(--surface)'; el.style.color = 'var(--text-secondary)'; el.style.border = '1px solid var(--border)'; }
+  });
+  document.getElementById('ddTrimestre').childNodes[0].textContent = (selQuarter==='all'?'Tous les trimestres':selQuarter);
+  document.getElementById('ddMois').childNodes[0].textContent = (selMonth==='all'?'Tous les mois':['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'][selMonth-1]);
+  var idx = activeIndices();
+  document.getElementById('dateDebut').value = idx.length ? dateInputOf(idx[0]) : '—';
+  document.getElementById('dateFin').value = idx.length ? dateInputOf(idx[idx.length-1]) : '—';
+  var lo = idx.length?idx[0]:0, hi = idx.length?idx[idx.length-1]:months.length-1;
+  var pctL = lo/(months.length-1)*100, pctR = 100 - (months.length-1-hi)/(months.length-1)*100;
+  document.getElementById('rangeBar').style.left = pctL + '%';
+  document.getElementById('rangeBar').style.width = (pctR-pctL)+'%';
+  document.getElementById('handleStart').style.marginLeft = 'calc('+pctL+'% - 8px)';
+  document.getElementById('handleEnd').style.marginLeft = 'calc('+pctR+'% - 8px)';
+  applyToCharts();
+}
+
+function applyToCharts(){
+  renderChartsForSub();
+  renderKpis();
+}
+
+function renderKpis(){
+  updateKpiText('Kilomètres totaux', num(totalKm())+' km');
+  updateKpiText('Sorties', num(totalSorties()));
+  updateKpiText('Km / cycliste', num(totalKm()/50)+' km');
+  updateKpiText('Km total parcouru', num(totalKm())+' km');
+}
+function updateKpiText(label, value){
+  var els = document.querySelectorAll('#body [data-kpi]');
+  els.forEach(function(el){
+    if (el.getAttribute('data-kpi') === label) el.textContent = value;
+  });
+}
+
+function buildDropdowns(){
+  var q = document.getElementById('listTrimestre'); q.innerHTML='';
+  var opts = [['all','Tous les trimestres'],['T1','Trimestre 1'],['T2','Trimestre 2'],['T3','Trimestre 3'],['T4','Trimestre 4']];
+  opts.forEach(function(o){
+    var d=document.createElement('div');
+    d.textContent=o[1]; d.style.cssText='padding:8px 10px;font-size:12px;cursor:pointer;color:var(--text-primary);';
+    d.onmouseover=function(){d.style.background='var(--canvas)';};
+    d.onmouseout=function(){d.style.background='transparent';};
+    d.onclick=function(){ selQuarter=o[0]; hideList(q); document.getElementById('ddTrimestre').childNodes[0].textContent=d.textContent; refreshFilterUI(); };
+    q.appendChild(d);
+  });
+  var m = document.getElementById('listMois'); m.innerHTML='';
+  var mAll=document.createElement('div'); mAll.textContent='Tous les mois';
+  mAll.style.cssText='padding:8px 10px;font-size:12px;cursor:pointer;color:var(--text-primary);';
+  mAll.onmouseover=function(){mAll.style.background='var(--canvas)';}; mAll.onmouseout=function(){mAll.style.background='transparent';};
+  mAll.onclick=function(){ selMonth='all'; hideList(m); document.getElementById('ddMois').childNodes[0].textContent='Tous les mois'; refreshFilterUI(); };
+  m.appendChild(mAll);
+  var names=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  names.forEach(function(n,i){
+    var d=document.createElement('div'); d.textContent=n;
+    d.style.cssText='padding:8px 10px;font-size:12px;cursor:pointer;color:var(--text-primary);';
+    d.onmouseover=function(){d.style.background='var(--canvas)';}; d.onmouseout=function(){d.style.background='transparent';};
+    d.onclick=function(){ selMonth=i+1; hideList(m); document.getElementById('ddMois').childNodes[0].textContent=n; refreshFilterUI(); };
+    m.appendChild(d);
+  });
+  document.getElementById('ddTrimestre').onclick=function(){ toggleList(q); };
+  document.getElementById('ddMois').onclick=function(){ toggleList(m); };
+  document.addEventListener('click', function(e){
+    if(!document.getElementById('ddTrimestre').contains(e.target)) hideList(q);
+    if(!document.getElementById('ddMois').contains(e.target)) hideList(m);
+  });
+  document.getElementById('filtersAnnee').querySelectorAll('[data-year]').forEach(function(el){
+    el.onclick=function(){ selYears[el.getAttribute('data-year')]=!selYears[el.getAttribute('data-year')]; refreshFilterUI(); };
+  });
+  document.getElementById('btnReset').onclick=function(){
+    selYears={'2024':true,'2025':true}; selQuarter='all'; selMonth='all';
+    buildDropdowns(); refreshFilterUI(); resetNav();
+  };
+}
+function toggleList(el){ el.style.display = el.style.display==='none'?'block':'none'; }
+function hideList(el){ el.style.display='none'; }
+
+/* ============ NAVIGATION (2 pages / 5 sous-pages) ============ */
+var pages = [
+  { id:'cyclistes', name:'Cyclistes',
+    subs:[
+      { id:'s11', name:"Vue d'ensemble", active:true },
+      { id:'s12', name:'Répartition géographique' },
+      { id:'s13', name:'Affectations vélos' }
+    ]
+  },
+  { id:'flotte', name:'Flotte vélos',
+    subs:[
+      { id:'s21', name:"Vue d'ensemble" },
+      { id:'s22', name:'Répartition par marque' }
+    ]
+  }
+];
+var state = { page:'cyclistes', sub:'s11' };
+
+function resetNav(){ state={page:'cyclistes', sub:'s11'}; renderNav(); }
+
+function renderNav(){
+  var l1=document.getElementById('navL1'); l1.innerHTML='';
+  pages.forEach(function(p){
+    var d=document.createElement('div');
+    var active = p.id===state.page;
+    d.textContent=p.name;
+    d.style.cssText='flex:1;padding:9px 16px;border-radius:8px;text-align:center;font-size:13px;'+(active?'background:'+primary+';color:#fff;font-weight:600;cursor:default;':'background:var(--card-bg);color:var(--text-secondary);border:1px solid var(--border);font-weight:500;cursor:pointer;');
+    if(!active) d.onclick=function(){ state.page=p.id; state.sub=p.subs[0].id; renderNav(); };
+    l1.appendChild(d);
+  });
+  var l2=document.getElementById('navL2'); l2.innerHTML='';
+  var p=pages.find(function(p){return p.id===state.page;});
+  p.subs.forEach(function(s){
+    var d=document.createElement('span');
+    d.textContent=s.name;
+    var active = s.id===state.sub;
+    d.style.cssText='font-size:13px;'+(active?'font-weight:600;color:'+primary+';border-bottom:2px solid '+primary+';padding-bottom:10px;cursor:default;':'font-weight:500;color:var(--text-secondary);cursor:pointer;');
+    if(!active) d.onclick=function(){ state.sub=s.id; renderNav(); };
+    l2.appendChild(d);
+  });
+  renderBody();
+}
+
+/* ============ BODY RENDERERS ============ */
+function esc(t){ var d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+function kpiCard(label, value, badge, consolidate, accent, kpiKey){
+  var badgeHtml = '';
+  if (consolidate) badgeHtml='<div style="margin-top:10px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#FF0000;background:rgba(255,0,0,0.08);padding:3px 7px;border-radius:4px;">Indicateur en consolidation</span></div>';
+  else if (badge) badgeHtml='<div style="margin-top:8px;"><span style="display:inline-flex;gap:5px;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;background:'+badge.bg+';color:'+badge.fg+';border:1px solid '+badge.bd+';">'+badge.txt+'</span></div>';
+  var st = [];
+  if (accent) st.push('width:4px;background:'+primary+';');
+  return '<div style="background:var(--card-bg);border:'+(consolidate?'2px dashed #FF0000':'1px solid var(--border)')+';border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">'+
+    '<div style="position:absolute;left:0;top:0;bottom:0;'+st.join('')+'"></div>'+
+    '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">'+esc(label)+'</div>'+
+    '<div '+(kpiKey?'data-kpi="'+esc(kpiKey)+'"':'')+' style="font-size:36px;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em;line-height:1;">'+value+'</div>'+badgeHtml+'</div>';
+}
+
+function visualCard(title, subtitle, chartId, height, infoText){
+  return '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:6px;">'+
+      '<div><span style="font-size:14px;font-weight:600;color:var(--text-primary);">'+esc(title)+'</span>'+(subtitle?'<span style="font-size:11px;color:var(--text-secondary);margin-left:8px;">'+esc(subtitle)+'</span>':'')+'</div>'+
+      '<div title="'+(infoText||'')+'" style="width:28px;height:28px;border-radius:99px;background:var(--canvas);border:1px solid var(--border);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer;">i</div>'+
+    '</div>'+
+    '<div id="'+chartId+'" style="width:100%;height:'+height+'px;"></div></div>';
+}
+
+function tableCard(title, headers, rows, note){
+  var th='<tr style="background:'+primary+';color:#fff;">'+headers.map(function(h){return '<th style="padding:8px 12px;text-align:'+h.align+';font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">'+esc(h.txt)+'</th>';}).join('')+'</tr>';
+  var tr=''; rows.forEach(function(r,i){ var bg=(i%2===0)?'var(--card-bg)':'var(--canvas)'; tr+='<tr style="background:'+bg+';">'+r.map(function(c){return '<td style="padding:7px 12px;font-size:12px;'+(c.align==='right'?'text-align:right;':'')+(c.bold?'font-weight:600;color:var(--text-primary);':'color:'+(c.color||'var(--text-primary)')+';')+'">'+esc(c.txt||c)+'</td>';}).join('')+'</tr>'; });
+  return '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">'+
+    '<div style="border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:4px;"><span style="font-size:14px;font-weight:600;color:var(--text-primary);">'+esc(title)+'</span></div>'+
+    '<table style="width:100%;border-collapse:collapse;"><thead>'+th+'</thead><tbody>'+tr+'</tbody></table>'+
+    (note?'<div style="display:flex;align-items:center;gap:6px;margin-top:6px;color:var(--text-secondary);font-size:11px;">'+note+'</div>':'')+'</div>';
+}
+
+function renderBody(){
+  document.getElementById('body').innerHTML = renderers[state.sub] ? renderers[state.sub]() : '';
+  renderers[state.sub] && renderers.afterInit && renderers.afterInit();
+  renderChartsForSub();
+  startKpiAnimation();
+}
+
+/* ---- data for each subpage ---- */
+var chartsToInit = [];
+
+function renderChartsForSub(){
+  chartsToInit.forEach(function(c){ var el=document.getElementById(c); if(el && el._ec) el._ec.dispose(); });
+  chartsToInit=[];
+  if (state.sub==='s11') initS11();
+  else if (state.sub==='s12') initS12();
+  else if (state.sub==='s13') initS13();
+  else if (state.sub==='s21') initS21();
+  else if (state.sub==='s22') initS22();
+}
+
+function cid(name){
+  chartsToInit.push(name);
+  return name;
+}
+
+/* ===== S1.1 Vue d'ensemble ===== */
+var renderers = {};
+renderers['s11'] = function(){
+  var km2 = totalKm(), sortiesV = totalSorties(), kmCycle = km2;
+  var km2Txt = num(km2)+' km';
+  return '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px;">'+
+    kpiCard('Cyclistes actifs','50',null,true,true)+
+    kpiCard('Kilomètres totaux',km2Txt,badge('+18,4% vs 2024','#ecfdf5','#047857','#a7f3d0'),false,true,'Kilomètres totaux')+
+    kpiCard('Sorties',num(sortiesV),badge('+12,1% vs 2024','#ecfdf5','#047857','#a7f3d0'),false,true,'Sorties')+
+    kpiCard('Km / cycliste',num(km2/50)+' km',badge('+9,7% vs 2024','#ecfdf5','#047857','#a7f3d0'),false,true,'Km / cycliste')+
+    kpiCard('Durée moy. / sortie','2 h 11',badge('+3 min','#fffbeb','#b45309','#fde68a'),false,true)+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;height:300px;margin-bottom:12px;">'+
+    visualCard('Kilomètres par mois','km cumulés',cid('chartKm'),236,'Kilométrage mensuel filtré')+
+    visualCard('Cyclistes par pays','répartition',cid('chartPays'),236,'')+
+    visualCard('Sorties par mois',"volume d'activité",cid('chartSorties'),236,'')+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px;height:210px;">'+
+    tableCard('Top cyclistes — kilomètres',
+      [{txt:'Cycliste',align:'left'},{txt:'Pays',align:'right'},{txt:'Km',align:'right'},{txt:'Sorties',align:'right'}],
+      [['Francois Caron','Canada',{txt:'12 482',align:'right',bold:true},{txt:'212',align:'right'},],
+       ['Sophie Roux','France',{txt:'11 360',align:'right',bold:true},{txt:'198',align:'right'},],
+       ['Jean-Philippe Paquet','Canada',{txt:'10 915',align:'right',bold:true},{txt:'184',align:'right'},],
+       ['Karine Caron','Canada',{txt:'10 207',align:'right',bold:true},{txt:'176',align:'right'},]],
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Kilométrage individuel calculé sur la période filtrée.')+
+    visualCard('Marques dominantes','par km',cid('chartMarques'),150,'')+
+  '</div>';
+};
+
+/* ===== S1.2 Répartition géographique ===== */
+renderers['s12'] = function(){
+  return '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">'+
+    kpiCard('Pays couverts','3',null,true,true)+
+    kpiCard('Villes couvertes','16',badge('+2 vs 2024','#ecfdf5','#047857','#a7f3d0'),false,true)+
+    kpiCard('Cyclistes par pays','50',badge('100% couverts','#eff6ff','#1d4ed8','#bfdbfe'),false,true)+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1.1fr 1fr 1.1fr;gap:12px;height:340px;margin-bottom:12px;">'+
+    visualCard('Cyclistes par pays','effectifs',cid('chartPaysG'),256,'')+
+    visualCard('Top villes','effectifs',cid('chartVilles'),256,'')+
+    visualCard('Kilomètres par pays','répartition',cid('chartKmPays'),256,'')+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1fr;gap:12px;">'+
+    tableCard('Villes couvertes',
+      [{txt:'Ville',align:'left'},{txt:'Pays',align:'left'},{txt:'Cyclistes',align:'right'},{txt:'Km',align:'right'}],
+      [['Saint-Bruno-de-Montarville','Canada',{txt:'23',align:'right',bold:true},{txt:'209 098',align:'right',bold:true}],
+       ['Liège','Belgique',{txt:'4',align:'right',bold:true},{txt:'34 338',align:'right',bold:true}],
+       ['Lyon','France',{txt:'3',align:'right',bold:true},{txt:'56 812',align:'right',bold:true}],
+       ['Repentigny','Canada',{txt:'3',align:'right',bold:true},{txt:'12 410',align:'right',bold:true}],
+       ['Annecy','France',{txt:'2',align:'right',bold:true},{txt:'8 205',align:'right',bold:true}]],
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Effectifs et kilomètres cumulés sur la période filtrée.')+
+  '</div>';
+};
+
+/* ===== S1.3 Affectations vélos ===== */
+renderers['s13'] = function(){
+  return '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">'+
+    kpiCard('Cyclistes avec vélo','50',null,true,true)+
+    kpiCard('Vélos attribués','95',badge('95 / 80 flotte','#eff6ff','#1d4ed8','#bfdbfe'),false,true)+
+    kpiCard('Ratio vélos / cycliste','1,9',badge('95 / 50','#ecfdf5','#047857','#a7f3d0'),false,true)+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;height:320px;margin-bottom:12px;">'+
+    visualCard('Vélos par cycliste','distribution',cid('chartDist'),256,'')+
+    visualCard('Vélos attribués par marque','parts de flotte',cid('chartMarqAff'),256,'')+
+    visualCard('Km cumulés par marque','affectée',cid('chartKmMarq'),256,'')+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1fr;gap:12px;">'+
+    tableCard('Affectations — Top cyclistes',
+      [{txt:'Cycliste',align:'left'},{txt:'Vélos',align:'right'},{txt:'Marques',align:'left'},{txt:'Km cumulés',align:'right'}],
+      [['Francois Caron',{txt:'2',align:'right',bold:true},'Specialized · Factor',{txt:'12 482',align:'right',bold:true}],
+       ['Sophie Roux',{txt:'2',align:'right',bold:true},'Giant · Canyon',{txt:'11 360',align:'right',bold:true}],
+       ['Jean-Philippe Paquet',{txt:'1',align:'right',bold:true},'Merida',{txt:'10 915',align:'right',bold:true}],
+       ['Karine Caron',{txt:'3',align:'right',bold:true},'Trek · Pinarello · Colnago',{txt:'10 207',align:'right',bold:true}]],
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Nombre de vélos affectés et kilomètres cumulés par cycliste.')+
+  '</div>';
+};
+
+/* ===== S2.1 Flotte — Vue d'ensemble ===== */
+renderers['s21'] = function(){
+  return '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px;">'+
+    kpiCard('Vélos en flotte','80',null,false,true)+
+    kpiCard('Marques distinctes','25',badge('+3 vs 2024','#ecfdf5','#047857','#a7f3d0'),false,true)+
+    kpiCard('Année moyenne du parc','2023',badge('parc récent','#eff6ff','#1d4ed8','#bfdbfe'),false,true)+
+    kpiCard('Km total parcouru',num(totalKm())+' km',badge('+18,4% vs 2024','#ecfdf5','#047857','#a7f3d0'),false,true,'Km total parcouru')+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;height:300px;margin-bottom:12px;">'+
+    visualCard('Vélos par année de sortie','parc',cid('chartAnnee'),236,'')+
+    visualCard('Top marques — kilomètres','cumulés',cid('chartKmMarq2'),236,'')+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1fr;gap:12px;height:230px;">'+
+    tableCard('Top vélos — kilomètres parcourus',
+      [{txt:'Marque',align:'left'},{txt:'Modèle',align:'left'},{txt:'Année',align:'right'},{txt:'Km',align:'right'}],
+      [['Factor','ONE',{txt:'2024',align:'right'},{txt:'36 349',align:'right',bold:true}],
+       ['Giant','Propel Advanced SL 0',{txt:'2024',align:'right'},{txt:'32 907',align:'right',bold:true}],
+       ['Merida','Scultura Team',{txt:'2023',align:'right'},{txt:'27 223',align:'right',bold:true}],
+       ['Canyon','Ultimate CF SLX 8',{txt:'2023',align:'right'},{txt:'17 123',align:'right',bold:true}],
+       ['Colnago','C68',{txt:'2022',align:'right'},{txt:'12 346',align:'right',bold:true}]],
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Kilométrage cumulé de chaque vélo de la flotte (période filtrée).')+
+  '</div>';
+};
+
+/* ===== S2.2 Répartition par marque ===== */
+renderers['s22'] = function(){
+  return '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">'+
+    kpiCard('Marques distinctes','25',null,false,true)+
+    kpiCard('Vélos / marque (max)','6',badge('Trek · Giant','#eff6ff','#1d4ed8','#bfdbfe'),false,true)+
+    kpiCard('Marque dominante','Trek / Giant',badge('Km: Factor','#ecfdf5','#047857','#a7f3d0'),false,true)+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:12px;height:340px;margin-bottom:12px;">'+
+    visualCard('Vélos par marque','effectifs',cid('chartMarqBar'),276,'')+
+    visualCard('Top marques — kilomètres','parts',cid('chartMarqDonut'),276,'')+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:1fr;gap:12px;">'+
+    tableCard('Détail par marque',
+      [{txt:'Marque',align:'left'},{txt:'Modèles',align:'right'},{txt:'Vélos',align:'right'},{txt:'Km cumulés',align:'right'}],
+      [['Factor',{txt:'4',align:'right',bold:true},{txt:'5',align:'right',bold:true},{txt:'41 575',align:'right',bold:true}],
+       ['Giant',{txt:'5',align:'right',bold:true},{txt:'6',align:'right',bold:true},{txt:'39 448',align:'right',bold:true}],
+       ['Merida',{txt:'3',align:'right',bold:true},{txt:'3',align:'right',bold:true},{txt:'34 407',align:'right',bold:true}],
+       ['Specialized',{txt:'5',align:'right',bold:true},{txt:'5',align:'right',bold:true},{txt:'26 017',align:'right',bold:true}],
+       ['Canyon',{txt:'5',align:'right',bold:true},{txt:'5',align:'right',bold:true},{txt:'20 099',align:'right',bold:true}]],
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Parts de flotte et kilomètres cumulés par marque.')+
+  '</div>';
+};
+
+/* ---- helpers ---- */
+function num(n){ return Math.round(n).toLocaleString('fr-FR'); }
+function badge(txt,bg,fg,bd){ return {txt:txt,bg:bg,fg:fg,bd:bd}; }
+function totalKm(){ var idx=activeIndices(); var s=0; idx.forEach(function(i){s+=kmData[i];}); return s; }
+function totalSorties(){ var idx=activeIndices(); var s=0; idx.forEach(function(i){s+=sortiesData[i];}); return s; }
+
+/* ============ ECHARTS INIT ============ */
+function makeChart(id, option){
+  var el=document.getElementById(id); if(!el) return;
+  var ch=echarts.init(el);
+  ch.setOption(option);
+  el._ec=ch;
+  return ch;
+}
+
+function initS11(){
+  var idx=activeIndices(), monthsF=[], kmF=[], soF=[];
+  idx.forEach(function(i){ monthsF.push(months[i]); kmF.push(kmData[i]); soF.push(sortiesData[i]); });
+  makeChart('chartKm',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{formatter:function(p){return '<b>'+p[0].axisValue+'</b><br/>'+p[0].marker+' '+Number(p[0].value).toLocaleString('fr-FR')+' km';}}),
+    grid:{top:22,right:16,bottom:24,left:44,containLabel:true},
+    xAxis:{type:'category',data:monthsF,axisLine:{lineStyle:{color:'#94a3b8'}},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10}},
+    yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10,formatter:function(v){return v>=1000?(v/1000)+'k':v;}},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    series:[{type:'line',data:kmF,smooth:0.2,symbol:'circle',symbolSize:5,lineStyle:{width:2.5,color:primary},itemStyle:{color:primary,borderWidth:2,borderColor:'#ffffff'},areaStyle:{color:primary,opacity:0.12}}]});
+  makeChart('chartSorties',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{formatter:function(p){return '<b>'+p[0].axisValue+'</b><br/>'+p[0].marker+' '+Number(p[0].value).toLocaleString('fr-FR')+' sorties';}}),
+    grid:{top:22,right:16,bottom:24,left:44,containLabel:true},
+    xAxis:{type:'category',data:monthsF,axisLine:{lineStyle:{color:'#94a3b8'}},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10}},
+    yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    series:[{type:'bar',data:soF,barMaxWidth:18,itemStyle:{borderRadius:[3,3,0,0],color:primary}}]});
+  makeChart('chartPays',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{trigger:'item',formatter:'{b}<br/>{c} cyclistes ({d}%)'}),
+    legend:{orient:'vertical',right:10,top:'center',itemGap:12,textStyle:{color:textMuted,fontSize:11}},
+    series:[{type:'pie',radius:['52%','72%'],center:['36%','50%'],label:{show:true,formatter:'{c}',fontSize:11,color:textMain},itemStyle:{borderColor:'#ffffff',borderWidth:2},data:[
+      {name:'Canada',value:36,itemStyle:{color:primary}},{name:'France',value:9,itemStyle:{color:'#2563EB'}},{name:'Belgique',value:5,itemStyle:{color:'#5CB57D'}}]}]});
+  makeChart('chartMarques',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{trigger:'item',formatter:'{b}<br/>{c} vélos'}),
+    grid:{top:6,right:30,bottom:8,left:8,containLabel:true},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    yAxis:{type:'category',inverse:true,data:['Giant','Trek','Specialized','Cervelo','Canyon','Pinarello'],axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMain,fontSize:11,fontWeight:500}},
+    series:[{type:'bar',data:[6,6,5,5,5,4],barHeight:14,itemStyle:{borderRadius:[0,4,4,0],color:primary},label:{show:true,position:'right',fontSize:11,fontWeight:'bold',color:textMain,distance:6}}]});
+}
+
+function initS12(){
+  makeChart('chartPaysG',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{trigger:'item',formatter:'{b}<br/>{c} cyclistes'}),
+    grid:{top:10,right:30,bottom:10,left:8,containLabel:true},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    yAxis:{type:'category',inverse:true,data:['Belgique','France','Canada'],axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMain,fontSize:11,fontWeight:500}},
+    series:[{type:'bar',data:[{value:5,itemStyle:{color:'#5CB57D'}},{value:9,itemStyle:{color:'#2563EB'}},{value:36,itemStyle:{color:primary}}],barHeight:20,itemStyle:{borderRadius:[0,4,4,0]},label:{show:true,position:'right',fontSize:12,fontWeight:'bold',color:textMain,distance:6}}]});
+  makeChart('chartVilles',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{trigger:'item',formatter:'{b}<br/>{c} cyclistes'}),
+    grid:{top:10,right:30,bottom:10,left:8,containLabel:true},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    yAxis:{type:'category',inverse:true,data:['Annecy','Gatineau','Repentigny','Lyon','Liège','Saint-Bruno-de-Montarville'],axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMain,fontSize:11,width:140,overflow:'truncate'}},
+    series:[{type:'bar',data:[2,2,3,3,4,23],barHeight:16,itemStyle:{borderRadius:[0,4,4,0],color:primary},label:{show:true,position:'right',fontSize:11,fontWeight:'bold',color:textMain,distance:6}}]});
+  makeChart('chartKmPays',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{trigger:'item',formatter:'{b}<br/>{c} km ({d}%)'}),
+    legend:{orient:'vertical',right:10,top:'center',itemGap:12,textStyle:{color:textMuted,fontSize:11}},
+    series:[{type:'pie',radius:['52%','72%'],center:['36%','50%'],label:{show:true,formatter:'{c}',fontSize:11,color:textMain},itemStyle:{borderColor:'#ffffff',borderWidth:2},data:[
+      {name:'Canada',value:209098,itemStyle:{color:primary}},{name:'France',value:56812,itemStyle:{color:'#2563EB'}},{name:'Belgique',value:34338,itemStyle:{color:'#5CB57D'}}]}]});
+}
+
+function initS13(){
+  makeChart('chartDist',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{formatter:'{b} : {c} cyclistes'}),
+    grid:{top:10,right:16,bottom:10,left:44,containLabel:true},
+    xAxis:{type:'category',data:['1 vélo','2 vélos','3 vélos'],axisLine:{lineStyle:{color:'#94a3b8'}},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:11}},
+    yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    series:[{type:'bar',data:[14,27,9],barMaxWidth:46,itemStyle:{borderRadius:[4,4,0,0],color:primary},label:{show:true,position:'top',fontSize:12,fontWeight:'bold',color:textMain}}]});
+  makeChart('chartMarqAff',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{trigger:'item',formatter:'{b}<br/>{c} vélos ({d}%)'}),
+    legend:{orient:'vertical',right:10,top:'center',itemGap:10,textStyle:{color:textMuted,fontSize:10}},
+    series:[{type:'pie',radius:['52%','72%'],center:['34%','50%'],label:{show:true,formatter:'{c}',fontSize:11,color:textMain},itemStyle:{borderColor:'#ffffff',borderWidth:2},data:[
+      {name:'Trek',value:6,itemStyle:{color:primary}},{name:'Giant',value:6,itemStyle:{color:'#2563EB'}},{name:'Specialized',value:5,itemStyle:{color:'#5CB57D'}},{name:'Cervelo',value:5,itemStyle:{color:'#D97706'}},{name:'Canyon',value:5,itemStyle:{color:'#7C3AED'}},{name:'Autres',value:53,itemStyle:{color:'#CBD5E1'}}]}]});
+  makeChart('chartKmMarq',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{formatter:'{b} : {c} km'}),
+    grid:{top:10,right:30,bottom:10,left:8,containLabel:true},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:9,formatter:function(v){return v>=1000?(v/1000)+'k':v;}},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    yAxis:{type:'category',inverse:true,data:['Colnago','Pinarello','Canyon','Specialized','Merida','Giant','Factor'],axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMain,fontSize:10}},
+    series:[{type:'bar',data:[12346,15463,20099,26017,34407,39448,41575],barHeight:15,itemStyle:{borderRadius:[0,4,4,0],color:primary},label:{show:true,position:'right',fontSize:10,color:textMain,formatter:function(p){return Math.round(p.value/1000)+'k';}}}]});
+}
+
+function initS21(){
+  makeChart('chartAnnee',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{formatter:'{b} : {c} vélos'}),
+    grid:{top:10,right:16,bottom:10,left:44,containLabel:true},
+    xAxis:{type:'category',data:['2021','2022','2023','2024'],axisLine:{lineStyle:{color:'#94a3b8'}},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:11}},
+    yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    series:[{type:'bar',data:[1,20,34,25],barMaxWidth:40,itemStyle:{borderRadius:[4,4,0,0],color:primary},label:{show:true,position:'top',fontSize:12,fontWeight:'bold',color:textMain}}]});
+  makeChart('chartKmMarq2',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{formatter:'{b} : {c} km'}),
+    grid:{top:10,right:34,bottom:10,left:8,containLabel:true},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:9,formatter:function(v){return v>=1000?(v/1000)+'k':v;}},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    yAxis:{type:'category',inverse:true,data:['Colnago','Pinarello','Trek','Canyon','Specialized','Merida','Giant','Factor'],axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMain,fontSize:10}},
+    series:[{type:'bar',data:[12346,15463,15717,20099,26017,34407,39448,41575],barHeight:14,itemStyle:{borderRadius:[0,4,4,0],color:primary},label:{show:true,position:'right',fontSize:10,color:textMain,formatter:function(p){return Math.round(p.value/1000)+'k';}}}]});
+}
+
+function initS22(){
+  var marques=['BMC','Bianchi','Scott','Pinarello','Colnago','Canyon','Specialized','Cervelo','Merida','Giant','Trek'];
+  var vals=[4,3,4,4,3,5,5,5,3,6,6];
+  var colors=vals.map(function(){return primary;});
+  vals[2]=colors[2]='#2563EB';
+  makeChart('chartMarqBar',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{formatter:'{b} : {c} vélos'}),
+    grid:{top:10,right:30,bottom:10,left:8,containLabel:true},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMuted,fontSize:10},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}},
+    yAxis:{type:'category',inverse:true,data:marques,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textMain,fontSize:11}},
+    series:[{type:'bar',data:vals,barHeight:15,itemStyle:{borderRadius:[0,4,4,0],color:function(p){return colors[p.dataIndex];}},label:{show:true,position:'right',fontSize:11,color:textMain}}]});
+  makeChart('chartMarqDonut',{backgroundColor:'transparent',
+    tooltip:Object.assign({},tooltipBase,{trigger:'item',formatter:'{b}<br/>{c} km ({d}%)'}),
+    legend:{orient:'vertical',right:6,top:'center',itemGap:10,textStyle:{color:textMuted,fontSize:10}},
+    series:[{type:'pie',radius:['52%','72%'],center:['32%','50%'],label:{show:true,formatter:'{c}',fontSize:10,color:textMain},itemStyle:{borderColor:'#ffffff',borderWidth:2},data:[
+      {name:'Factor',value:41575,itemStyle:{color:primary}},{name:'Giant',value:39448,itemStyle:{color:'#2563EB'}},{name:'Merida',value:34407,itemStyle:{color:'#5CB57D'}},{name:'Specialized',value:26017,itemStyle:{color:'#D97706'}},{name:'Canyon',value:20099,itemStyle:{color:'#7C3AED'}},{name:'Autres',value:143702,itemStyle:{color:'#CBD5E1'}}]}]});
+}
+
+/* ---- KPI count-up animation ---- */
+function startKpiAnimation(){
+  document.querySelectorAll('#body #kpiNum').forEach(function(el){});
+}
+
+/* ============ INIT ============ */
+buildDropdowns();
+refreshFilterUI();
+renderNav();
+
+(function bindResize(){
+  window.addEventListener('resize', function(){ renderChartsForSub(); });
+})();
+</script>
+</body>
+</html>
