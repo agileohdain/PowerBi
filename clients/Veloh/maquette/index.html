@@ -62,14 +62,14 @@
   .nav-l2 .sub{font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;background:transparent;border:0;padding:0 0 9px;user-select:none;}
   .nav-l2 .sub.active{color:var(--primary);font-weight:700;border-bottom:2px solid var(--primary);}
   .content{flex:1;min-height:0;margin-top:12px;display:flex;flex-direction:column;gap:12px;}
-  .kpi-row{display:grid;gap:12px;height:100px;flex:none;}
+  .kpi-row{display:grid;gap:12px;height:108px;flex:none;}
   .kpi-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 16px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;}
   .kpi-card.consol{border:2px dashed var(--consolidation);}
   .kpi-card .accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);}
   .kpi-card .label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;height:14px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .kpi-card .value{font-size:26px;font-weight:800;color:var(--text-primary);letter-spacing:-.5px;height:32px;line-height:32px;margin:4px 0 2px;white-space:nowrap;}
+  .kpi-card .value{font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-.5px;height:26px;line-height:26px;margin:4px 0 2px;white-space:nowrap;}
   .kpi-card .sub{font-size:11px;color:var(--text-secondary);height:14px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .trend-slot{height:20px;margin-top:5px;display:flex;align-items:center;}
+  .trend-slot{height:18px;margin-top:4px;display:flex;align-items:center;}
   .kpi-card .trend{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600;width:max-content;}
   .trend.good{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;}
   .trend.bad{background:#fff1f2;color:#be123c;border:1px solid #fecdd3;}
@@ -431,7 +431,7 @@ function renderPage(){
     <div class="content">
       <div class="kpi-row" style="grid-template-columns:repeat(${layout.kpis.length},1fr)">${layout.kpis.map(k=>kpiCard(k,agg)).join('')}</div>
       <div class="viz-grid" style="grid-template-columns:${layout.row2Cols}">${layout.row2.map(c=>vizCard(c.title,c.unit,c.id)).join('')}</div>
-      <div class="viz-card" style="flex:none;height:260px" id="row3card"></div>
+      <div class="viz-card" style="flex:none;height:300px" id="row3card"></div>
     </div>`;
 
   // Navigation L1
