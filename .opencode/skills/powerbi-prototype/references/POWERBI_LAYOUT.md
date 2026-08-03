@@ -23,12 +23,13 @@
 - **Outer padding:** 16px around canvas edges.
 - **Card gaps:** 12px between visual cards.
 
-## 2. Header — imported background image (`bg.png`)
+## 2. Header — imported background image (`bg.svg`/`bg.png`)
 
 The entire header (logo zone + accent + diagonal primary banner) is **authored
 in PowerPoint** by the user (`powerpoint/Maquette Power BI.pptx`) and **exported
-as `bg.png`** (via `powerpoint/export-bg.ps1`). The skill does **NOT** draw the
-header in CSS — it applies `bg.png` as the canvas background and overlays only
+as a background image** — preferably `bg.svg` (vector, crisp), or `bg.png` as a
+fallback (e.g. via `powerpoint/export-bg.ps1`). The skill does **NOT** draw the
+header in CSS — it applies the background image on the canvas and overlays only
 the title/subtitle and content.
 
 ```
@@ -45,13 +46,14 @@ the title/subtitle and content.
 - **Logo zone right edge:** ~245 px (≈ 1 558 925 EMU) — aligned with the filter
   pane below. Do **not** place content over the logo zone.
 - **Filter pane:** left 0-245 px, below the header. Its background is part of
-  `bg.png` (white rounded panel + "Filtres" label + funnel icon, in
+  the background image (white rounded panel + "Filtres" label + funnel icon, in
   `var(--primary)`).
 - **Main content area:** x > 245 px, y > ~97 px (after the L1/L2 navigation rows).
 
 ### Background image rules
-- Apply on the canvas: `background: url(./bg.png) center top / cover no-repeat;`
-  (the image is 3840×2160, i.e. 2× the 1920×1080 design — crisp on retina).
+- Apply on the canvas: `background: url(./bg.svg) center top / cover no-repeat;`
+  (use `./bg.png` if the PNG fallback was provided). SVG is crisp at any scale;
+  the PNG fallback is 3840×2160 (2× the 1920×1080 design).
 - **Never redraw** the banner, logo zone, canvas fill, or filter panel in CSS.
 - The **title/subtitle** are overlaid on the banner in `var(--surface)`.
 - The user keeps `--primary` (in `CLIENT.md`) **in sync** with the banner color
@@ -61,16 +63,16 @@ the title/subtitle and content.
 ## 3. Left Filter Pane (width: ~245px)
 
 Positioned directly beneath the header on the far left. The pane **background**
-(rounded panel + "Filtres" label + funnel icon) comes from `bg.png` — the skill
-only overlays the **slicer controls** on top of it.
+(rounded panel + "Filtres" label + funnel icon) comes from the background image
+(`bg.svg`/`bg.png`) — the skill only overlays the **slicer controls** on top of it.
 
 - **Alignment & spacing:** the pane starts immediately under the header (no gap
   above). Its left edge is flush with the canvas left edge; the gap to the main
   content area is the standard 16px. Internal padding 16px.
 - **Right edge:** ~245px (≈ 1 558 925 EMU), aligned with the logo zone above —
-  both edges form one continuous vertical line in `bg.png`.
-- **Pane header ("Filtres" + funnel icon):** rendered in `bg.png` in
-  `var(--primary)`. Do **not** redraw it.
+  both edges form one continuous vertical line in the background image.
+- **Pane header ("Filtres" + funnel icon):** rendered in the background image
+  in `var(--primary)`. Do **not** redraw it.
 - **Slicers (stacked vertically, overlaid on the pane):**
   - Fiscal year (button slicer / chiclet).
   - Quarter (dropdown).

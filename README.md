@@ -1,16 +1,14 @@
 # PowerBi
 
 Dépôt Power BI — génération de **maquettes dashboard haute-fidélité** pour
-clients (pré-vente / démo) + apprentissage (rapports PBIP, tutoriels).
+clients (pré-vente / démo).
 
 ## Contenu du dépôt
 
 | Dossier          | Description                                                            |
 | ---------------- | --------------------------------------------------------------------- |
-| `clients/`       | **1 dossier par client** : `CLIENT.md` (à remplir), données, `bg.png`, maquette HTML |
+| `clients/`       | **1 dossier par client** : `CLIENT.md` (à remplir), données, fond `bg`, maquette HTML |
 | `powerpoint/`    | Template PowerPoint du fond (`Maquette Power BI.pptx`) + `export-bg.ps1` |
-| `rapports/`      | Projets Power BI au format **PBIP** (Power BI Project)                |
-| `tutoriels/`     | Notes, guides et exercices d'apprentissage                            |
 | `.opencode/`     | Skill opencode `powerbi-prototype` (génération des maquettes HTML)    |
 
 ---
@@ -23,12 +21,10 @@ pour économiser les tokens.
 
 ### Étape 1 — Créer le dossier client
 
-```powershell
-# Depuis la racine du dépôt
-Copy-Item -Recurse clients/_template clients/<mon-client>
-```
+Dans l'explorateur de fichiers, **copiez le dossier `clients/_template/`** et
+**renommez la copie** en `clients/<mon-client>/`.
 
-Vous obtenez un dossier `clients/<mon-client>/` avec un `CLIENT.md` à remplir.
+Vous obtenez un dossier avec un `CLIENT.md` à remplir.
 
 ### Étape 2 — Remplir `CLIENT.md`
 
@@ -48,17 +44,22 @@ Le visuel du bandeau / fond est authored dans PowerPoint, pas en CSS.
 3. Ajouter le **logo** du client dans la zone « Zone logo » (en haut à gauche).
 4. Enregistrer la copie, par exemple `clients/<mon-client>/fond.pptx`.
 
-### Étape 4 — Exporter le fond (`bg.png`)
+### Étape 4 — Exporter le fond (`bg.svg`)
 
-```powershell
-./powerpoint/export-bg.ps1 -Path clients/<mon-client>/fond.pptx `
-                           -Output clients/<mon-client>/bg.png
-```
+Dans PowerPoint, sur votre copie personnalisée :
 
-Le script ouvre le `.pptx` via PowerPoint et exporte la diapo en PNG 2×
-(3840×2160) — net, léger, compatible HTML et Power BI Desktop.
-> Vous pouvez ignorer cette étape et la laisser au skill : il appellera
-> lui-même `export-bg.ps1` si `bg.png` est absent.
+1. **Sélectionnez tout** (Ctrl+A).
+2. **Clic droit → Enregistrer en tant qu'image**.
+3. Choisissez le format **SVG** et enregistrez sous
+   `clients/<mon-client>/bg.svg`.
+
+> **Pourquoi SVG ?** Vectoriel, donc toujours net (l'export PNG manuel de
+> PowerPoint sort à basse résolution). Le **PNG est aussi accepté** (`bg.png`),
+> et il est même **préférable si vous comptez réutiliser ce fond dans un vrai
+> rapport Power BI Desktop** (Power BI gère mieux le raster en fond de canevas).
+>
+> Vous pouvez aussi **sauter cette étape** : le skill génère le fond
+> automatiquement (en PNG, via `export-bg.ps1`) si `bg.svg`/`bg.png` est absent.
 
 ### Étape 5 — Lancer le skill opencode
 
@@ -69,10 +70,11 @@ opencode
 ```
 
 Le skill :
-1. Lit `CLIENT.md` (+ `bg.png`).
+1. Lit `CLIENT.md` (+ `bg.svg`/`bg.png`).
 2. Si pas de `donnees.xlsx` : génère un Excel fictif réaliste + `DATA.md`.
-3. Génère `clients/<mon-client>/maquette/index.html` (canevas 1920×1080,
-   `bg.png` en fond, KPIs et graphiques ECharts par-dessus).
+3. Si pas de `bg.*` : génère le fond automatiquement (`export-bg.ps1`).
+4. Génère `clients/<mon-client>/maquette/index.html` (canevas 1920×1080,
+   `bg.*` en fond, KPIs et graphiques ECharts par-dessus).
 
 Ouvrez `clients/<mon-client>/maquette/index.html` dans un navigateur.
 
@@ -108,9 +110,11 @@ Client complet (flotte cyclable, thème sombre) :
 gh repo clone agileohdain/PowerBi
 ```
 
-### Activer le format PBIP dans Power BI Desktop
-`File` → `Options and settings` → `Options` → `Preview features`
-→ cocher **Power BI Project (.pbip) save option**.
+> Un clone est une **copie locale en lecture seule** : votre collègue ne peut
+> pas modifier votre dépôt GitHub sans que vous l'ajoutiez comme **collaborateur**
+> (accès en écriture). Sans ça, il contribue via un **fork + pull request**.
+> Note : ce dépôt est **public** → tout son contenu (et l'historique) est lisible
+> par tous. Passez-le en **Privé** (*Settings → Danger Zone*) pour restreindre.
 
 ### Workflow Git usuel
 ```bash
@@ -118,10 +122,6 @@ git add .                          # indexer les modifications
 git commit -m "message explicite"  # créer un commit
 git push origin main               # envoyer vers GitHub
 ```
-
-> Le format **PBIP** sauvegarde un rapport sous forme de fichiers JSON/XML
-> lisibles : Git affiche les différences et suit l'historique (impossible avec
-> un `.pbix` binaire).
 
 ### Conventions de commit
 - Messages en français, à l'infinitif : `Ajoute maquette client acme`
