@@ -1,9 +1,9 @@
 ---
 name: powerbi-prototype
-description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Dès que l'utilisateur lance "AgileDSS", le skill demande "Quel est le nouveau client ?" (respect strict des majuscules/minuscules, sans proposer de nom — l'utilisateur saisit lui-même), demande de passer en mode BUILD si nécessaire, crée automatiquement clients/<client>/ avec CLIENT.md, demande de repasser en mode PLAN, demande de déposer les données (donnees.xlsx) et le logo (logo.png) — jamais générés par le skill — puis demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — couleurs/titre/arbre de navigation/KPIs — et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER (l'utilisateur édite lui-même CLIENT.md, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. "AgileDSS", "maquette power bi", "nouvelle maquette client".
+description: Génère des maquettes de dashboards Power BI haute-fidélité (canevas 16:9, bandeau/fond dessinés en CSS, cartes KPI, slicers, visuels ECharts, navigation dynamique deux-niveaux) en HTML/Tailwind/ECharts auto-suffisant. Dès que l'utilisateur lance "Commencer", le skill demande "Quel est le nouveau client ?" (respect strict des majuscules/minuscules, sans proposer de nom — l'utilisateur saisit lui-même), demande de passer en mode BUILD si nécessaire, crée automatiquement clients/<client>/ avec CLIENT.md, demande de repasser en mode PLAN, demande de déposer les données (donnees.xlsx) et le logo (logo.png) — jamais générés par le skill — puis demande si l'utilisateur veut être TÉLÉGUIDÉ (le skill pose les questions une à une — couleurs/titre/arbre de navigation/KPIs — et écrit CLIENT.md au fil du questionnement) ou PERSONNALISER (l'utilisateur édite lui-même CLIENT.md, le skill génère en une passe). Use when the user wants to create a Power BI dashboard mockup for a client — e.g. "Commencer", "maquette power bi", "nouvelle maquette client".
 triggers:
-  - AgileDSS
-  - agiledss
+  - Commencer
+  - commencer
   - maquette power bi
   - maquette powerbi
   - génère la maquette
@@ -15,7 +15,7 @@ Je produis des maquettes de dashboards Power BI en HTML auto-suffisant, fidèles
 langage visuel Power BI (canevas 16:9 fixe, bandeau et fond dessinés en CSS,
 cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
 
-**Flux de démarrage** (déclenché par « AgileDSS ») :
+**Flux de démarrage** (déclenché par « Commencer ») :
 1. Je demande **« Quel est le nouveau client ? »** — formulation soignée et
    attractive, en précisant que la **casse est respectée telle quelle**
    (majuscules/minuscules). **Je ne propose pas de nom** : l'utilisateur

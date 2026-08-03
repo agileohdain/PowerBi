@@ -19,7 +19,7 @@ Dans opencode, lancez simplement :
 ```powershell
 opencode
 # puis dans opencode :
-> AgileDSS
+> Commencer
 ```
 
 Le skill déroule alors le processus :
