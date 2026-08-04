@@ -200,7 +200,11 @@ N-1** ne sont possibles — c'est la régression à éviter.
    Ce test exécute le JS de la maquette dans Node (DOM et ECharts simulés) :
    il appelle `renderPage()`, vérifie que la rangée de KPI et les visuels sont
    remplis, parcourt **toutes** les sous-pages (`go(page, sub)`) et exécute
-   chaque vue. **Ne jamais livrer une maquette qui échoue ce test** — une seule
+   chaque vue. Il vérifie aussi que **chaque rendu appelle bien
+   `echarts.init`** (autant de charts initialisés que de conteneurs rendus) —
+   une maquette peut tourner sans aucune exception tout en n'affichant
+   **aucun visuel** (guard fautif qui retourne silencieusement à chaque
+   appel). **Ne jamais livrer une maquette qui échoue ce test** — une seule
    erreur JS fatale (réassignation d'une `const`, `ReferenceError` sur un
    identifiant non déclaré ou mal orthographié, …) rend la page **vide** dans
    le navigateur : la navigation s'affiche mais ni les KPI ni les visuels.
@@ -252,7 +256,7 @@ N-1** ne sont possibles — c'est la régression à éviter.
   reste atteignable au survol (conteneur de survol partagé). Voir §4.3.
 - **Aucune erreur JS tolérée (bloquant)** : `renderPage()` et **chaque**
   sous-page doivent s'exécuter sans exception — vérifié mécaniquement par
-  `scripts/smoke-test.js` (exit code 0 exigé avant livraison). Les trois pièges
+  `scripts/smoke-test.js` (exit code 0 exigé avant livraison). Les cinq pièges
   classiques à éviter absolument :
   1. **Réassigner une `const`** (ex. registre de charts : `const charts={}` puis
      `charts={}` → `TypeError`, page vide). Utiliser le snippet canonique de
@@ -263,5 +267,17 @@ N-1** ne sont possibles — c'est la régression à éviter.
   3. **Placer la zone de contenu en `top:0`** : la navigation L1/L2 se dessine
      alors **par-dessus le bandeau** et masque le titre. Le conteneur de
      contenu commence sous le bandeau (`top:97px`) — voir `POWERBI_LAYOUT.md` §4.
+  4. **Guarder l'init des charts avec une propriété jamais définie** (ex.
+     `if (!el || !el.__chart) return;`) : `echarts.init` n'est jamais appelé,
+     **aucune exception n'est levée** et toutes les cartes restent vides au
+     navigateur. Le seul guard autorisé est `if (!el) return;` — le smoke test
+     compte les `echarts.init` et exige un chart par conteneur rendu. Voir
+     `POWERBI_COMPONENTS.md` §6.
+  5. **Composer nav + KPI + visuels par concaténation d'innerHTML dans un
+     conteneur partagé** (ex. `content.innerHTML = navHtml +
+     content.innerHTML`) : re-parser le HTML sérialisé détruit le DOM vivant
+     des charts et les listeners à chaque rendu. Utiliser des conteneurs
+     statiques dédiés (`#navL1`, `#navL2`, `#kpis`, `#visuals`) — voir
+     `POWERBI_LAYOUT.md` §4.
 - Une seule page de mockup pleinement validée par exécution ; les autres
   sous-pages sont des defaults cohérents.

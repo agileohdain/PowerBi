@@ -435,12 +435,41 @@ embed the underlying monthly series so they can be filtered and compared.
   ```
   Never write `const charts = {}` and later `charts = {}`. The registry must be
   declared with `let` (or mutated in place with `delete charts[k]`).
+* **Chart init — use this exact pattern, with no guard beyond the element
+  itself.** Every chart placeholder rendered in the HTML must receive an
+  `echarts.init`. A guard that tests a property never set anywhere
+  (`if (!el || !el.__chart) return;` — `el.__chart` is always `undefined`)
+  returns **silently on every call**: no exception, no chart, empty cards in
+  the browser while the smoke test's JS checks pass. The init must be
+  unconditional once the element exists:
+  ```javascript
+  function renderCharts(list){
+    requestAnimationFrame(() => {
+      list.forEach(([id, opt]) => {
+        const el = document.getElementById(id);
+        if (!el) return;                       // seul guard autorisé
+        charts[id] = echarts.init(el);         // jamais de condition sur une propriété maison
+        charts[id].setOption(opt);
+      });
+    });
+  }
+  ```
+  Likewise, do not gate init behind `window.echarts` checks that differ from
+  the plain global `echarts` — the CDN script in `<head>` defines the global
+  synchronously; a mismatched guard silently skips every chart.
 * **DATA identifiers — declare once, reference exactly.** Every identifier a
   view references must be declared once in the DATA block, with the **exact
   same casing** (`CITY_CYCLISTES` ≠ `cityCyclistes` — a single typo throws
   `ReferenceError` and blanks that whole sub-page). Before delivering, run the
   smoke test (`scripts/smoke-test.js`, see SKILL.md Phase 3) which executes
   every view and catches these errors mechanically.
+* **Separate static containers — never rewrite a parent's `innerHTML` by
+  string concatenation.** Nav, KPI row and visuals live in **dedicated static
+  containers** (`#navL1`, `#navL2`, `#kpis`, `#visuals`, see POWERBI_LAYOUT.md
+  §4), each rewritten independently. Never build the navigation by prepending
+  into a shared container (`c.innerHTML = navHtml + c.innerHTML`): re-parsing
+  the serialized HTML destroys the live chart DOM nodes and their listeners on
+  every render, and any error in one zone wipes the others.
 
 > A mockup that only embeds final per-sub-page arrays **cannot** filter or
 > compute YoY — that is the regression this section exists to prevent.

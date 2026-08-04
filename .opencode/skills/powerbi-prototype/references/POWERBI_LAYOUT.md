@@ -134,6 +134,16 @@ regression. The nav rows, KPI row and visuals grid all flow inside this
 container, in this order, with the visuals grid taking the remaining height
 (`flex:1; min-height:0`).
 
+**Static sub-containers (MANDATORY).** Inside `.content`, each zone lives in
+its **own static element present in the HTML from the start** —
+`#navL1` (L1 pills), `#navL2` (L2 links), `#kpis` (KPI row), `#visuals`
+(visuals grid). Each render rewrites **only** the `innerHTML` of the zone it
+owns. **Never** compose zones by string-concatenating into a shared container
+(e.g. `content.innerHTML = navHtml + content.innerHTML`): re-parsing
+serialized HTML destroys live chart DOM nodes and event listeners on every
+render, and breaks the separation between navigation and content (see
+`POWERBI_COMPONENTS.md` §6).
+
 ### Row 0a — Primary navigation (Level-1 tabs)
 - Rendered dynamically from `CLIENT.md` Page list.
 - Layout: `flex` row of pills, or `grid grid-cols-N` (N = number of pages).
