@@ -113,6 +113,25 @@ the first one. The figure is **computed from `donnees.xlsx`, never invented**.
 * **Static KPIs** (dimension counts with no time axis, e.g. *Pays couverts*,
   *Vélos en flotte*) carry **no** YoY badge — they are not time-derived.
 
+### 1.5. KPI Value Semantics & Card Typography (BLOCKING)
+
+* **One KPI = one meaningful number (or one short label).** A KPI card must never
+  show a concatenation of raw counts like `36 / 9 / 5` for *"Cyclistes par pays"* —
+  that is illegible and looks like a bug. Choose the single figure the label means:
+  - a **count** (*Pays couverts* → `3`, *Villes couvertes* → `16`),
+  - a **ratio / average** derived from the filtered aggregates (*Cyclistes par pays*
+    → `actifs moyens / pays`, i.e. `actifs / NB_PAYS`, recomputed under filters and
+    carrying its YoY badge),
+  - or a **short named value** (*Marque dominante* → `Trek · Giant`).
+* **Time-derived KPIs recompute from the filtered aggregates** (`agg.km`,
+  `agg.rides`, `agg.actifs`, …) so the value stays correct under any filter;
+  **static dimension counts** are constants with no YoY badge (§1.4).
+* **Card typography (match exactly):** label `11px / 600 / uppercase /
+  var(--text-secondary)`; value `28px / 700 / var(--text-primary)`; a one-line
+  **sub-label** `11px / var(--text-secondary)` under the value; the footer row
+  (trend badge + consolidation flag) has `min-height:22px` so cards align. Do not
+  inflate the value to 30px+ or drop the sub-label.
+
 ---
 
 ## 2. Slicers & Filters
@@ -252,7 +271,19 @@ For all ECharts integrated into the dashboard:
 
 ### 3.4. Donut & Pie Charts
 * **ECharts Type:** `pie`
+* **Cardinality rule (BLOCKING — pick the chart by number of categories):** a
+  donut/pie is only readable with **at most ~6 slices**. A dimension with more
+  categories (e.g. **25 bike brands**, 16 cities) must **never** be rendered as a
+  donut — use a **horizontal bar chart** (§3.2.B) instead. *"Vélos par marque"*
+  (25 marques) is an **hbar**, not a donut. Feeding 9+ categories into a donut
+  yields an unreadable rainbow ring + a legend that overflows the card — a
+  recurring regression. When a *share-of-total* is wanted for a high-cardinality
+  dimension, aggregate to **top-N (≤6) + "Autres"** before the donut.
 * **Donut Sizing:** `radius: ['52%', '72%']`, `center: ['30%', '50%']`
+  (legend on the right; the centre overlay below anchors on the same `30%/50%`).
+* **Slice labels are ALWAYS on:** `label: { show: true, formatter: '{d} %',
+  fontSize: 10, color: <text-secondary>, distanceToLabelLine: 5 }`. Never render a
+  donut with `label:{show:false}` — a bare ring with no % reads as broken.
 * **Center Metric Callout — MUST be a CSS overlay, not an ECharts `title` /
   `graphic`:**
   * ECharts `title` and `graphic.text` do **not** center text on their anchor
@@ -371,10 +402,10 @@ For all ECharts integrated into the dashboard:
 ### 5.1. Card Container
 * **Usage:** Standard enclosing card component for any Power BI visual on the canvas grid.
 * **CSS / Tailwind Rules:**
-  * `bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 shadow-xs flex flex-col justify-between h-full`
-  * **Card Header:** `flex items-center justify-between mb-3 border-b border-[var(--border)] pb-2`
-  * **Card Title:** `text-sm font-semibold text-[var(--text-primary)] tracking-tight`
-  * **Subtitle / Unit:** `text-xs text-[var(--text-secondary)] font-normal ml-2`
+  * `bg-[var(--card-bg)] border border-[var(--border)] rounded-lg p-4 shadow-xs flex flex-col justify-between h-full`
+  * **Card Header:** `display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:6px;` — the title sits on the **left**, the sub/unit on the **right** (`justify-content:space-between`), never inline next to the title.
+  * **Card Title:** `font-size:13px; font-weight:600; color:var(--text-primary);` (sober — not 800).
+  * **Subtitle / Unit:** `font-size:11px; color:var(--text-secondary);` right-aligned in the header.
 
 ### 5.2. Info Note Bar (NEW)
 * **Usage:** A small informational note rendered at the bottom of a card or
@@ -473,3 +504,34 @@ embed the underlying monthly series so they can be filtered and compared.
 
 > A mockup that only embeds final per-sub-page arrays **cannot** filter or
 > compute YoY — that is the regression this section exists to prevent.
+
+### 6.1. Canonical extraction contract (run `scripts/extract-data.py`)
+
+Do **not** hand-derive the data model from `donnees.xlsx` ad hoc — that is how
+KPIs end up mis-interpreted and dimensions get dropped. Run the canonical
+extractor and embed **all** of its output:
+
+```bash
+python .opencode/skills/powerbi-prototype/scripts/extract-data.py clients/<client>/donnees.xlsx
+```
+
+It prints a `const DATA = {…}` block. Embed the **full** block — never a subset —
+so every sub-page has the dimensions it needs. For the VELOH-style schema
+(`DIM_UTILISATEUR`, `DIM_VELO`, `ASSOC_UTILISATEUR_VELO`, `DIM_COMPOSANT`,
+`FAIT_SORTIES`, `FAIT_USURE_COMPOSANT`) the block contains:
+
+* **Monthly core series:** `N`, `MONTH_META`, `KM[]`, `RIDES[]`, `MINUTES[]`.
+* **Activity masks:** `USER_MASKS` (`{id: bitmask}`, bit `i` = active month `i`;
+  users with an empty mask may be omitted — they count as 0).
+* **Per-dimension monthly series:** `KM_PAYS_M`, `RIDES_PAYS_M`, `KM_MARQUE_M`
+  (all brands), `KM_VILLE_M` — needed for stacked / multi-series and per-dim YoY.
+* **Static dimensions:** `PAYS_CYCLISTES`, `VILLE_CYCLISTES` (entity counts per
+  pays/ville — these drive "Répartition géographique"), `MARQUE_VELOS` (fleet
+  count per brand — drives "Vélos par marque", rendered as **hbar** per §3.4),
+  `USURE_STATUT` (component wear `Dépassé/Critique/Alerte/OK` — drives the
+  "Usure des composants" donut).
+* **Static scalars:** `NB_UTILISATEURS`, `NB_PAYS`, `NB_VILLES`, `NB_VELOS`,
+  `NB_MARQUES`, `ANNEE_MOY`, `USERS_AVEC_VELO`, `VELOS_ATTRIBUES`.
+
+If the extractor is missing a series a sub-page needs, **extend the extractor**
+(don't hand-patch the HTML) so the next client benefits too.

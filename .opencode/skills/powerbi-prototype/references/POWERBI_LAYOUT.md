@@ -69,6 +69,10 @@ In both cases the skill only overlays the title/subtitle and content.
   the PNG fallback, 3840×2160 = 2× the 1920×1080 design) and **never redraw**
   the banner, logo zone, canvas fill, or filter panel in CSS.
 - The **title/subtitle** are overlaid on the banner in `var(--surface)`.
+- **Banner typography (do not deviate):** the report title is a single `<h1>`
+  — `font-size:26px; font-weight:700; letter-spacing:.02em;` — and the subtitle a
+  `<p>` — `font-size:13px; opacity:.92;`. **Never** use `font-weight:800` +
+  `letter-spacing:.5px` (heavier, wider) nor a decorative class; keep it sober.
 - A **single info button `i`** (~36 px circle) sits at the far right of the
   banner (`right: ~18px`, vertically centered). On **hover** it opens a popover
   explaining the **active page and all its sub-pages** (from `desc` fields in
@@ -144,19 +148,31 @@ serialized HTML destroys live chart DOM nodes and event listeners on every
 render, and breaks the separation between navigation and content (see
 `POWERBI_COMPONENTS.md` §6).
 
-### Row 0a — Primary navigation (Level-1 tabs)
+### Row 0a — Primary navigation (Level-1 tabs) — COMPACT
 - Rendered dynamically from `CLIENT.md` Page list.
-- Layout: `flex` row of pills, or `grid grid-cols-N` (N = number of pages).
-- **Inactive tab:** `var(--surface)` bg, muted text, subtle border.
-- **Active tab:** `var(--primary)` bg, `var(--surface)` text, bold.
-- Height: ~40px.
+- Layout: `flex` row of pills (`flex flex-row gap-3 w-full my-2`), one `flex-1` pill per page.
+- **The pills must stay SMALL — this is a recurring regression.** Use exactly the
+  Power BI pill metrics (do **not** invent a bigger custom `.pill` class):
+  `font-size: 12px` (`text-xs`), `padding: 10px 16px` (`py-2.5 px-4`),
+  `border-radius: 8px` (`rounded-lg`). Total pill height ≈ **34 px**, never ~48 px.
+  - **Inactive tab:** `background:var(--surface); color:var(--text-secondary);
+    border:1px solid var(--border); font-weight:500; cursor:pointer;`
+  - **Active tab:** `background:var(--primary); color:var(--surface); font-weight:600;
+    cursor:default;`
+- Reference implementation uses inline Tailwind:
+  `class="flex-1 py-2.5 px-4 rounded-lg text-xs text-center ..."`.
+- **Anti-pattern to forbid:** a bespoke pill rule such as
+  `.pill{ padding:11px 10px; font-size:13px; font-weight:600; border-radius:9px }`
+  (bigger text + fatter padding) — it makes the navigation row noticeably too tall.
 
-### Row 0b — Secondary navigation (Level-2 sub-tabs)
+### Row 0b — Secondary navigation (Level-2 sub-tabs) — COMPACT
 - Rendered dynamically from the active page's sub-page list in `CLIENT.md`.
-- Layout: `flex` row with a bottom border under the row.
-- **Inactive sub-tab:** muted text, hover bg.
-- **Active sub-tab:** `var(--primary)` text, bold, underline in `var(--primary)`.
-- Height: ~32px.
+- Layout: `flex` row with a bottom border under the row (`border-bottom:1px solid
+  var(--border)`), height ≈ 32 px.
+- **Discreet text links, `font-size:12px`** — no pill chrome, no big type.
+  - **Inactive:** `color:var(--text-secondary); font-weight:500; padding-bottom:4px;`
+  - **Active:** `color:var(--primary); font-weight:600; border-bottom:2px solid
+    var(--primary); padding-bottom:4px;`
 
 ### Row 1 — KPI cards (height: ~130px)
 - Horizontal row of KPI cards (4–6 depending on page).
@@ -173,6 +189,16 @@ render, and breaks the separation between navigation and content (see
 - **Default arrangement: 4 main visuals in a 2×2 grid** whenever the source data
   (`donnees.xlsx`) supports 4 meaningful visuals (derived from available
   measures: line/bar/donut/hbar). Do **not** add filler visuals just to reach 4.
+- **`grid-column: 1 / -1` (pleine largeur) is for 3 visuals ONLY — never with 4.**
+  With 4 cards, one of them marked `.wide` (`grid-column: 1 / -1`) overflows the
+  2×2 grid into a **3rd implicit row** that only grows to its content height → the
+  wide card (usually the detail table) is rendered **truncated** (squashed, cut
+  off). This is a recurring regression ("détail par pays tronqué"). Rule:
+  - **4 visuals** → all four stay in the plain 2×2 grid, **no** `.wide`. A detail
+    **table is simply one of the four equal cards** (its body scrolls:
+    `flex:1; min-height:0; overflow:auto`).
+  - **3 visuals** → the 3rd visual (or detail table) spans the full width of the
+    second row (`grid-column: 1 / -1`); its height still equals the two upper cards.
 - If only 3 visuals are justified, keep 2 columns: the 3rd visual (or the detail
   table) spans the full width of the second row (`grid-column: 1 / -1`) — its
   height equals the two upper cards.

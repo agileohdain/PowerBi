@@ -112,6 +112,19 @@ dans `clients/<client>/` et en déduire le modèle de données (tables/feuilles)
 les formules KPI, les colonnes source et la carte visuelle par page. (Vérifié en
 Phase 1.)
 
+**Extraction canonique (obligatoire)** : ne pas dériver le modèle à la main —
+lancer l'extracteur et embarquer **tout** son bloc `DATA` (jamais un sous-
+ensemble, sinon des KPI sont mal interprétés et des dimensions manquent) :
+
+```bash
+python .opencode/skills/powerbi-prototype/scripts/extract-data.py clients/<client>/donnees.xlsx
+```
+
+Voir `references/POWERBI_COMPONENTS.md` §6.1 pour le contrat complet (séries
+mensuelles, masques d'activité, séries par dimension, dimensions statiques
+`PAYS_CYCLISTES` / `VILLE_CYCLISTES` / `MARQUE_VELOS` / `USURE_STATUT`, scalaires
+`NB_*` / `ANNEE_MOY` / `USERS_AVEC_VELO` / `VELOS_ATTRIBUES`).
+
 **Agréger au grain MENSUEL pour l'interactivité** (obligatoire — voir
 `references/POWERBI_COMPONENTS.md` §6). En plus des tableaux finaux par
 sous-page, le skill pré-calcule et **embarque dans le HTML** :
@@ -227,6 +240,26 @@ N-1** ne sont possibles — c'est la régression à éviter.
 
 ## Règles de qualité
 - **Ne jamais coder une couleur en dur** : toujours via `var(--xxx)`.
+- **Navigation L1/L2 compacte (bloquant)** : pills L1 en `text-xs` / `py-2.5 px-4`
+  (hauteur ~34 px), liens L2 en `12px`. Jamais de classe `.pill` maison plus grosse
+  (13 px / padding 11 px) — la navigation devient trop grande. Voir
+  `POWERBI_LAYOUT.md` §4 Row 0a.
+- **Typographie (bloquant)** : titre du rapport en `<h1>` 26 px/700 (jamais 800 +
+  `letter-spacing:.5px`) ; titre de visuel 13 px/600 à **gauche**, sous-titre 11 px
+  à **droite** (`justify-content:space-between`). Voir `POWERBI_LAYOUT.md` §2 et
+  `POWERBI_COMPONENTS.md` §5.1.
+- **Donut limité à ~6 tranches (bloquant)** : au-delà (ex. 25 marques) →
+  **barres horizontales**, jamais un donut. *Vélos par marque* = hbar. Labels `{d} %`
+  **toujours** visibles. Centre du donut `['30%','50%']` aligné sur l'overlay
+  (`left:30%;top:50%`). Voir `POWERBI_COMPONENTS.md` §3.4.
+- **Grille 2×2 sans `.wide` quand 4 visuels (bloquant)** : `grid-column: 1 / -1`
+  n'est QUE pour 3 visuels ; avec 4 il crée une 3ᵉ ligne tronquée (table coupée).
+  Une table de détail est l'une des 4 cartes (corps scrollable). Voir
+  `POWERBI_LAYOUT.md` §4 Rows 2–3.
+- **Un KPI = une valeur parlante (bloquant)** : jamais de concaténation brute
+  (`36 / 9 / 5`). Choisir le chiffre unique que le libellé signifie (comptage,
+  ratio/moyenne recalculée sous filtres, ou valeur nommée courte). Voir
+  `POWERBI_COMPONENTS.md` §1.5.
 - **Hauteurs des visuels normalisées** : les visuels principaux d'une sous-page
   sont rendus dans une grille à lignes égales (`grid-template-rows: 1fr 1fr`) —
   **jamais** de hauteur fixe en px. Disposition **par défaut 2×2 avec 4 visuels**
