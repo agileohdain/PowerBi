@@ -113,17 +113,22 @@ les formules KPI, les colonnes source et la carte visuelle par page. (Vérifié 
 Phase 1.)
 
 **Extraction canonique (obligatoire)** : ne pas dériver le modèle à la main —
-lancer l'extracteur et embarquer **tout** son bloc `DATA` (jamais un sous-
+lancer l'extracteur et embarquer **tout** son bloc de données (jamais un sous-
 ensemble, sinon des KPI sont mal interprétés et des dimensions manquent) :
 
 ```bash
 python .opencode/skills/powerbi-prototype/scripts/extract-data.py clients/<client>/donnees.xlsx
 ```
 
-Voir `references/POWERBI_COMPONENTS.md` §6.1 pour le contrat complet (séries
-mensuelles, masques d'activité, séries par dimension, dimensions statiques
-`PAYS_CYCLISTES` / `VILLE_CYCLISTES` / `MARQUE_VELOS` / `USURE_STATUT`, scalaires
-`NB_*` / `ANNEE_MOY` / `USERS_AVEC_VELO` / `VELOS_ATTRIBUES`).
+L'extracteur est **générique (tout domaine)** : il **auto-détecte** la table de
+faits, la colonne date, les mesures, les dimensions (jointures et ponts inclus),
+les agrégats catégoriels et l'entité active, puis émet un contrat **normalisé**
+(`FACTS` / `BY_DIM` / `DIM_COUNTS` / `CATEGORY_COUNTS` / `ACTIVE_MASKS` /
+`SCALARS` / `META`). Il propose un manifeste sur `stderr` — copiez-le dans
+`clients/<client>/data-manifest.json` pour corriger/forcer la détection. Pour un
+client **cyclisme existant** (Veloh, agiledss), garder le contrat historique via
+`--profile cyclisme`. Voir `references/POWERBI_COMPONENTS.md` §6.1 pour le
+contrat complet et le mapping `CLIENT.md` → séries.
 
 **Agréger au grain MENSUEL pour l'interactivité** (obligatoire — voir
 `references/POWERBI_COMPONENTS.md` §6). En plus des tableaux finaux par

@@ -505,33 +505,55 @@ embed the underlying monthly series so they can be filtered and compared.
 > A mockup that only embeds final per-sub-page arrays **cannot** filter or
 > compute YoY — that is the regression this section exists to prevent.
 
-### 6.1. Canonical extraction contract (run `scripts/extract-data.py`)
+### 6.1. Extraction des données (`scripts/extract-data.py`) — auto-détection
 
 Do **not** hand-derive the data model from `donnees.xlsx` ad hoc — that is how
-KPIs end up mis-interpreted and dimensions get dropped. Run the canonical
-extractor and embed **all** of its output:
+KPIs end up mis-interpreted and dimensions get dropped. Run the extractor and
+embed **all** of its output:
 
 ```bash
 python .opencode/skills/powerbi-prototype/scripts/extract-data.py clients/<client>/donnees.xlsx
 ```
 
-It prints a `const DATA = {…}` block. Embed the **full** block — never a subset —
-so every sub-page has the dimensions it needs. For the VELOH-style schema
-(`DIM_UTILISATEUR`, `DIM_VELO`, `ASSOC_UTILISATEUR_VELO`, `DIM_COMPOSANT`,
-`FAIT_SORTIES`, `FAIT_USURE_COMPOSANT`) the block contains:
+The extractor is **generic (any domain)**. It auto-detects the model of any
+star/snowflake Excel — no sheet/column name is hardcoded:
+- **fact table** = the sheet with a date column **and** the most rows **and** ≥1
+  numeric measure (so a date in a dimension like `Date_Installation` is *not*
+  mistaken for the fact);
+- **date column**, **measures** (numeric, non-ID), **dimensions** (categorical
+  columns, reached directly or through join chains — bridge/junction tables
+  supported), **standalone categorical aggregates** (sheets not joined to the
+  fact, e.g. a `Statut` column), **activity masks** (the "person-like" entity
+  dimension), and **scalars**. It prints a recap + a **proposed manifest** on
+  stderr.
 
-* **Monthly core series:** `N`, `MONTH_META`, `KM[]`, `RIDES[]`, `MINUTES[]`.
-* **Activity masks:** `USER_MASKS` (`{id: bitmask}`, bit `i` = active month `i`;
-  users with an empty mask may be omitted — they count as 0).
-* **Per-dimension monthly series:** `KM_PAYS_M`, `RIDES_PAYS_M`, `KM_MARQUE_M`
-  (all brands), `KM_VILLE_M` — needed for stacked / multi-series and per-dim YoY.
-* **Static dimensions:** `PAYS_CYCLISTES`, `VILLE_CYCLISTES` (entity counts per
-  pays/ville — these drive "Répartition géographique"), `MARQUE_VELOS` (fleet
-  count per brand — drives "Vélos par marque", rendered as **hbar** per §3.4),
-  `USURE_STATUT` (component wear `Dépassé/Critique/Alerte/OK` — drives the
-  "Usure des composants" donut).
-* **Static scalars:** `NB_UTILISATEURS`, `NB_PAYS`, `NB_VILLES`, `NB_VELOS`,
-  `NB_MARQUES`, `ANNEE_MOY`, `USERS_AVEC_VELO`, `VELOS_ATTRIBUES`.
+It emits `const DATA = {…}` with a **normalized contract**:
+- `N`, `MONTH_META` — month grain.
+- `FACTS[mesure][mois]` — every measure of the fact table, plus `FACTS._count`
+  (row count per month).
+- `BY_DIM[dim][valeur][mesure][mois]` — filter-responsive per-dimension series
+  (drives bars/lines/stacked and per-dim YoY).
+- `DIM_COUNTS[dim][valeur]` — static counts from the dimension table (drives
+  "X par <dim>" KPIs and the **hbar** of high-cardinality dims, see §3.4).
+- `CATEGORY_COUNTS[source][colonne][valeur]` — non-time categorical aggregates
+  (e.g. component wear `Statut`), for donuts.
+- `ACTIVE_MASKS[entité]` — bitmask per entity (bit `i` = active month `i`);
+  empty unless an activity entity is found/declared.
+- `SCALARS` — `NB_<feuille>`, `NB_<dim>`, `AVG_<col>` …
+- `META` — provenance (fact sheet, date col, measures, dims, activity entity) so
+  the mockup maps `CLIENT.md` KPIs/visuals to the right series.
+
+**Manifest override (`data-manifest.json`).** If auto-detection picks wrong (or
+you want to curate labels / force the activity entity), drop the proposed
+manifest into `clients/<client>/data-manifest.json` (JSON) — it is then used
+verbatim. Only the fact table (a dated sheet) is mandatory.
+
+**Legacy cyclisme profile.** Existing cyclisme clients (Veloh, agiledss) use the
+historical contract (`KM`, `RIDES`, `USURE_STATUT`, `USER_MASKS`, `KM_PAYS_M`,
+`KM_MARQUE_M`, …). Emit it with:
+```bash
+python .opencode/skills/powerbi-prototype/scripts/extract-data.py clients/<client>/donnees.xlsx --profile cyclisme
+```
 
 If the extractor is missing a series a sub-page needs, **extend the extractor**
 (don't hand-patch the HTML) so the next client benefits too.
