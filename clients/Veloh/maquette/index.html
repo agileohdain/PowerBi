@@ -11,590 +11,703 @@
     --primary:#B69E7F;
     --surface:#FFFFFF;
     --canvas:#F1F5F9;
-    --card-bg:#FFFFFF;
     --border:#CBD5E1;
+    --card-bg:#FFFFFF;
     --text-primary:#0F172A;
     --text-secondary:#64748B;
-    --consolidation:#FF0000;
   }
-  html,body{margin:0;padding:0;height:100%;background:#0b0f14;overflow:hidden;font-family:'Inter',system-ui,-apple-system,sans-serif;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#0B1220;font-family:Inter,system-ui,-apple-system,sans-serif;}
+  #vueport{position:fixed;inset:0;overflow:hidden;}
   .slide{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:top left;background:var(--canvas);}
-  .banner{position:absolute;top:0;left:0;width:100%;height:97px;background:var(--primary);clip-path:polygon(342px 0,100% 0,100% 97px,267px 97px);}
-  .logo-zone{position:absolute;top:0;left:0;width:320px;height:97px;background:var(--surface);clip-path:polygon(0 0,320px 0,244px 97px,0 97px);display:flex;align-items:center;justify-content:center;}
-  .logo-zone .logo{padding-right:36px;display:flex;align-items:center;justify-content:center;max-height:70px;}
-  .logo-zone img{max-height:70px;max-width:210px;object-fit:contain;}
-  .title-band{position:absolute;top:0;left:360px;right:48px;height:97px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--surface);}
-  .title-band h1{font-size:24px;font-weight:700;letter-spacing:.5px;margin:0;line-height:1.1;}
-  .title-band .sub{font-size:13px;opacity:.9;margin-top:3px;letter-spacing:.2px;}
-  .info-btn{position:absolute;top:30px;right:18px;width:36px;height:36px;border-radius:50%;background:var(--surface);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;font-family:serif;cursor:help;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:60;}
-  .popover{position:absolute;top:110px;right:16px;width:420px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:16px;z-index:70;display:none;}
-  .info-btn:hover + .popover, .popover:hover{display:block;}
-  .popover h3{color:var(--primary);text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:1px;margin:0 0 4px;}
-  .popover .pdesc{font-size:11px;color:var(--text-secondary);margin:0 0 10px;}
-  .popover .sp{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:11px;color:var(--text-primary);}
-  .popover .dot{width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0;}
-  .filter-pane{position:absolute;left:11px;top:116px;width:235px;bottom:44px;background:var(--surface);border-radius:10px;padding:16px;display:flex;flex-direction:column;}
-  .pane-title{display:flex;align-items:center;gap:8px;color:var(--primary);font-weight:700;font-size:14px;padding-bottom:10px;margin-bottom:6px;border-bottom:1px solid var(--border);}
-  .pane-title svg{width:16px;height:16px;fill:var(--primary);}
-  .slicer-label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;}
+
+  /* Header trapezoids */
+  .banner{position:absolute;left:0;top:0;height:97px;width:100%;background:var(--primary);
+    clip-path:polygon(342px 0,100% 0,100% 97px,267px 97px);}
+  .logo-zone{position:absolute;left:0;top:0;height:97px;width:342px;background:var(--surface);
+    clip-path:polygon(0 0,320px 0,244px 97px,0 97px);
+    display:flex;align-items:center;justify-content:center;padding-right:36px;}
+  .logo-zone img{max-height:64px;max-width:210px;object-fit:contain;}
+
+  /* Title overlay */
+  .head-text{position:absolute;top:0;height:97px;left:360px;right:48px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;color:var(--surface);}
+  .head-text h1{font-size:30px;font-weight:700;letter-spacing:1px;line-height:1.05;}
+  .head-text .sub{font-size:13px;opacity:.9;margin-top:3px;}
+
+  /* Info button */
+  .info-wrap{position:absolute;top:30px;right:16px;z-index:70;}
+  .info-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);color:var(--primary);
+    display:inline-flex;align-items:center;justify-content:center;font-family:serif;font-size:20px;font-weight:800;
+    cursor:help;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+  .info-wrap .popover{position:absolute;top:40px;right:-12px;width:400px;display:none;background:var(--surface);
+    border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:16px;z-index:80;}
+  .info-wrap:hover .popover{display:block;}
+  .pop-page{text-transform:uppercase;color:var(--primary);font-weight:700;font-size:12px;letter-spacing:.5px;}
+  .pop-title{font-size:15px;font-weight:700;color:var(--text-primary);margin-top:2px;}
+  .pop-desc{font-size:12px;color:var(--text-secondary);margin-top:4px;}
+  .pop-div{height:1px;background:var(--border);margin:10px 0;}
+  .pop-sub{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);padding:4px 0;}
+  .pop-sub.active{color:var(--text-primary);font-weight:600;}
+  .pop-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .pop-dot.blue{background:#2563EB;}
+  .pop-dot.prim{background:var(--primary);}
+
+  /* Filter pane */
+  .pane{position:absolute;left:11px;top:116px;width:235px;bottom:40px;background:var(--surface);
+    border-radius:10px;padding:16px;overflow:hidden;display:flex;flex-direction:column;}
+  .pane-head{display:flex;align-items:center;gap:8px;color:var(--primary);font-weight:600;font-size:14px;margin-bottom:12px;}
+  .pane-head svg{stroke:var(--primary);}
+  .pane-active-badge{font-size:11px;color:var(--primary);font-weight:600;margin-bottom:10px;height:16px;}
+  .pane::-webkit-scrollbar{width:6px;}
+  .pane::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  .lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin:10px 0 6px;}
   .chiclets{display:flex;flex-wrap:wrap;gap:6px;}
-  .chiclet{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text-secondary);background:var(--canvas);border:1px solid var(--border);cursor:pointer;user-select:none;}
-  .chiclet:hover{border-color:var(--primary);}
-  .chiclet.active{color:var(--surface);background:var(--primary);border-color:var(--primary);}
-  .select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-primary);background:var(--surface);cursor:pointer;}
-  .select:focus{outline:none;border-color:var(--primary);}
-  .date-row{display:flex;gap:6px;}
-  .date-input{flex:1;min-width:0;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);background:var(--surface);}
-  .date-input:focus{outline:none;border-color:var(--primary);}
-  .slider{margin-top:10px;padding:4px 0 6px;}
-  .slider-track{position:relative;height:6px;background:var(--border);border-radius:99px;}
-  .slider-fill{position:absolute;height:100%;background:var(--primary);border-radius:99px;}
-  .slider-handle{position:absolute;top:50%;transform:translate(-50%,-50%);width:15px;height:15px;background:var(--surface);border:2.5px solid var(--primary);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:grab;touch-action:none;}
-  .slider-handle:active{cursor:grabbing;}
-  .clear-btn{margin-top:auto;width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:12px;cursor:pointer;}
-  .clear-btn:hover{color:var(--primary);border-color:var(--primary);}
-  .filter-badge{font-size:10px;color:var(--primary);font-weight:600;margin-top:4px;min-height:14px;}
-  .main-area{position:absolute;left:262px;top:116px;right:16px;bottom:44px;display:flex;flex-direction:column;}
-  .nav-l1{display:flex;gap:12px;}
-  .nav-l1 .pill{flex:1;padding:11px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text-secondary);text-align:center;cursor:pointer;user-select:none;}
-  .nav-l1 .pill.active{background:var(--primary);color:var(--surface);border-color:var(--primary);}
-  .nav-l2{display:flex;gap:24px;margin-top:10px;padding-bottom:0;border-bottom:1px solid var(--border);}
-  .nav-l2 .sub{font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;background:transparent;border:0;padding:0 0 9px;user-select:none;}
-  .nav-l2 .sub.active{color:var(--primary);font-weight:700;border-bottom:2px solid var(--primary);}
-  .content{flex:1;min-height:0;margin-top:12px;display:flex;flex-direction:column;gap:12px;}
-  .kpi-row{display:grid;gap:12px;height:108px;flex:none;}
-  .kpi-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 16px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;}
-  .kpi-card.consol{border:2px dashed var(--consolidation);}
-  .kpi-card .accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);}
-  .kpi-card .label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;height:14px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .kpi-card .value{font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-.5px;height:26px;line-height:26px;margin:4px 0 2px;white-space:nowrap;}
-  .kpi-card .sub{font-size:11px;color:var(--text-secondary);height:14px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .trend-slot{height:18px;margin-top:4px;display:flex;align-items:center;}
-  .kpi-card .trend{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600;width:max-content;}
-  .trend.good{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;}
-  .trend.bad{background:#fff1f2;color:#be123c;border:1px solid #fecdd3;}
-  .consol-pill{position:absolute;bottom:6px;right:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--consolidation);background:rgba(255,0,0,.08);padding:2px 6px;border-radius:4px;}
-  .viz-grid{flex:1;min-height:0;display:grid;gap:12px;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
-  .viz-grid .full{grid-column:1/-1;min-height:0;}
-  .viz-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;min-height:0;}
-  .viz-card .vh{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px;flex:none;}
-  .viz-card .vt{font-size:14px;font-weight:700;color:var(--text-primary);}
-  .viz-card .vu{font-size:11px;color:var(--text-secondary);font-weight:400;margin-left:6px;}
-  .chart{flex:1;min-height:0;width:100%;}
+  .chic{flex:1;text-align:center;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;
+    background:var(--canvas);color:var(--text-secondary);border:1px solid var(--border);transition:all .15s;}
+  .chic.active{background:var(--primary);color:var(--surface);border-color:var(--primary);font-weight:600;}
+  .dd-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--surface);
+    border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-primary);cursor:pointer;}
+  .dd-menu{position:absolute;z-index:50;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;
+    margin-top:4px;box-shadow:0 6px 16px rgba(0,0,0,.14);max-height:150px;overflow:auto;}
+  .dd-item{padding:6px 10px;font-size:12px;color:var(--text-primary);cursor:pointer;}
+  .dd-item:hover{background:var(--canvas);}
+  .dd-item.active{background:var(--primary);color:var(--surface);}
+  .dd-wrap{position:relative;}
+  .range-row{display:flex;gap:6px;margin-top:4px;}
+  .range-row input{width:100%;padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:11px;color:var(--text-primary);background:var(--surface);}
+  .slider-wrap{position:relative;height:22px;margin-top:6px;}
+  .slider-wrap input[type=range]{position:absolute;width:100%;pointer-events:none;-webkit-appearance:none;appearance:none;background:transparent;height:22px;}
+  .slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--surface);
+    border:2px solid var(--primary);pointer-events:auto;cursor:pointer;}
+  .slider-track{position:absolute;top:9px;left:0;right:0;height:4px;background:var(--border);border-radius:2px;}
+  .slider-fill{position:absolute;top:9px;height:4px;background:var(--primary);border-radius:2px;}
+  .clear-btn{margin-top:14px;width:100%;padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;
+    background:var(--surface);color:var(--text-secondary);border:1px solid var(--border);transition:all .15s;text-align:center;}
+  .clear-btn:hover{background:var(--canvas);color:var(--text-primary);border-color:var(--primary);}
+
+  /* Content */
+  .content{position:absolute;left:262px;top:97px;right:0;bottom:40px;padding:0 20px 0 16px;display:flex;flex-direction:column;box-sizing:border-box;}
+  .nav-l1{display:flex;gap:10px;margin-bottom:12px;}
+  .nav-pill{flex:1;padding:11px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12px;
+    font-weight:500;color:var(--text-secondary);text-align:center;cursor:pointer;transition:all .15s;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .nav-pill.active{background:var(--primary);color:var(--surface);font-weight:600;border-color:var(--primary);}
+  .nav-l2{display:flex;align-items:center;gap:24px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+  .nav-link{font-size:12px;font-weight:500;color:var(--text-secondary);background:transparent;border:0;padding:2px 0;cursor:pointer;}
+  .nav-link:hover{color:var(--text-primary);}
+  .nav-link.active{color:var(--primary);font-weight:600;border-bottom:2px solid var(--primary);padding-bottom:4px;}
+
+  .kpi-row{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:12px;margin-bottom:12px;min-height:118px;}
+  .kpi-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 14px 12px;position:relative;
+    display:flex;flex-direction:column;justify-content:center;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);min-width:0;}
+  .kpi-card.consolidation{border:2px dashed #FF0000;}
+  .kpi-accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);}
+  .kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kpi-value{font-size:30px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;margin:4px 0 2px;white-space:nowrap;}
+  .kpi-trend{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:600;width:max-content;}
+  .trend-up{background:#DCFCE7;color:#166534;border:1px solid #BBF7D0;}
+  .trend-down{background:#FFE4E6;color:#9F1239;border:1px solid #FECDD3;}
+  .kpi-consol-pill{margin-top:6px;display:inline-flex;align-items:center;font-size:9px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.4px;color:#FF0000;background:rgba(255,0,0,.08);padding:2px 6px;border-radius:5px;width:max-content;}
+
+  .vis-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;}
+  .vis-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 12px 8px;display:flex;flex-direction:column;min-height:0;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  .vis-card.full{grid-column:1 / -1;}
+  .vis-head{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+  .vis-title{font-size:13px;font-weight:600;color:var(--text-primary);}
+  .vis-sub{font-size:11px;color:var(--text-secondary);font-weight:400;}
   .chart-holder{position:relative;flex:1;min-height:0;}
-  .chart-holder .chart{position:absolute;inset:0;width:100%;}
-  .donut-center{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;line-height:1;text-align:center;}
-  .donut-center .dc-value{font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;}
-  .donut-center .dc-sub{font-size:11px;color:var(--text-secondary);margin-top:4px;}
-  .table-wrap{flex:1;min-height:0;overflow:auto;}
-  table{width:100%;border-collapse:collapse;}
-  thead th{background:var(--primary);color:var(--surface);font-size:11px;font-weight:600;text-align:left;padding:8px 12px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;}
-  tbody td{font-size:12px;color:var(--text-primary);padding:8px 12px;border-bottom:1px solid var(--border);}
-  tbody tr:nth-child(odd){background:var(--canvas);}
-  td.num,th.num{text-align:right;font-family:ui-monospace,monospace;}
-  .footer{position:absolute;left:0;right:0;bottom:0;height:32px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary);background:var(--canvas);border-top:1px solid var(--border);}
+  .chart-holder .chart-echarts{position:absolute;inset:0;}
+  .donut-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;
+    pointer-events:none;line-height:1;text-align:center;z-index:5;}
+  .donut-center .dc-value{font-size:19px;font-weight:700;color:var(--text-primary);}
+  .donut-center .dc-sub{font-size:10px;color:var(--text-secondary);margin-top:3px;}
+
+  .footer{position:absolute;left:0;right:0;bottom:0;height:40px;background:var(--canvas);border-top:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary);}
 </style>
 </head>
 <body>
-<div id="slide" class="slide">
+<div id="vueport">
+  <div class="slide" id="slide">
 
-  <div class="banner"></div>
-  <div class="logo-zone"><div class="logo"><img src="../logo.png" alt="logo"></div></div>
+    <div class="banner"></div>
+    <div class="logo-zone"><img src="../logo.png" alt="VELOH"></div>
 
-  <div class="title-band">
-    <h1>VELOH — Pilotage de flotte cyclable</h1>
-    <div class="sub">Cyclistes · Flotte · Sorties · Composants — Janv. 2024 – Juil. 2025</div>
-  </div>
-
-  <div class="info-btn">i</div>
-  <div class="popover" id="popover"></div>
-
-  <div class="filter-pane">
-    <div class="pane-title">
-      <svg viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>
-      Filtres
+    <div class="head-text">
+      <h1>VELOH — Pilotage de flotte cyclable</h1>
+      <div class="sub">Cyclistes · Flotte · Sorties · Composants — Janv. 2024 – Juil. 2025</div>
     </div>
-    <div class="filter-badge" id="filterBadge"></div>
-    <div class="slicer-label">Année</div>
-    <div class="chiclets">
-      <span class="chiclet" data-year="2024">2024</span>
-      <span class="chiclet" data-year="2025">2025</span>
+
+    <div class="info-wrap">
+      <div class="info-btn">i</div>
+      <div class="popover" id="infoPop"></div>
     </div>
-    <div class="slicer-label">Trimestre</div>
-    <select class="select" id="selQuarter">
-      <option value="0">Tous les trimestres</option><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option>
-    </select>
-    <div class="slicer-label">Mois</div>
-    <select class="select" id="selMonth">
-      <option value="0">Tous les mois</option><option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option><option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option><option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
-    </select>
-    <div class="slicer-label">Période</div>
-    <div class="date-row">
-      <input class="date-input" id="dateStart" type="text" value="01/01/2024" title="JJ/MM/AAAA">
-      <span style="align-self:center;color:var(--text-secondary);font-size:11px">→</span>
-      <input class="date-input" id="dateEnd" type="text" value="31/07/2025" title="JJ/MM/AAAA">
-    </div>
-    <div class="slider">
-      <div class="slider-track" id="sliderTrack">
-        <div class="slider-fill" id="sliderFill" style="left:0%;width:100%"></div>
-        <div class="slider-handle" id="handleStart" style="left:0%"></div>
-        <div class="slider-handle" id="handleEnd" style="left:100%"></div>
+
+    <!-- Filter pane -->
+    <div class="pane">
+      <div class="pane-head">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        Filtres
       </div>
+      <div class="pane-active-badge" id="filtreBadge"></div>
+
+      <div class="lbl">Année</div>
+      <div class="chiclets" id="yearChiclets"></div>
+
+      <div class="lbl">Trimestre</div>
+      <div class="dd-wrap" id="qWrap">
+        <div class="dd-btn" id="qBtn" onclick="toggleDD('q')">
+          <span id="qLabel">Tous</span><span>▾</span>
+        </div>
+        <div class="dd-menu" style="display:none" id="qMenu"></div>
+      </div>
+
+      <div class="lbl">Mois</div>
+      <div class="dd-wrap" id="mWrap">
+        <div class="dd-btn" id="mBtn" onclick="toggleDD('m')">
+          <span id="mLabel">Tous</span><span>▾</span>
+        </div>
+        <div class="dd-menu" style="display:none" id="mMenu"></div>
+      </div>
+
+      <div class="lbl">Plage de dates</div>
+      <div class="range-row">
+        <input type="text" id="dateStart" value="" onchange="dateInput('start')">
+        <input type="text" id="dateEnd" value="" onchange="dateInput('end')">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-track"></div>
+        <div class="slider-fill" id="fillBar"></div>
+        <input type="range" id="rangeStart" min="0" max="18" value="0" oninput="rangeMove('start')">
+        <input type="range" id="rangeEnd" min="0" max="18" value="18" oninput="rangeMove('end')">
+      </div>
+
+      <div class="clear-btn" onclick="clearFilters()">✕ Effacer tous les filtres</div>
     </div>
-    <button class="clear-btn" id="clearFilters">Effacer tous les filtres</button>
+
+    <!-- Main content -->
+    <div class="content" id="content"></div>
+
+    <div class="footer">Données fictives — Maquette haute-fidélité Power BI.</div>
   </div>
-
-  <div class="main-area" id="mainArea"></div>
-
-  <div class="footer">Données fictives — Maquette haute-fidélité Power BI · VELOH</div>
 </div>
 
 <script>
-const CSS = getComputedStyle(document.documentElement);
-const PRIMARY = CSS.getPropertyValue('--primary').trim();
-const SURFACE = CSS.getPropertyValue('--surface').trim();
-const TEXT1 = CSS.getPropertyValue('--text-primary').trim();
-const TEXT2 = CSS.getPropertyValue('--text-secondary').trim();
-const BORDER = CSS.getPropertyValue('--border').trim();
+/* ============================ DATA ============================ */
+const N_MONTHS = 19;
+const MONTH_LABELS = ["01/2024","02/2024","03/2024","04/2024","05/2024","06/2024","07/2024","08/2024","09/2024","10/2024","11/2024","12/2024","01/2025","02/2025","03/2025","04/2025","05/2025","06/2025","07/2025"];
+const MONTH_META = MONTH_LABELS.map((l,i)=>({year:2024+Math.floor(i/12), month:i%12+1, quarter:Math.floor((i%12)/3)+1}));
 
-const charts = [];
+const KM_M   = [2225,3832,11129,19791,24686,24642,27417,25161,21115,16203,8698,3946,2235,5006,11521,18638,23816,25865,24323];
+const RIDES_M= [40,66,185,335,410,391,449,417,350,273,145,64,38,75,190,325,404,424,419];
+const MIN_M  = [4805,8243,24198,43638,53392,53502,60042,54636,46192,35629,19172,8660,4816,10776,24800,41084,52251,56505,52748];
+const ACT_MASKS = [0,511998,524287,0,518140,520191,0,510974,524287,524287,522236,0,0,517116,524287,524287,524285,0,0,518132,518140,524287,0,0,520190,509949,514044,511998,524287,524286,522238,514046,518143,524287,0,522237,524287,520191,524284,500731,520191,524286,516095,524285,519165,520190,524287,524284,483326,524287];
 
-/* ============ Données mensuelles (donnees.xlsx, 19 mois : janv. 2024 → juil. 2025) ============ */
-const KM_LABELS = ["Janv 24","Févr 24","Mars 24","Avr 24","Mai 24","Juin 24","Juil 24","Août 24","Sept 24","Oct 24","Nov 24","Déc 24","Janv 25","Févr 25","Mars 25","Avr 25","Mai 25","Juin 25","Juil 25"];
-const N_MONTHS = KM_LABELS.length;
-const MONTH_META = KM_LABELS.map((_,i)=>({year: i<12?2024:2025, month: i%12+1, quarter: Math.floor((i%12)/3)+1}));
-const KM = [2225,3832,11129,19791,24686,24642,27417,25161,21115,16203,8698,3946,2235,5006,11521,18638,23816,25865,24323];
-const RIDES = [40,66,185,335,410,391,449,417,350,273,145,64,38,75,190,325,404,424,419];
-const MINUTES = [4805,8243,24198,43638,53392,53502,60042,54636,46192,35629,19172,8660,4816,10776,24800,41084,52251,56505,52748];
-/* Masque de 19 bits par cycliste : bit i = actif sur le mois i */
-const USER_MASKS = {"49":483326,"34":524287,"42":524286,"37":524287,"21":518140,"38":520191,"11":522236,"41":520191,"29":524287,"25":520190,"43":516095,"6":520191,"45":519165,"10":524287,"22":524287,"33":518143,"16":524287,"3":524287,"15":524287,"2":511998,"48":524284,"26":509949,"39":524284,"31":522238,"20":518132,"9":524287,"50":524287,"28":511998,"8":510974,"44":524285,"30":524286,"47":524287,"17":524285,"14":517116,"32":514046,"36":522237,"46":520190,"27":514044,"40":500731,"5":518140};
-const KM_PAYS_M = {"Canada":[1944,2763,6889,14414,16001,16874,18778,18627,14162,11360,6557,2522,1698,3669,8158,13073,16719,17890,17000],"France":[117,542,2574,2922,5198,5493,5540,4714,4800,2405,918,968,331,901,1584,3501,4321,5182,4798],"Belgique":[164,526,1666,2454,3487,2275,3098,1821,2153,2437,1223,456,206,436,1778,2064,2776,2793,2525]};
-const KM_MARQUE_M = {"Factor":[325,365,1307,2419,3983,3934,2757,3204,2985,1674,1078,787,403,569,1682,3178,3022,4099,3803],"Giant":[110,588,1242,2616,2819,3370,3338,3564,2670,2228,1380,352,78,501,1189,2930,3638,4080,2754],"Merida":[202,500,2068,2685,3269,2742,2635,2253,1916,2281,814,554,496,510,2003,1771,2394,3246,2069],"Specialized":[106,312,1004,1987,2068,2014,2145,2585,1298,1337,722,113,211,445,1014,1448,2123,2513,2572],"Canyon":[109,426,564,1382,1879,1106,2045,1242,1816,1077,694,197,104,389,676,1391,1604,1667,1733],"Trek":[57,235,517,806,882,1210,1563,1569,1240,859,502,314,204,383,768,872,1114,1161,1459]};
+const KM_PAYS = {
+  "Canada":[1943.5,2763.0,6889.0,14414.5,16001.2,16874.3,18778.4,18626.7,14161.6,11360.4,6557.2,2521.8,1697.9,3668.9,8158.1,13073.3,16719.0,17889.5,16999.5],
+  "France":[117.4,542.5,2573.9,2922.3,5197.9,5493.2,5540.4,4713.8,4800.3,2405.3,918.2,967.5,330.8,901.2,1584.3,3501.1,4321.2,5182.4,4798.3],
+  "Belgique":[164.4,526.4,1665.9,2454.2,3487.2,2274.7,3098.1,1820.9,2153.3,2437.3,1222.6,456.3,205.8,435.7,1778.2,2063.8,2775.6,2793.1,2524.8]
+};
+const KM_VILLE = {
+  "Annecy":[0,106.9,432.7,315.3,327.9,260.0,215.1,424.8,440.3,252.7,155.2,38.4,0,0,179.2,348.9,186.8,47.3,178.9],
+  "Bordeaux":[0,213.4,504.0,722.0,1238.3,1676.3,1619.3,1001.5,1229.8,370.5,152.6,238,0,252.1,226.6,968.9,938.1,1271.8,1163.8],
+  "Brossard":[88.1,52.2,164.9,401.3,570.0,389.3,761.1,501.8,470.2,529.2,469.1,142.4,0,86.6,199.8,699.0,557.1,508.9,808.9],
+  "Drummondville":[110.0,419.7,847.3,1717.7,1573.6,1729.6,2042.3,2395.0,1916.1,1671.3,856.2,254.2,38.5,288.0,714.0,1912.6,2201.0,2706.8,1761.5],
+  "Gatineau":[0,0,449.5,994.2,1311.5,1271.2,1608.9,1321.2,1029.4,560.2,698.5,64.6,76.8,122.7,669.1,940.9,1179.8,1191.5,1286.4],
+  "Granby":[141.7,290.1,595.4,1438.6,1068.2,1609.4,1186.4,1061.1,936.1,1040.3,468.0,255.8,251.0,294.0,978.9,841.3,1097.9,1586.1,580.0],
+  "Liege":[132.3,190.0,1102.3,1115.2,1832.4,1316.7,1352.7,818.1,645.5,1512.6,528.7,259.6,102,118.1,1102.1,949.8,1279.9,1583.3,1274.3],
+  "Lyon":[95.1,222.2,1399.3,1503.4,2724.4,2963.3,2122.1,2838.2,2429.1,1329.9,502.8,691.1,228.4,542.8,1002.0,1807.1,2352.3,3114.9,2794.6],
+  "Namur":[32.1,336.4,563.6,1339.0,1654.8,958.0,1745.4,1002.8,1507.8,924.7,693.9,196.7,103.8,317.6,676.1,1114.0,1495.7,1209.8,1250.5],
+  "Nantes":[22.3,0,237.9,381.6,907.3,593.6,1583.9,449.3,701.1,452.2,107.6,0,102.4,106.3,176.5,376.2,844.0,748.4,661.0],
+  "Quebec":[0,30.8,77.2,110.6,308.1,99.1,172.0,199.8,280.5,147.0,168.8,0,50.4,0,91.2,120.1,206.5,193.7,554.6],
+  "Repentigny":[105.7,55.9,942.3,1743.8,1611.9,1380.3,1454.0,2123.2,1041.6,1443.6,655.0,187.8,235.2,586.8,606.5,1352.3,1971.3,1811.3,1822.7],
+  "Saint-Bruno-de-Montarville":[1387.2,1464.4,3500.1,7643.3,9091.2,9306.4,10329.0,9713.9,7828.9,5596.5,2867.8,1470.7,985.5,2153.1,4615.4,6606.0,8683.8,9195.9,9633.6],
+  "Terrebonne":[110.8,449.9,312.3,365.0,466.7,1089.0,1224.7,1310.7,658.8,372.3,373.8,146.3,60.5,137.7,283.2,601.1,821.6,695.3,551.8]
+};
+const KM_MARQUE = {
+  "3T":[0,0,433.5,817.7,912.3,559.0,1021.6,617.1,868.6,817.8,301.4,159.2,61,197.4,211.4,768.9,660.0,689.8,577.7],
+  "Argon 18":[0,45.3,135.7,305.3,331.3,296.1,237.1,135.6,176.7,136.7,224.4,54.4,59.6,0,156.7,0,296.6,296.8,239.8],
+  "Bianchi":[0,75.4,256.4,693.1,798.6,770.2,885.3,846.9,1106.9,258.5,259.8,205,50.4,252.1,136.4,648.3,593.0,764.8,1455.7],
+  "Canyon":[108.6,426.1,563.6,1381.6,1879.3,1106.4,2044.7,1241.8,1815.8,1076.8,693.9,196.7,103.8,388.8,676.1,1391.0,1604.4,1666.9,1732.8],
+  "Cervelo":[99.9,104.1,561.9,622.8,694.8,1028.6,1066.0,756.7,411.1,516.0,309.0,167.0,67.5,114.3,245.1,666.1,633.2,404.3,859.1],
+  "Colnago":[110.5,252.5,370.5,766.8,1030.3,864.6,1137.7,1183.0,763.2,789.6,380.2,182.0,66.5,316.9,411.6,802.3,1113.2,1089.7,715.4],
+  "Eddy Merckx":[110.8,449.9,312.3,365.0,466.7,1089.0,1224.7,1310.7,658.8,372.3,373.8,146.3,60.5,137.7,283.2,601.1,821.6,695.3,551.8],
+  "Factor":[325.4,365.4,1306.6,2418.7,3982.7,3934.3,2757.2,3204.4,2985.2,1673.5,1078.3,787.2,402.6,568.9,1682.2,3178.3,3021.6,4099.1,3803.3],
+  "Giant":[110.0,588.5,1242.2,2615.5,2818.7,3370.2,3337.8,3564.5,2669.9,2228.4,1380.1,351.8,78.4,501.3,1189.2,2930.0,3637.9,4079.9,2753.6],
+  "Lapierre":[72.5,26.1,113.3,274.8,229.0,519.3,361.8,110.5,82.8,352.3,125.5,43.8,37,0,174.2,140.3,365.6,70.3,209.1],
+  "Look":[93.4,98.3,347.7,535.3,628.0,601.0,1011.7,856.4,566.1,472.2,190.8,77.6,94.5,100.9,416.1,843.0,994.4,736.6,809.0],
+  "Merida":[201.5,499.5,2068.4,2684.9,3268.6,2741.8,2635.1,2253.1,1916.0,2280.8,813.9,554.5,496.2,509.6,2003.0,1771.3,2394.1,3246.0,2069.1],
+  "Orbea":[0,106.9,528.0,315.3,349.2,482.2,355.5,595.2,584.5,657.2,260.5,38.4,0,41.7,244.4,483.7,244.9,491.7,536.1],
+  "Pinarello":[178.3,176.2,477.4,1072.2,1587.8,1429.0,1379.2,1025.2,1554.7,836.9,186.0,214.9,0,222.0,816.0,625.3,1439.8,1000.2,1242.4],
+  "Ridley":[225.6,49.7,221.0,616.5,884.8,933.5,883.3,1289.2,1121.2,604.8,325.4,290.4,31.8,341.5,454.6,536.5,728.1,918.8,827.0],
+  "Scott":[171.8,21.3,186.7,526.2,559.2,819.8,1303.2,797.7,497.9,256.6,302.2,0,0,399.3,469.3,310.1,421.4,585.0,801.8],
+  "Specialized":[105.7,311.5,1004.5,1987.3,2067.6,2013.8,2145.0,2585.2,1298.0,1336.9,721.9,113.0,211.1,444.9,1014.1,1448.2,2122.8,2513.1,2572.1],
+  "Storck":[22.3,0,177.1,174.3,532.8,227.5,1182.9,211.4,271.6,320.7,107.6,0,102.4,45.1,46.4,258.5,484.9,527.8,312.7],
+  "Time":[231.6,0,157.8,514.8,501.4,304.4,615.4,583.7,286.7,174.9,0,49.3,0,40.1,81.2,128.7,641.2,431.2,625.6],
+  "Trek":[57.4,235.2,517.0,805.8,881.8,1210.0,1563.2,1569.3,1240.5,859.2,502.3,314.1,204.0,383.3,768.2,872.2,1114.0,1161.0,1458.9],
+  "Wilier":[0,0,147.2,297.1,281.4,341.5,268.5,423.8,239.0,180.9,161.0,0,107.2,0,41.2,234.4,483.1,396.7,169.6]
+};
+const VELOS_MARQUE = {"3T":1,"Argon 18":2,"BMC":4,"Bianchi":3,"Canyon":5,"Cervelo":5,"Colnago":3,"Cube":2,"Eddy Merckx":2,"Factor":3,"Giant":6,"Lapierre":2,"Look":2,"Merida":3,"Orbea":3,"Pinarello":4,"Ribble":2,"Ridley":3,"Scott":4,"Specialized":5,"Storck":2,"Time":2,"Trek":6,"Van Rysel":3,"Wilier":3};
+const CYCL_PAYS = {"Canada":36,"France":9,"Belgique":5};
+const CYCL_VILLE = {"Saint-Bruno-de-Montarville":23,"Annecy":2,"Brossard":1,"Longueuil":1,"Lyon":3,"Drummondville":1,"Gatineau":2,"Nantes":2,"Granby":1,"Liege":4,"Montreal":1,"Repentigny":3,"Bordeaux":2,"Quebec":1,"Terrebonne":2,"Namur":1};
+const VELOS_ANNEE = {2024:25,2023:34,2022:20,2021:1};
+const CIV = {nbVilles:16, nbPays:3, nbVelosFlotte:80, nbMarques:25, nbVelosAttribues:57, nbCyclistesVelo:50, anneeMoyenne:2023.0};
 
-/* Données dimensionnelles (statiques) */
-const PAYS = [{name:'Canada',value:36},{name:'France',value:9},{name:'Belgique',value:5}];
-const VILLES = [{name:'Saint-Bruno',value:23},{name:'Liège',value:4},{name:'Lyon',value:3},{name:'Repentigny',value:3},{name:'Annecy',value:2},{name:'Gatineau',value:2},{name:'Nantes',value:2},{name:'Bordeaux',value:2}];
-const VELOS_CYCLISTE = [{name:'1 vélo',value:14},{name:'2 vélos',value:27},{name:'3 vélos',value:9}];
-const MARQUES_ATTR = [{name:'Pinarello',value:9},{name:'Giant',value:7},{name:'Canyon',value:7},{name:'Scott',value:7},{name:'Orbea',value:6},{name:'Colnago',value:5},{name:'Trek',value:5},{name:'Factor',value:5}];
-const ANNEES_FLOTTE = [{name:'2021',value:1},{name:'2022',value:20},{name:'2023',value:34},{name:'2024',value:25}];
-const MARQUES_TOP = [{name:'Trek',value:6},{name:'Giant',value:6},{name:'Specialized',value:5},{name:'Cervelo',value:5},{name:'Canyon',value:5},{name:'Pinarello',value:4},{name:'BMC',value:4},{name:'Scott',value:4}];
-const MARQUES_TOP5 = [{name:'Trek',value:6},{name:'Giant',value:6},{name:'Specialized',value:5},{name:'Cervelo',value:5},{name:'Canyon',value:5}];
+/* ============================ NAVIGATION ============================ */
+const NAV = [
+  {name:"Cyclistes", subs:[
+    {name:"Vue d'ensemble", desc:"Indicateurs d'activité des cyclistes : effectif actif, kilométrage, sorties et durées moyennes."},
+    {name:"Répartition géographique", desc:"Couverture pays et villes, répartition des cyclistes et du kilométrage par territoire."},
+    {name:"Affectations vélos", desc:"Attribution des vélos aux cyclistes, taux d'équipement et ratio vélos / cycliste."}
+  ]},
+  {name:"Flotte vélos", subs:[
+    {name:"Vue d'ensemble", desc:"Composition de la flotte : effectif, marques, ancienneté moyenne et kilométrage total."},
+    {name:"Répartition par marque", desc:"Détail du parc et du kilométrage par marque, marques dominantes."}
+  ]}
+];
 
-/* ============ État des filtres ============ */
-const FILT = {years:new Set(), quarter:0, month:0, start:0, end:N_MONTHS-1};
-function isFiltered(){ return FILT.years.size>0 || FILT.quarter>0 || FILT.month>0 || FILT.start>0 || FILT.end<N_MONTHS-1; }
+const STATE = { page:0, sub:0 };
+const FILT = { years:new Set(), quarter:0, month:0, start:0, end:N_MONTHS-1 };
+let chartRegistry = {};
+
+/* ============================ FILTER ENGINE ============================ */
 function monthPass(i){
   const m = MONTH_META[i];
-  if(FILT.years.size && !FILT.years.has(m.year)) return false;
-  if(FILT.quarter && m.quarter!==FILT.quarter) return false;
-  if(FILT.month && m.month!==FILT.month) return false;
+  if (FILT.years.size && !FILT.years.has(m.year)) return false;
+  if (FILT.quarter && m.quarter!==FILT.quarter) return false;
+  if (FILT.month && m.month!==FILT.month) return false;
   return i>=FILT.start && i<=FILT.end;
 }
+function isFiltered(){ return FILT.years.size>0||FILT.quarter>0||FILT.month>0||FILT.start>0||FILT.end<N_MONTHS-1; }
+function monthIdx(y,m){ return (y-2024)*12 + (m-1); }
+
 function aggregates(){
-  let km=0, rides=0, minutes=0, mask=0;
-  const labels=[], kmArr=[], ridesArr=[], actifsArr=[];
-  const kmPays={Canada:0,France:0,Belgique:0};
-  const kmMarque={Factor:0,Giant:0,Merida:0,Specialized:0,Canyon:0,Trek:0};
-  for(let i=0;i<N_MONTHS;i++){
-    if(!monthPass(i)) continue;
-    km+=KM[i]; rides+=RIDES[i]; minutes+=MINUTES[i]; mask|=(1<<i);
-    labels.push(KM_LABELS[i]); kmArr.push(KM[i]); ridesArr.push(RIDES[i]);
-    let actifsMonth=0;
-    for(const u in USER_MASKS) if(USER_MASKS[u]&(1<<i)) actifsMonth++;
-    actifsArr.push(actifsMonth);
-    for(const p in kmPays) kmPays[p]+=KM_PAYS_M[p][i];
-    for(const b in kmMarque) kmMarque[b]+=KM_MARQUE_M[b][i];
-  }
-  let actifs=0;
-  for(const u in USER_MASKS) if(USER_MASKS[u]&mask) actifs++;
-  /* Comparaison vs année précédente : mois comparables (i ≥ 12 vs i-12) */
-  let cKm=0,pKm=0,cRides=0,pRides=0,cMin=0,pMin=0,cMask=0,pMask=0;
-  for(let i=12;i<N_MONTHS;i++){
-    if(!monthPass(i)) continue;
-    cKm+=KM[i]; cRides+=RIDES[i]; cMin+=MINUTES[i]; cMask|=(1<<i);
-    const j=i-12;
-    pKm+=KM[j]; pRides+=RIDES[j]; pMin+=MINUTES[j]; pMask|=(1<<j);
-  }
-  let cActifs=0,pActifs=0;
-  for(const u in USER_MASKS){
-    if(USER_MASKS[u]&cMask) cActifs++;
-    if(USER_MASKS[u]&pMask) pActifs++;
-  }
-  const yoy={has:cMask!==0, cKm,pKm, cRides,pRides, cMin,pMin, cActifs,pActifs};
-  return {km, rides, minutes, actifs, labels, kmArr, ridesArr, actifsArr, kmPays, kmMarque, yoy};
-}
-
-/* ============ Navigation & layouts ============ */
-const NAV = {
-  "Cyclistes": {
-    desc:"Pilotage des cyclistes de la flotte : activité, répartition géographique et affectations de vélos.",
-    subs:["Vue d'ensemble","Répartition géographique","Affectations vélos"]
-  },
-  "Flotte vélos": {
-    desc:"Suivi du parc de vélos : composition de la flotte, marques et années de sortie.",
-    subs:["Vue d'ensemble","Répartition par marque"]
-  }
-};
-
-const TABLE_AFFECT = `<div class="table-wrap"><table><thead><tr><th>Cycliste</th><th class="num">Vélos</th><th>Marques attribuées</th></tr></thead><tbody>
-<tr><td>Pierre Bouchard</td><td class="num">2</td><td>Giant · Scott</td></tr>
-<tr><td>Alexandre Moreau</td><td class="num">3</td><td>Canyon · Pinarello · Trek</td></tr>
-<tr><td>Patrick Dumont</td><td class="num">2</td><td>Factor · Orbea</td></tr>
-<tr><td>Caroline Beaudoin</td><td class="num">2</td><td>Merida · Colnago</td></tr>
-<tr><td>Jean-Philippe Paquet</td><td class="num">1</td><td>Specialized</td></tr>
-<tr><td>Manon Fortin</td><td class="num">2</td><td>Canyon · Trek</td></tr></tbody></table></div>`;
-
-const TABLE_MARQUES = `<div class="table-wrap"><table><thead><tr><th>Marque</th><th class="num">Vélos</th><th class="num">% flotte</th><th class="num">Km parcourus</th></tr></thead><tbody>
-<tr><td>Trek</td><td class="num">6</td><td class="num">7,5 %</td><td class="num">15 717</td></tr>
-<tr><td>Giant</td><td class="num">6</td><td class="num">7,5 %</td><td class="num">39 448</td></tr>
-<tr><td>Specialized</td><td class="num">5</td><td class="num">6,3 %</td><td class="num">26 017</td></tr>
-<tr><td>Cervelo</td><td class="num">5</td><td class="num">6,3 %</td><td class="num">9 812</td></tr>
-<tr><td>Canyon</td><td class="num">5</td><td class="num">6,3 %</td><td class="num">20 099</td></tr>
-<tr><td>Pinarello</td><td class="num">4</td><td class="num">5,0 %</td><td class="num">15 463</td></tr></tbody></table></div>`;
-
-/* dyn : la valeur est recalculée selon les filtres */
-const PAGE_DATA = {
-  "1.1":{
-    kpis:[
-      {label:"Cyclistes actifs", dyn:"actifs", yoy:true, sub:"sur 50 enregistrés", consol:true},
-      {label:"Kilomètres totaux", dyn:"km", yoy:true, sub:"période affichée"},
-      {label:"Sorties", dyn:"sorties", yoy:true, sub:"période affichée"},
-      {label:"Km / cycliste", dyn:"kmpc", yoy:true, sub:"moyenne cyclistes actifs"},
-      {label:"Durée moy. / sortie", dyn:"duree", yoy:true, sub:"moyenne période affichée"}
-    ],
-    row2:[
-      {title:"Évolution kilométrique mensuelle", unit:"km / mois", id:"c11", dyn:"line"},
-      {title:"Cyclistes par pays", unit:"50 cyclistes", id:"c12", spec:{type:'donut',items:PAYS,center:'50',centerSub:'cyclistes'}}
-    ],
-    row2b:[
-      {title:"Sorties par mois", unit:"sorties", id:"c13", dyn:"bar"},
-      {title:"Cyclistes actifs par mois", unit:"actifs", id:"c14", dyn:"actifsLine"}
-    ]
-  },
-  "1.2":{
-    kpis:[
-      {label:"Pays couverts", value:"3", sub:"Canada · France · Belgique", consol:true},
-      {label:"Villes couvertes", value:"16", sub:"zones de pratique"},
-      {label:"Cyclistes par pays", value:"36", sub:"Canada (majoritaire)"}
-    ],
-    row2:[
-      {title:"Cyclistes par pays", unit:"effectifs", id:"c21", spec:{type:'bar',labels:['Canada','France','Belgique'],data:[36,9,5]}},
-      {title:"Top villes de pratique", unit:"cyclistes", id:"c22", spec:{type:'hbar',items:VILLES}}
-    ],
-    row3:{type:'chart', title:"Kilomètres parcourus par pays", id:"c23", dyn:"hbarPays"}
-  },
-  "1.3":{
-    kpis:[
-      {label:"Cyclistes avec vélo", value:"50", sub:"1+ vélo attribué", consol:true},
-      {label:"Vélos attribués", value:"57", sub:"sur 80 en flotte"},
-      {label:"Ratio vélos / cycliste", value:"1,14", sub:"57 vélos · 50 cyclistes"}
-    ],
-    row2:[
-      {title:"Vélos par cycliste", unit:"répartition", id:"c31", spec:{type:'donut',items:VELOS_CYCLISTE,center:'50',centerSub:'cyclistes'}},
-      {title:"Marques attribuées", unit:"vélos", id:"c32", spec:{type:'hbar',items:MARQUES_ATTR}}
-    ],
-    row3:{type:'table', title:"Détail des affectations", html:TABLE_AFFECT}
-  },
-  "2.1":{
-    kpis:[
-      {label:"Vélos en flotte", value:"80", sub:"parc actif"},
-      {label:"Marques distinctes", value:"25", sub:"fournisseurs"},
-      {label:"Année moyenne du parc", value:"2023", sub:"2021 – 2024"},
-      {label:"Km total parcouru", dyn:"km", yoy:true, sub:"période affichée"}
-    ],
-    row2:[
-      {title:"Kilomètres par mois (flotte)", unit:"km / mois", id:"c41", dyn:"line"},
-      {title:"Flotte par année de sortie", unit:"vélos", id:"c42", spec:{type:'donut',items:ANNEES_FLOTTE,center:'80',centerSub:'vélos'}}
-    ],
-    row3:{type:'chart', title:"Top marques par km parcouru", id:"c43", dyn:"hbarMarque"}
-  },
-  "2.2":{
-    kpis:[
-      {label:"Vélos par marque", value:"6", sub:"Trek · Giant (max)"},
-      {label:"Marque dominante", value:"Trek", sub:"6 vélos · ex æquo Giant"},
-      {label:"Part des 3 leaders", value:"21 %", sub:"17 des 80 vélos"}
-    ],
-    row2:[
-      {title:"Vélos par marque", unit:"effectifs", id:"c51", spec:{type:'hbar',items:MARQUES_TOP}},
-      {title:"Part de la flotte", unit:"top 5", id:"c52", spec:{type:'donut',items:MARQUES_TOP5,center:'80',centerSub:'vélos'}}
-    ],
-    row3:{type:'table', title:"Détail par marque", html:TABLE_MARQUES}
-  }
-};
-
-/* ============ Formatage ============ */
-const fr = n => Math.round(n).toLocaleString('fr-FR');
-const frk = n => n>=1000 ? (n/1000).toLocaleString('fr-FR',{maximumFractionDigits:1})+' k' : fr(n);
-function dynValue(key, agg){
-  switch(key){
-    case 'actifs': return fr(agg.actifs);
-    case 'km': return frk(agg.km);
-    case 'sorties': return fr(agg.rides);
-    case 'kmpc': return agg.actifs ? fr(agg.km/agg.actifs) : '0';
-    case 'duree': return agg.rides ? fr(agg.minutes/agg.rides)+' min' : '0 min';
-  }
-  return '';
-}
-const _pct = (c,p) => p ? (c-p)/p*100 : null;
-function dynTrend(key, agg){
-  const y = agg.yoy;
-  if(!y.has) return null;
-  let v = null;
-  switch(key){
-    case 'actifs': v = _pct(y.cActifs, y.pActifs); break;
-    case 'km': v = _pct(y.cKm, y.pKm); break;
-    case 'sorties': v = _pct(y.cRides, y.pRides); break;
-    case 'kmpc': v = (y.cActifs && y.pActifs) ? _pct(y.cKm/y.cActifs, y.pKm/y.pActifs) : null; break;
-    case 'duree': v = (y.cRides && y.pRides) ? _pct(y.cMin/y.cRides, y.pMin/y.pRides) : null; break;
-  }
-  return (v===null || !isFinite(v)) ? null : v;
-}
-function resolveSpec(c, agg){
-  if(c.dyn==='line') return {type:'line', labels:agg.labels, data:agg.kmArr, area:true};
-  if(c.dyn==='bar') return {type:'bar', labels:agg.labels, data:agg.ridesArr};
-  if(c.dyn==='actifsLine') return {type:'line', labels:agg.labels, data:agg.actifsArr, area:true};
-  if(c.dyn==='hbarPays') return {type:'hbar', items:Object.entries(agg.kmPays).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value)};
-  if(c.dyn==='hbarMarque') return {type:'hbar', items:Object.entries(agg.kmMarque).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value)};
-  return c.spec;
-}
-
-/* ============ ECharts ============ */
-const baseTooltip = {trigger:'axis',backgroundColor:'#ffffff',borderColor:BORDER,borderWidth:1,padding:[8,12],textStyle:{color:'#0f172a',fontSize:12},extraCssText:'box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border-radius:6px;'};
-
-function optionFor(spec){
-  if(spec.type==='line') return {
-    backgroundColor:'transparent', tooltip:baseTooltip,
-    grid:{top:30,right:16,bottom:26,left:44,containLabel:true},
-    xAxis:{type:'category',data:spec.labels,axisLine:{lineStyle:{color:'#94a3b8'}},axisTick:{show:false},axisLabel:{color:TEXT2,fontSize:10}},
-    yAxis:{type:'value',axisLabel:{color:TEXT2,fontSize:10},splitLine:{lineStyle:{color:'#e2e8f0',type:'dashed'}}},
-    series:[{type:'line',data:spec.data,smooth:0.2,symbol:'circle',symbolSize:5,lineStyle:{width:2.5,color:PRIMARY},itemStyle:{color:PRIMARY,borderWidth:2,borderColor:'#fff'},areaStyle:spec.area?{opacity:0.12,color:PRIMARY}:undefined}]
+  const agg = {
+    km:0, rides:0, min:0,
+    acts:0, cActifs:0, pActifs:0,
+    cKm:0,pKm:0, cRides:0,pRides:0, cMin:0,pMin:0,
+    periodMask:0, priorMask:0, hasYoY:false,
+    kmPays:{}, kmVille:{}, kmMarque:{}, topVille:[], topMarque:[]
   };
-  if(spec.type==='bar') return {
-    backgroundColor:'transparent', tooltip:baseTooltip,
-    grid:{top:16,right:14,bottom:26,left:40,containLabel:true},
-    xAxis:{type:'category',data:spec.labels,axisLabel:{color:TEXT2,fontSize:10},axisLine:{lineStyle:{color:'#94a3b8'}},axisTick:{show:false}},
-    yAxis:{type:'value',axisLabel:{color:TEXT2,fontSize:10},splitLine:{lineStyle:{color:'#e2e8f0',type:'dashed'}}},
-    series:[{type:'bar',data:spec.data,barMaxWidth:24,itemStyle:{borderRadius:[3,3,0,0],color:PRIMARY}}]
-  };
-  if(spec.type==='donut') return {
-    backgroundColor:'transparent', tooltip:{...baseTooltip,trigger:'item'},
-    legend:{orient:'vertical',right:8,top:'center',itemGap:10,textStyle:{color:TEXT2,fontSize:11}},
-    series:[{type:'pie',radius:['52%','72%'],center:['30%','50%'],label:{show:true,formatter:'{d}%',distanceToLabelLine:5,fontSize:10,color:TEXT2},itemStyle:{borderRadius:4,borderColor:SURFACE,borderWidth:2},data:spec.items}]
-  };
-  if(spec.type==='hbar') return {
-    backgroundColor:'transparent', tooltip:{...baseTooltip,axisPointer:{type:'shadow'}},
-    grid:{top:10,right:70,bottom:20,left:10,containLabel:true},
-    xAxis:{type:'value',axisLabel:{color:TEXT2,fontSize:10},splitLine:{lineStyle:{color:'#e2e8f0',type:'dashed'}}},
-    yAxis:{type:'category',data:spec.items.map(i=>i.name),axisLabel:{color:TEXT2,fontSize:11},axisLine:{lineStyle:{color:'#94a3b8'}},axisTick:{show:false}},
-    series:[{type:'bar',data:spec.items.map(i=>i.value),barWidth:16,itemStyle:{borderRadius:[0,4,4,0],color:PRIMARY},label:{show:true,position:'right',fontSize:11,fontWeight:'bold',color:TEXT1,distance:8,formatter:v=>v.value.toLocaleString('fr-FR')}}]
-  };
-}
-
-function initChart(id, spec){
-  const el = document.getElementById(id);
-  if(!el) return;
-  const c = echarts.init(el);
-  c.setOption(optionFor(spec));
-  charts.push(c);
-}
-function disposeCharts(){ while(charts.length){ charts.pop().dispose(); } }
-
-/* ============ Rendu ============ */
-function kpiCard(k, agg){
-  const value = k.dyn ? dynValue(k.dyn, agg) : k.value;
-  let trendHtml = '';
-  if(k.yoy){
-    const v = dynTrend(k.dyn, agg);
-    if(v!==null){
-      const cls = v>=0 ? 'good' : 'bad';
-      const sign = v>=0 ? '+' : '−';
-      trendHtml = `<span class="trend ${cls}">${sign}${Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})} % vs N-1</span>`;
-    }
+  let cur = [], pri = [];
+  for (let i=0;i<N_MONTHS;i++){
+    if (!monthPass(i)) continue;
+    agg.km+=KM_M[i]; agg.rides+=RIDES_M[i]; agg.min+=MIN_M[i];
+    agg.periodMask |= (1<<i);
+    if (i>=12){ cur.push(i); pri.push(i-12); agg.hasYoY=true; agg.cKm+=KM_M[i]; agg.pKm+=KM_M[i-12];
+      agg.cRides+=RIDES_M[i]; agg.pRides+=RIDES_M[i-12]; agg.cMin+=MIN_M[i]; agg.pMin+=MIN_M[i-12]; }
   }
-  return `<div class="kpi-card ${k.consol?'consol':''}">
-    <div class="accent"></div>
-    <div class="label">${k.label}</div>
-    <div class="value">${value}</div>
-    <div class="sub">${k.sub}</div>
-    <div class="trend-slot">${trendHtml}</div>
-    ${k.consol?'<span class="consol-pill">En consolidation</span>':''}
+  for (const p of Object.keys(KM_PAYS)){ let s=0; for(let i=0;i<N_MONTHS;i++) if(monthPass(i)) s+=KM_PAYS[p][i]; agg.kmPays[p]=s; }
+  for (const v of Object.keys(KM_VILLE)){ let s=0; for(let i=0;i<N_MONTHS;i++) if(monthPass(i)) s+=KM_VILLE[v][i]; agg.kmVille[v]=s; }
+  for (const m of Object.keys(KM_MARQUE)){ let s=0; for(let i=0;i<N_MONTHS;i++) if(monthPass(i)) s+=KM_MARQUE[m][i]; agg.kmMarque[m]=s; }
+  agg.topVille = Object.keys(agg.kmVille).map(k=>({name:k,value:agg.kmVille[k]})).sort((a,b)=>b.value-a.value);
+  agg.topMarque = Object.keys(agg.kmMarque).map(k=>({name:k,value:agg.kmMarque[k]})).sort((a,b)=>b.value-a.value);
+  // active cyclists (bitmask) current period
+  for (const mask of ACT_MASKS) if (mask & agg.periodMask) agg.acts++;
+  // YoY actifs on matched comparable months
+  let curMask=0, priMask=0;
+  for (const i of cur) curMask |= (1<<i);
+  for (const i of pri) priMask |= (1<<i);
+  for (const mask of ACT_MASKS){ if (mask & curMask) agg.cActifs++; if (mask & priMask) agg.pActifs++; }
+  return agg;
+}
+
+/* ============================ HELPERS ============================ */
+const fmtInt = n => { if(!isFinite(n)) return '—'; return Math.round(n).toLocaleString('fr-FR'); };
+const fmt1 = n => { if(!isFinite(n)) return '—'; return n.toLocaleString('fr-FR',{maximumFractionDigits:1}); };
+const hmm = m => { const h=Math.floor(m/60), mm=Math.round(m%60); return h>0 ? h+'h '+String(mm).padStart(2,'0') : mm+' min'; };
+function dynTrend(k, agg){
+  // k: [cur, prior] current and prior base values for the YoY
+  const c=k[0], p=k[1];
+  return (p && p>0 && c!==null) ? (c-p)/p*100 : null;
+}
+function trendBlock(trend){
+  if (trend===null) return '';
+  const up = trend>=0;
+  const cls = up ? 'trend-up' : 'trend-down';
+  const sign = up ? '+' : '−';
+  return `<span class="kpi-trend ${cls}">${sign}${Math.abs(trend).toLocaleString('fr-FR',{maximumFractionDigits:1})} % vs N-1</span>`;
+}
+function kpiCard(label, value, trend, consolidation, overrideCls){
+  let extra='', pill='';
+  if (consolidation){ extra=' consolidation'; }
+  if (consolidation) pill = `<div class="kpi-consol-pill">Indicateur en consolidation</div>`;
+  return `<div class="kpi-card${extra} ${overrideCls||''}">
+    <div class="kpi-accent"></div>
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-value">${value}</div>
+    ${trendBlock(trend)}
+    ${pill}
   </div>`;
 }
-function vizCard(title, unit, id, center){
-  const chartHtml = center
-    ? `<div class="chart-holder"><div id="${id}" class="chart"></div><div class="donut-center"><span class="dc-value">${center.text}</span><span class="dc-sub">${center.sub}</span></div></div>`
-    : `<div id="${id}" class="chart"></div>`;
-  return `<div class="viz-card"><div class="vh"><div class="vt">${title}<span class="vu">${unit||''}</span></div></div>${chartHtml}</div>`;
+
+/* ECharts color resolution */
+const P = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#B69E7F';
+const TP = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#0F172A';
+const TS = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#64748B';
+const PR = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#CBD5E1';
+const PAL = [P,'#5CB57D','#2563EB','#F59E0B','#8B5CF6','#14B8A6','#F43F5E','#6366F1','#10B981','#F97316'];
+
+function baseOption(){
+  return { backgroundColor:'transparent', fontFamily:'Inter, system-ui, sans-serif',
+    textStyle:{color:TP, fontSize:12},
+    tooltip:{trigger:'axis',backgroundColor:'#ffffff',borderColor:PR,borderWidth:1,padding:[8,12],
+      textStyle:{color:'#0f172a',fontSize:12}, extraCssText:'box-shadow:0 4px 6px -1px rgba(0,0,0,.1);border-radius:6px;'},
+    grid:{top:30,right:20,bottom:26,left:44,containLabel:false} };
 }
-const donutCenter = c => (c.spec && c.spec.type==='donut') ? {text:c.spec.center||'', sub:c.spec.centerSub||''} : null;
+function axisX(labels){ return { type:'category', data:labels, axisLine:{lineStyle:{color:'#94a3b8'}},
+  axisTick:{show:false}, axisLabel:{color:TS,fontSize:10} }; }
+function axisY(){ return { type:'value', axisLine:{show:false}, axisTick:{show:false},
+  axisLabel:{color:TS,fontSize:10}, splitLine:{lineStyle:{color:'#e2e8f0',type:'dashed'}} }; }
 
-let state = {page:0, subpage:0};
+function lineChart(labels, series, isArea){
+  const lineSeries = series.map((s,i)=>({ name:s.name, type:'line', data:s.data, smooth:0.2, symbol:'circle', symbolSize:6,
+    lineStyle:{width:2.5,color:s.color||PAL[i%PAL.length]},
+    itemStyle:{color:s.color||PAL[i%PAL.length],borderWidth:2,borderColor:'#fff'},
+    areaStyle:isArea!==false?{opacity:0.12,color:s.color||PAL[i%PAL.length]}:undefined }));
+  const n = series.reduce((a,s)=>a.concat(s.data),[]).filter(v=>v!==null&&v!==undefined);
+  return Object.assign(baseOption(),{ legend:series.length>1?{top:0,right:0,textStyle:{color:TS,fontSize:10},icon:'circle',itemWidth:8,itemHeight:8}:undefined,
+    tooltip:{trigger:'axis'}, xAxis:axisX(labels), yAxis:axisY(), series:lineSeries });
+}
+function barChart(labels, data, color){
+  return Object.assign(baseOption(),{ tooltip:{trigger:'axis'},
+    xAxis:axisX(labels), yAxis:axisY(),
+    series:[{ name:'Valeur', type:'bar', data, barMaxWidth:24, color:color||P,
+      label:{show:true,position:'top',fontSize:9,color:'#334155',formatter:(p)=>fmtInt(p.value)},
+      itemStyle:{borderRadius:[3,3,0,0]} }] });
+}
+function hbarChart(items, colorArr){
+  return Object.assign(baseOption(),{ tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+    xAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:TS,fontSize:10},splitLine:{lineStyle:{color:'#e2e8f0',type:'dashed'}}},
+    yAxis:{type:'category',data:items.map(d=>d.name),axisLine:{lineStyle:{color:'#94a3b8'}},axisTick:{show:false},axisLabel:{color:TP,fontSize:10}},
+    series:[{ type:'bar', data:items.map((d,idx)=>({value:Math.round(d.value), itemStyle:{color:(colorArr||PAL)[idx%(colorArr||PAL).length],borderRadius:[0,4,4,0]}})),
+      barWidth:15, label:{show:true,position:'right',fontSize:10,fontWeight:'bold',color:'#0f172a',distance:6,formatter:(p)=>Math.round(p.value).toLocaleString('fr-FR')} }] });
+}
+function donutChart(items, centerColor){
+  const opt = Object.assign(baseOption(),{ tooltip:{trigger:'item'},
+    color:PAL,
+    series:[{ type:'pie', radius:['56%','76%'], center:['50%','50%'],
+      data:items.map(d=>({name:d.name,value:d.value})),
+      label:{show:true,formatter:'{b}\n{c}',fontSize:10,color:TS,lineHeight:13},
+      labelLine:{length:8,length2:8},
+      itemStyle:{borderRadius:4,borderColor:'#fff',borderWidth:2} }] });
+  return opt;
+}
 
-function renderPage(){
-  const agg = aggregates();
-  const key = (state.page+1) + '.' + (state.subpage+1);
-  const layout = PAGE_DATA[key];
-  const main = document.getElementById('mainArea');
+function makeChart(id, option){
+  const el = document.getElementById(id);
+  if (!el || !el.__chart) return;
+  if (window.echarts){
+    if (chartRegistry[id]){ try{ chartRegistry[id].dispose(); }catch(e){} }
+    chartRegistry[id] = echarts.init(el);
+    chartRegistry[id].setOption(option);
+  }
+}
 
-  const row3Html = layout.row3 ? `<div class="viz-card full" id="row3card"></div>` : '';
-  main.innerHTML = `
-    <div class="nav-l1" id="nav1"></div>
-    <div class="nav-l2" id="nav2"></div>
-    <div class="content">
-      <div class="kpi-row" style="grid-template-columns:repeat(${layout.kpis.length},1fr)">${layout.kpis.map(k=>kpiCard(k,agg)).join('')}</div>
-      <div class="viz-grid">${layout.row2.map(c=>vizCard(c.title,c.unit,c.id,donutCenter(c))).join('')}${(layout.row2b||[]).map(c=>vizCard(c.title,c.unit,c.id,donutCenter(c))).join('')}${row3Html}</div>
+/* ============================ VIEWS ============================ */
+const VIEWS = {
+  /* ---- P1 S1 Vue d'ensemble ---- */
+  "0-0": function(agg){
+    const kpis = [
+      kpiCard('Cyclistes actifs', fmtInt(agg.acts), dynTrend([agg.cActifs,agg.pActifs],agg), true),
+      kpiCard('Kilomètres totaux', fmtInt(agg.km)+' km', dynTrend([agg.cKm,agg.pKm],agg), false),
+      kpiCard('Sorties', fmtInt(agg.rides), dynTrend([agg.cRides,agg.pRides],agg), false),
+      kpiCard('Km / cycliste', fmt1(agg.km/Math.max(agg.acts,1)), dynTrend([agg.cKm/agg.cActifs, agg.pKm/agg.pActifs],agg), false),
+      kpiCard('Durée moy. / sortie', hmm(agg.min/Math.max(agg.rides,1)), dynTrend([agg.cMin/Math.max(agg.cRides,1), agg.pMin/Math.max(agg.pRides,1)],agg), false)
+    ].join('');
+    const labels = MONTH_LABELS.filter((_,i)=>monthPass(i));
+    const kmData = KM_M.filter((_,i)=>monthPass(i));
+    const ridesData = RIDES_M.filter((_,i)=>monthPass(i));
+    const minData = MIN_M.filter((_,i)=>monthPass(i));
+    const paysData = Object.keys(CYCL_PAYS).map(k=>({name:k,value:CYCL_PAYS[k]}));
+    const totKm = paysData.reduce((s,d)=>s+d.value,0);
+
+    const vis =
+    `<div class="kpi-row">${kpis}</div>
+    <div class="vis-grid">
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilomètres par mois</div><div class="vis-sub">km</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-0-0-1"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Sorties par mois</div><div class="vis-sub">nb</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-0-0-2"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Minutes cyclées par mois</div><div class="vis-sub">min</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-0-0-3"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Cyclistes par pays</div><div class="vis-sub">effectif total</div></div>
+        <div class="chart-holder"><div class="chart-echarts" id="ch-0-0-4"></div>
+          <div class="donut-center"><div class="dc-value">${fmtInt(totKm)}</div><div class="dc-sub">cyclistes</div></div></div></div>
     </div>`;
+    document.getElementById('content').innerHTML = vis;
+    requestAnimationFrame(()=>{
+      const L = labels;
+      makeChart('ch-0-0-1', lineChart(L,[{name:'Km',data:kmData,color:P}],true));
+      makeChart('ch-0-0-2', barChart(L,ridesData,P));
+      makeChart('ch-0-0-3', lineChart(L,[{name:'Minutes',data:minData,color:'#5CB57D'}],false));
+      makeChart('ch-0-0-4', donutChart(paysData));
+    });
+  },
 
-  // Navigation L1
-  const nav1 = document.getElementById('nav1');
-  Object.keys(NAV).forEach((name,i)=>{
-    const el = document.createElement('div');
-    el.className = 'pill' + (i===state.page?' active':'');
-    el.textContent = name;
-    el.addEventListener('click', ()=>{ state = {page:i, subpage:0}; renderPage(); });
-    nav1.appendChild(el);
-  });
+  /* ---- P1 S2 Répartition géographique ---- */
+  "0-1": function(agg){
+    const kpis = [
+      kpiCard('Pays couverts', fmtInt(CIV.nbPays), null, true),
+      kpiCard('Villes couvertes', fmtInt(CIV.nbVilles), null, false),
+      kpiCard('Cyclistes par pays', fmt1(Object.values(agg.kmPays).reduce((a,b)=>a+b,0))+' km', null, false)
+    ].join('');
+    const paysKm = Object.keys(agg.kmPays).map(k=>({name:k,value:agg.kmPays[k]})).sort((a,b)=>b.value-a.value);
+    const cycPays = Object.keys(CYCL_PAYS).map(k=>({name:k,value:CYCL_PAYS[k]}));
+    const villes = agg.topVille.slice(0,6);
+    const labels = MONTH_LABELS.filter((_,i)=>monthPass(i));
+    const paydSer = Object.keys(KM_PAYS).map(k=>({name:k,data:KM_PAYS[k].filter((_,i)=>monthPass(i))}));
+    const nCyc = Object.keys(CYCL_PAYS).reduce((a,k)=>a+CYCL_PAYS[k],0);
 
-  // Navigation L2
-  const subs = NAV[Object.keys(NAV)[state.page]].subs;
-  const nav2 = document.getElementById('nav2');
-  subs.forEach((name,i)=>{
-    const el = document.createElement('button');
-    el.className = 'sub' + (i===state.subpage?' active':'');
-    el.textContent = name;
-    el.addEventListener('click', ()=>{ state = {page:state.page, subpage:i}; renderPage(); });
-    nav2.appendChild(el);
-  });
+    const vis =
+    `<div class="kpi-row">${kpis}</div>
+    <div class="vis-grid">
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilométrage par pays</div><div class="vis-sub">km</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-0-1-1"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Cyclistes par pays</div><div class="vis-sub">effectif</div></div>
+        <div class="chart-holder"><div class="chart-echarts" id="ch-0-1-2"></div>
+          <div class="donut-center"><div class="dc-value">${fmtInt(nCyc)}</div><div class="dc-sub">cyclistes</div></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Évolution km par pays</div><div class="vis-sub">km / mois</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-0-1-3"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilométrage par ville</div><div class="vis-sub">top 6</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-0-1-4"></div></div></div>
+    </div>`;
+    document.getElementById('content').innerHTML = vis;
+    requestAnimationFrame(()=>{
+      makeChart('ch-0-1-1', hbarChart(paysKm,[P,'#5CB57D','#2563EB']));
+      makeChart('ch-0-1-2', donutChart(cycPays));
+      makeChart('ch-0-1-3', lineChart(MONTH_LABELS.filter((_,i)=>monthPass(i)),paydSer,false));
+      makeChart('ch-0-1-4', hbarChart(villes,PAL));
+    });
+  },
 
-  // Row 3
-  if(layout.row3){
-    const r3 = document.getElementById('row3card');
-    if(layout.row3.type==='table'){
-      r3.innerHTML = `<div class="vh"><div class="vt">${layout.row3.title}</div></div>${layout.row3.html}`;
-    } else {
-      r3.innerHTML = `<div class="vh"><div class="vt">${layout.row3.title}</div></div><div id="${layout.row3.id}" class="chart"></div>`;
-    }
+  /* ---- P1 S3 Affectations vélos ---- */
+  "0-2": function(agg){
+    const kpis = [
+      kpiCard('Cyclistes avec vélo', fmtInt(CIV.nbCyclistesVelo), null, true),
+      kpiCard('Vélos attribués', fmtInt(CIV.nbVelosAttribues), null, false),
+      kpiCard('Ratio vélos / cycliste', fmt1(CIV.nbVelosAttribues/CIV.nbCyclistesVelo), null, false)
+    ].join('');
+    const marqueKm = agg.topMarque.slice(0,7);
+    const velosMarque = Object.keys(VELOS_MARQUE).map(k=>({name:k,value:VELOS_MARQUE[k]})).sort((a,b)=>b.value-a.value).slice(0,8);
+    const cycPays = Object.keys(CYCL_PAYS).map(k=>({name:k,value:CYCL_PAYS[k]}));
+    const labels=MONTH_LABELS.filter((_,i)=>monthPass(i));
+    const nCyc = Object.keys(CYCL_PAYS).reduce((a,k)=>a+CYCL_PAYS[k],0);
+
+    const vis =
+    `<div class="kpi-row">${kpis}</div>
+    <div class="vis-grid">
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Vélos par marque</div><div class="vis-sub">parc</div></div>
+        <div class="chart-holder"><div class="chart-echarts" id="ch-0-2-1"></div>
+          <div class="donut-center"><div class="dc-value">${fmtInt(CIV.nbVelosAttribues)}</div><div class="dc-sub">vélos</div></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Cyclistes par pays</div><div class="vis-sub">effectif</div></div>
+        <div class="chart-holder"><div class="chart-echarts" id="ch-0-2-2"></div>
+          <div class="donut-center"><div class="dc-value">${fmtInt(nCyc)}</div><div class="dc-sub">cyclistes</div></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilométrage par marque</div><div class="vis-sub">top 7, km</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-0-2-3"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilomètres par mois</div><div class="vis-sub">km</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-0-2-4"></div></div></div>
+    </div>`;
+    document.getElementById('content').innerHTML = vis;
+    requestAnimationFrame(()=>{
+      makeChart('ch-0-2-1', donutChart(velosMarque));
+      makeChart('ch-0-2-2', donutChart(cycPays));
+      makeChart('ch-0-2-3', hbarChart(marqueKm,PAL));
+      makeChart('ch-0-2-4', lineChart(labels,[{name:'Km',data:KM_M.filter((_,i)=>monthPass(i)),color:P}],true));
+    });
+  },
+
+  /* ---- P2 S1 Flotte vue d'ensemble ---- */
+  "1-0": function(agg){
+    const kpis = [
+      kpiCard('Vélos en flotte', fmtInt(CIV.nbVelosFlotte), null, false),
+      kpiCard('Marques distinctes', fmtInt(CIV.nbMarques), null, false),
+      kpiCard('Année moyenne du parc', String(Math.round(CIV.anneeMoyenne)), null, false),
+      kpiCard('Km total parcouru', fmtInt(agg.km)+' km', dynTrend([agg.cKm,agg.pKm],agg), false)
+    ].join('');
+    const annees = Object.keys(VELOS_ANNEE).sort().map(k=>({name:k,value:VELOS_ANNEE[k]}));
+    const marqueKm = agg.topMarque.slice(0,6);
+    const labels=MONTH_LABELS.filter((_,i)=>monthPass(i));
+    const totalVelos = Object.keys(VELOS_MARQUE).reduce((a,k)=>a+VELOS_MARQUE[k],0);
+
+    const vis =
+    `<div class="kpi-row">${kpis}</div>
+    <div class="vis-grid">
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Flotte par année de sortie</div><div class="vis-sub">parc</div></div>
+        <div class="chart-holder"><div class="chart-echarts" id="ch-1-0-1"></div>
+          <div class="donut-center"><div class="dc-value">${fmtInt(totalVelos)}</div><div class="dc-sub">vélos</div></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Parc par marque</div><div class="vis-sub">top 6</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-1-0-2"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilomètres par mois</div><div class="vis-sub">km</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-1-0-3"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilométrage par marque</div><div class="vis-sub">top 6, km</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-1-0-4"></div></div></div>
+    </div>`;
+    document.getElementById('content').innerHTML = vis;
+    requestAnimationFrame(()=>{
+      makeChart('ch-1-0-1', donutChart(annees));
+      makeChart('ch-1-0-2', hbarChart(marqueKm,PAL));
+      makeChart('ch-1-0-3', lineChart(labels,[{name:'Km',data:KM_M.filter((_,i)=>monthPass(i)),color:P}],true));
+      makeChart('ch-1-0-4', hbarChart(agg.topMarque.slice(0,6),PAL));
+    });
+  },
+
+  /* ---- P2 S2 Répartition par marque ---- */
+  "1-1": function(agg){
+    const dominant = Object.keys(VELOS_MARQUE).sort((a,b)=>VELOS_MARQUE[b]-VELOS_MARQUE[a])[0];
+    const kpis = [
+      kpiCard('Vélos par marque', fmtInt(VELOS_MARQUE[dominant]), null, false),
+      kpiCard('Marque dominante', dominant, null, false)
+    ].join('');
+    const velosMarque = Object.keys(VELOS_MARQUE).map(k=>({name:k,value:VELOS_MARQUE[k]})).sort((a,b)=>b.value-a.value).slice(0,8);
+    const marqueKm = agg.topMarque.slice(0,7);
+    const topBrands = Object.keys(VELOS_MARQUE).sort((a,b)=>VELOS_MARQUE[b]-VELOS_MARQUE[a]).slice(0,5);
+    const labels=MONTH_LABELS.filter((_,i)=>monthPass(i));
+    const ser = topBrands.map((b,i)=>({name:b,data:KM_MARQUE[b].filter((_,j)=>monthPass(j)),color:PAL[i%PAL.length]}));
+
+    const vis =
+    `<div class="kpi-row">${kpis}</div>
+    <div class="vis-grid">
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Parc par marque</div><div class="vis-sub">top 8</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-1-1-1"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Évolution km par marque</div><div class="vis-sub">top 5, km/mois</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-1-1-2"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilométrage par marque</div><div class="vis-sub">top 7, km</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-1-1-3"></div></div></div>
+      <div class="vis-card"><div class="vis-head"><div class="vis-title">Kilomètres par mois</div><div class="vis-sub">km</div></div><div class="chart-holder"><div class="chart-echarts" id="ch-1-1-4"></div></div></div>
+    </div>`;
+    document.getElementById('content').innerHTML = vis;
+    requestAnimationFrame(()=>{
+      makeChart('ch-1-1-1', hbarChart(velosMarque,PAL));
+      makeChart('ch-1-1-2', lineChart(labels,ser,false));
+      makeChart('ch-1-1-3', hbarChart(marqueKm,PAL));
+      makeChart('ch-1-1-4', lineChart(labels,[{name:'Km',data:KM_M.filter((_,i)=>monthPass(i)),color:P}],true));
+    });
   }
+};
 
-  // Popover info
-  const pageName = Object.keys(NAV)[state.page];
-  let html = `<h3>${pageName}</h3><p class="pdesc">${NAV[pageName].desc}</p>`;
-  subs.forEach((name,i)=>{
-    html += `<div class="sp"><span class="dot" style="background:${i===state.subpage?'#2563EB':'var(--primary)'}"></span><span><b>${name}</b></span></div>`;
-  });
-  document.getElementById('popover').innerHTML = html;
-
-  // Badge filtres actifs
-  document.getElementById('filterBadge').textContent = isFiltered() ? '● Filtres actifs' : '';
-
-  // Charts (après insertion DOM)
-  disposeCharts();
-  requestAnimationFrame(()=>{
-    layout.row2.forEach(c=>initChart(c.id, resolveSpec(c,agg)));
-    (layout.row2b||[]).forEach(c=>initChart(c.id, resolveSpec(c,agg)));
-    if(layout.row3 && layout.row3.type==='chart') initChart(layout.row3.id, resolveSpec(layout.row3,agg));
-  });
+/* ============================ NAV & RENDER ============================ */
+function renderNav(){
+  const c = document.getElementById('content');
+  const page = NAV[STATE.page];
+  const l1 = NAV.map((p,pi)=>
+    `<div class="nav-pill ${pi===STATE.page?'active':''}" onclick="go(${pi},0)">${p.name}</div>`).join('');
+  const l2 = page.subs.map((s,si)=>
+    `<button class="nav-link ${si===STATE.sub?'active':''}" onclick="go(${STATE.page},${si})">${s.name}</button>`).join('');
+  const navHtml = `<div class="nav-l1">${l1}</div><div class="nav-l2">${l2}</div>`;
+  c.innerHTML = navHtml + (c.innerHTML || '');
+  renderInfo();
+}
+function renderInfo(){
+  const page = NAV[STATE.page], sub = page.subs[STATE.sub];
+  const subsHtml = page.subs.map((s,i)=>`
+    <div class="pop-sub ${i===STATE.sub?'active':''}">
+      <span class="pop-dot ${i===STATE.sub?'blue':'prim'}"></span>
+      <div><strong>${s.name}</strong>${i===STATE.sub?' (sous-page sélectionnée)':''}<br>${s.desc}</div>
+    </div>`).join('');
+  document.getElementById('infoPop').innerHTML = `
+    <div class="pop-page">${page.name}</div>
+    <div class="pop-title">${sub.name}</div>
+    <div class="pop-desc">${sub.desc}</div>
+    <div class="pop-div"></div>
+    ${subsHtml}`;
+}
+function renderPage(){
+  const c = document.getElementById('content');
+  c.innerHTML = '';
+  const agg = aggregates();
+  const key = STATE.page+'-'+STATE.sub;
+  if (VIEWS[key]) VIEWS[key](agg);
+  else VIEWS['0-0'](agg);
+  renderNav();
+  document.getElementById('filtreBadge').textContent = isFiltered() ? '● Filtres actifs' : '';
+}
+function go(p,s){
+  if (STATE.page!==p || STATE.sub!==s){ STATE.page=p; STATE.sub=s; renderPage(); }
 }
 
-/* ============ Filtres : câblage ============ */
-const MOIS_NOMS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-function dateStr(idx, lastDay){
-  const m = MONTH_META[idx];
-  const d = lastDay ? new Date(m.year, m.month, 0).getDate() : 1;
-  return String(d).padStart(2,'0')+'/'+String(m.month).padStart(2,'0')+'/'+m.year;
-}
-function syncFilterUI(){
-  document.getElementById('dateStart').value = dateStr(FILT.start,false);
-  document.getElementById('dateEnd').value = dateStr(FILT.end,true);
-  const p0 = FILT.start/(N_MONTHS-1)*100, p1 = FILT.end/(N_MONTHS-1)*100;
-  document.getElementById('handleStart').style.left = p0+'%';
-  document.getElementById('handleEnd').style.left = p1+'%';
-  const fill = document.getElementById('sliderFill');
-  fill.style.left = p0+'%'; fill.style.width = (p1-p0)+'%';
-}
+/* ============================ SLICER WIRING ============================ */
+function initSlicers(){
+  const years = [...new Set(MONTH_META.map(m=>m.year))].sort();
+  document.getElementById('yearChiclets').innerHTML = years.map(y=>
+    `<div class="chic" data-y="${y}" onclick="toggleYear(${y})">${y}</div>`).join('');
 
-// Chiclets année (multi-sélection)
-document.querySelectorAll('.chiclet').forEach(el=>{
-  el.addEventListener('click', ()=>{
-    const y = +el.dataset.year;
-    if(FILT.years.has(y)){ FILT.years.delete(y); el.classList.remove('active'); }
-    else { FILT.years.add(y); el.classList.add('active'); }
-    renderPage();
-  });
-});
-// Trimestre
-document.getElementById('selQuarter').addEventListener('change', e=>{
-  FILT.quarter = +e.target.value;
-  if(FILT.quarter){ FILT.month = 0; document.getElementById('selMonth').value = '0'; }
+  const qm = document.getElementById('qMenu');
+  qm.innerHTML = '<div class="dd-item active" onclick="selQ(0)">Tous</div>' +
+    [1,2,3,4].map(q=>`<div class="dd-item" data-q="${q}" onclick="selQ(${q})">T${q}</div>`).join('');
+  const mm = document.getElementById('mMenu');
+  const noms=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  mm.innerHTML = '<div class="dd-item active" onclick="selM(0)">Tous</div>' +
+    noms.map((n,i)=>`<div class="dd-item" data-m="${i+1}" onclick="selM(${i+1})">${n}</div>`).join('');
+
+  document.getElementById('dateStart').value = FIN_DATES[FILT.start];
+  document.getElementById('dateEnd').value = FIN_DATES[FILT.end];
+  syncSlider();
+}
+const FIN_DATES = MONTH_LABELS.map((l,i)=>{ const y=2024+Math.floor(i/12), m=i%12+1; return `${String(m).padStart(2,'0')}/${String(1).padStart(2,'0')}/${y}`; });
+
+function toggleDD(k){ const menu=document.getElementById(k==='q'?'qMenu':'mMenu'); menu.style.display = menu.style.display==='none'?'block':'none'; }
+function selQ(q){
+  FILT.quarter=q; FILT.month=0;
+  const qm=document.getElementById('qMenu'); [...qm.children].forEach(c=>c.classList.toggle('active', +c.dataset.q===q));
+  document.getElementById('qLabel').textContent = q?('T'+q):'Tous';
+  const mm=document.getElementById('mMenu'); [...mm.children].forEach(c=>c.classList.toggle('active', +c.dataset.m===0));
+  document.getElementById('mLabel').textContent='Tous';
   renderPage();
-});
-// Mois
-document.getElementById('selMonth').addEventListener('change', e=>{
-  FILT.month = +e.target.value;
-  if(FILT.month){ FILT.quarter = 0; document.getElementById('selQuarter').value = '0'; }
-  renderPage();
-});
-// Dates (JJ/MM/AAAA)
-function monthIndexFromDate(str){
-  const m = str.trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
-  if(!m) return null;
-  const idx = (+m[3]-2024)*12 + (+m[2]-1);
-  return Math.max(0, Math.min(N_MONTHS-1, idx));
 }
-document.getElementById('dateStart').addEventListener('change', e=>{
-  const idx = monthIndexFromDate(e.target.value);
-  if(idx===null){ e.target.value = dateStr(FILT.start,false); return; }
-  FILT.start = idx; if(FILT.start>FILT.end) FILT.end = FILT.start;
-  syncFilterUI(); renderPage();
-});
-document.getElementById('dateEnd').addEventListener('change', e=>{
-  const idx = monthIndexFromDate(e.target.value);
-  if(idx===null){ e.target.value = dateStr(FILT.end,true); return; }
-  FILT.end = idx; if(FILT.end<FILT.start) FILT.start = FILT.end;
-  syncFilterUI(); renderPage();
-});
-// Slider double poignée (drag)
-(function(){
-  const track = document.getElementById('sliderTrack');
-  let dragging = null;
-  function idxFromEvent(e){
-    const r = track.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - r.left)/r.width));
-    return Math.round(pct*(N_MONTHS-1));
-  }
-  function onMove(e){
-    if(dragging===null) return;
-    const idx = idxFromEvent(e);
-    if(dragging==='start'){ FILT.start = Math.min(idx, FILT.end); }
-    else { FILT.end = Math.max(idx, FILT.start); }
-    syncFilterUI(); renderPage();
-  }
-  function onUp(){ dragging = null; window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); }
-  document.getElementById('handleStart').addEventListener('pointerdown', e=>{ e.preventDefault(); dragging='start'; window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); });
-  document.getElementById('handleEnd').addEventListener('pointerdown', e=>{ e.preventDefault(); dragging='end'; window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); });
-})();
-// Effacer tous les filtres
-document.getElementById('clearFilters').addEventListener('click', ()=>{
-  FILT.years.clear(); FILT.quarter = 0; FILT.month = 0; FILT.start = 0; FILT.end = N_MONTHS-1;
-  document.querySelectorAll('.chiclet').forEach(el=>el.classList.remove('active'));
-  document.getElementById('selQuarter').value = '0';
-  document.getElementById('selMonth').value = '0';
-  syncFilterUI();
+function selM(m){
+  FILT.month=m; FILT.quarter=0;
+  const mm=document.getElementById('mMenu'); [...mm.children].forEach(c=>c.classList.toggle('active', +c.dataset.m===m));
+  const noms=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('mLabel').textContent = m?noms[m-1]:'Tous';
+  const qm=document.getElementById('qMenu'); [...qm.children].forEach(c=>c.classList.toggle('active', +c.dataset.q===0));
+  document.getElementById('qLabel').textContent='Tous';
   renderPage();
-});
+}
+function toggleYear(y){
+  if (FILT.years.has(y)) FILT.years.delete(y); else FILT.years.add(y);
+  [...document.getElementById('yearChiclets').children].forEach(ch=>ch.classList.toggle('active', FILT.years.has(+ch.dataset.y)));
+  renderPage();
+}
+function clearFilters(){
+  FILT.years.clear(); FILT.quarter=0; FILT.month=0; FILT.start=0; FILT.end=N_MONTHS-1;
+  [...document.getElementById('yearChiclets').children].forEach(ch=>ch.classList.remove('active'));
+  [...document.getElementById('qMenu').children].forEach(c=>c.classList.toggle('active', +c.dataset.q===0));
+  document.getElementById('qLabel').textContent='Tous';
+  [...document.getElementById('mMenu').children].forEach(c=>c.classList.toggle('active', +c.dataset.m===0));
+  document.getElementById('mLabel').textContent='Tous';
+  document.getElementById('dateStart').value=FIN_DATES[0];
+  document.getElementById('dateEnd').value=FIN_DATES[N_MONTHS-1];
+  syncSlider();
+  renderPage();
+}
+function syncSlider(){
+  const s=document.getElementById('rangeStart'), e=document.getElementById('rangeEnd');
+  s.value=FILT.start; e.value=FILT.end;
+  const total=100;
+  const left=(FILT.start/(N_MONTHS-1))*total, right=(FILT.end/(N_MONTHS-1))*total;
+  const fill=document.getElementById('fillBar');
+  fill.style.left=left+'%'; fill.style.width=(right-left)+'%';
+}
+function rangeMove(which){
+  const s=document.getElementById('rangeStart'), e=document.getElementById('rangeEnd');
+  if (which==='start'){ FILT.start=Math.min(+s.value, FILT.end); }
+  else { FILT.end=Math.max(+e.value, FILT.start); }
+  document.getElementById('dateStart').value=FIN_DATES[FILT.start];
+  document.getElementById('dateEnd').value=FIN_DATES[FILT.end];
+  syncSlider();
+  renderPage();
+}
+function parseYMD(str){
+  const m=str.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (!m) return null;
+  return (m[3]-2024)*12 + (m[1]-1);
+}
+function dateInput(which){
+  const s=document.getElementById('dateStart').value, e=document.getElementById('dateEnd').value;
+  const si=parseYMD(s), ei=parseYMD(e);
+  if (si===null||ei===null) return;
+  FILT.start=Math.min(si,ei); FILT.end=Math.max(si,ei);
+  syncSlider();
+  renderPage();
+}
 
-/* ============ Scaling 1920×1080 ============ */
-function resize(){
-  const vw = window.innerWidth, vh = window.innerHeight;
-  const s = Math.min(vw/1920, vh/1080);
+/* ============================ RESIZE & INIT ============================ */
+function fitSlide(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const s=Math.min(vw/1920, vh/1080);
   document.getElementById('slide').style.transform =
     `translate(${(vw-1920*s)/2}px, ${(vh-1080*s)/2}px) scale(${s})`;
 }
-window.addEventListener('resize', ()=>{ resize(); charts.forEach(c=>c.resize()); });
-
-resize();
-syncFilterUI();
-renderPage();
+window.addEventListener('resize', fitSlide);
+window.addEventListener('DOMContentLoaded', ()=>{ fitSlide(); initSlicers(); renderPage(); });
 </script>
 </body>
 </html>
