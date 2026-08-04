@@ -127,13 +127,21 @@ background image — the skill only overlays the **slicer controls** on top of i
 - See `POWERBI_COMPONENTS.md` §1 for card internals.
 - Some cards may carry a **"consolidation" state** (red dashed border + label).
 
-### Row 2 — Main visuals (height: ~450px)
-- 2–3 chart cards side by side (line, donut, stacked column, etc.).
-- See `POWERBI_COMPONENTS.md` §3 for chart specs.
-
-### Row 3 — Detail table / matrix (height: ~300px)
-- Full-width data table or secondary charts (heatmap, horizontal bars).
-- See `POWERBI_COMPONENTS.md` §3.6–3.7.
+### Rows 2–3 — Main visuals (equal heights, no fixed px)
+- **All main visuals on a sub-page share the exact same height.** Render them in
+  a single CSS grid: `grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr`
+  (two equal rows, two equal columns). The grid uses all remaining vertical
+  space (`flex: 1; min-height: 0` inside the content area).
+- **Never set a fixed pixel height on a visual card** (e.g. no `height: 300px`
+  on a bottom row) — that breaks the equal-height rule.
+- **Default arrangement: 4 main visuals in a 2×2 grid** whenever the source data
+  (`donnees.xlsx`) supports 4 meaningful visuals (derived from available
+  measures: line/bar/donut/hbar). Do **not** add filler visuals just to reach 4.
+- If only 3 visuals are justified, keep 2 columns: the 3rd visual (or the detail
+  table) spans the full width of the second row (`grid-column: 1 / -1`) — its
+  height equals the two upper cards.
+- Charts: see `POWERBI_COMPONENTS.md` §3; tables: see
+  `POWERBI_COMPONENTS.md` §3.7. Donut center callouts: see §3.4.
 
 ## 5. Footer (height: ~28px)
 

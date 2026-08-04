@@ -151,6 +151,12 @@ Phase 1.)
       **layout complet** (KPIs + visuels ECharts).
    - Cartes KPI (avec état consolidation si flag présent) + visuels ECharts
      depuis la carte visuelle déduite de `donnees.xlsx`.
+   - **Visuels principaux** : grille à **hauteurs égales** (`grid-template-rows:
+     1fr 1fr`, aucune hauteur fixe en px), par défaut **2×2 avec 4 visuels** si
+     les données supportent 4 visuels pertinents (sinon 3, le 3ᵉ en pleine
+     largeur sur la 2ᵉ ligne). Chiffre central des donuts en **superposition
+     HTML centrée** (jamais en `title`/`graphic` ECharts). Voir
+     `POWERBI_LAYOUT.md` §4 et `POWERBI_COMPONENTS.md` §3.4.
    - Logo `logo.png` affiché dans la zone logo (en haut à gauche).
    - Footer disclaimer "Données fictives".
 3. **Référencer** `logo.png` (+ `bg.*` si présent) **depuis le dossier parent**
@@ -174,6 +180,16 @@ Phase 1.)
 
 ## Règles de qualité
 - **Ne jamais coder une couleur en dur** : toujours via `var(--xxx)`.
+- **Hauteurs des visuels normalisées** : les visuels principaux d'une sous-page
+  sont rendus dans une grille à lignes égales (`grid-template-rows: 1fr 1fr`) —
+  **jamais** de hauteur fixe en px. Disposition **par défaut 2×2 avec 4 visuels**
+  lorsque les données supportent 4 visuels pertinents (sinon 3, le 3ᵉ en pleine
+  largeur sur la 2ᵉ ligne, hauteurs toujours égales). Voir `POWERBI_LAYOUT.md`
+  §4 Rows 2–3.
+- **Chiffre central des donuts centré** : le chiffre/sous-titre est une
+  **superposition HTML** centrée via CSS (`left/top` = centre du pie,
+  `transform: translate(-50%,-50%)`) — **jamais** un `title`/`graphic` ECharts
+  (non centrés sur l'ancre). Voir `POWERBI_COMPONENTS.md` §3.4.
 - Le **titre/sous-titre** sur le bandeau est TOUJOURS en `var(--surface)`.
 - Le texte de pane "Filtres" + son icône est TOUJOURS en `var(--primary)`.
 - Dériver `--text-primary`/`--text-secondary` selon la luminance de `--canvas`.

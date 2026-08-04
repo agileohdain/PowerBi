@@ -193,10 +193,27 @@ For all ECharts integrated into the dashboard:
 
 ### 3.4. Donut & Pie Charts
 * **ECharts Type:** `pie`
-* **Donut Sizing:** `radius: ['52%', '72%']`, `center: ['40%', '50%']`
-* **Center Metric Callout:** rendered via ECharts `graphic` element or central `title`:
-  * Main Value: large bold text (e.g., `126.4 k`, 22px bold)
-  * Sub-label: muted text (e.g., `calls received`, 11px slate-500)
+* **Donut Sizing:** `radius: ['52%', '72%']`, `center: ['30%', '50%']`
+* **Center Metric Callout — MUST be a CSS overlay, not an ECharts `title` /
+  `graphic`:**
+  * ECharts `title` and `graphic.text` do **not** center text on their anchor
+    (they anchor by the bounding-box edge and ignore `textAlign`/`textVerticalAlign`),
+    so the number drifts off-center. Render the callout as a positioned HTML
+    overlay instead, for pixel-perfect, verifiable centering:
+    * Synchronize the overlay anchor with the pie `center`: both use the same
+      `left`/`top` value (e.g. `center: ['30%','50%']` → overlay
+      `left: 30%; top: 50%`).
+    * Wrap the chart: `.chart-holder { position: relative; flex: 1; min-height: 0; }`
+      with the ECharts div inside as `position: absolute; inset: 0;`.
+    * Overlay:
+      ```css
+      .donut-center{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%);
+        display:flex;flex-direction:column;align-items:center;pointer-events:none;line-height:1;text-align:center;}
+      .donut-center .dc-value{font-size:22px;font-weight:700;color:var(--text-primary);}
+      .donut-center .dc-sub{font-size:11px;color:var(--text-secondary);margin-top:4px;}
+      ```
+    * Main Value: `dc-value` (e.g. `126.4 k`, 22px bold). Sub-label: `dc-sub`
+      (e.g. `calls received`, 11px muted).
 * **Leader Line Labels:** `label: { show: true, formatter: '{c}\n({d}%)', distanceToLabelLine: 5 }`
 * **Legend:** `legend: { orient: 'vertical', right: 16, top: 'center', itemGap: 12, textStyle: { color: '#475569', fontSize: 11 } }`
 

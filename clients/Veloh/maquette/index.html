@@ -74,12 +74,18 @@
   .trend.good{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;}
   .trend.bad{background:#fff1f2;color:#be123c;border:1px solid #fecdd3;}
   .consol-pill{position:absolute;bottom:6px;right:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--consolidation);background:rgba(255,0,0,.08);padding:2px 6px;border-radius:4px;}
-  .viz-grid{flex:1;min-height:0;display:grid;gap:12px;}
+  .viz-grid{flex:1;min-height:0;display:grid;gap:12px;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+  .viz-grid .full{grid-column:1/-1;min-height:0;}
   .viz-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;min-height:0;}
   .viz-card .vh{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px;flex:none;}
   .viz-card .vt{font-size:14px;font-weight:700;color:var(--text-primary);}
   .viz-card .vu{font-size:11px;color:var(--text-secondary);font-weight:400;margin-left:6px;}
   .chart{flex:1;min-height:0;width:100%;}
+  .chart-holder{position:relative;flex:1;min-height:0;}
+  .chart-holder .chart{position:absolute;inset:0;width:100%;}
+  .donut-center{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;line-height:1;text-align:center;}
+  .donut-center .dc-value{font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;}
+  .donut-center .dc-sub{font-size:11px;color:var(--text-secondary);margin-top:4px;}
   .table-wrap{flex:1;min-height:0;overflow:auto;}
   table{width:100%;border-collapse:collapse;}
   thead th{background:var(--primary);color:var(--surface);font-size:11px;font-weight:600;text-align:left;padding:8px 12px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;}
@@ -186,13 +192,16 @@ function monthPass(i){
 }
 function aggregates(){
   let km=0, rides=0, minutes=0, mask=0;
-  const labels=[], kmArr=[], ridesArr=[];
+  const labels=[], kmArr=[], ridesArr=[], actifsArr=[];
   const kmPays={Canada:0,France:0,Belgique:0};
   const kmMarque={Factor:0,Giant:0,Merida:0,Specialized:0,Canyon:0,Trek:0};
   for(let i=0;i<N_MONTHS;i++){
     if(!monthPass(i)) continue;
     km+=KM[i]; rides+=RIDES[i]; minutes+=MINUTES[i]; mask|=(1<<i);
     labels.push(KM_LABELS[i]); kmArr.push(KM[i]); ridesArr.push(RIDES[i]);
+    let actifsMonth=0;
+    for(const u in USER_MASKS) if(USER_MASKS[u]&(1<<i)) actifsMonth++;
+    actifsArr.push(actifsMonth);
     for(const p in kmPays) kmPays[p]+=KM_PAYS_M[p][i];
     for(const b in kmMarque) kmMarque[b]+=KM_MARQUE_M[b][i];
   }
@@ -212,7 +221,7 @@ function aggregates(){
     if(USER_MASKS[u]&pMask) pActifs++;
   }
   const yoy={has:cMask!==0, cKm,pKm, cRides,pRides, cMin,pMin, cActifs,pActifs};
-  return {km, rides, minutes, actifs, labels, kmArr, ridesArr, kmPays, kmMarque, yoy};
+  return {km, rides, minutes, actifs, labels, kmArr, ridesArr, actifsArr, kmPays, kmMarque, yoy};
 }
 
 /* ============ Navigation & layouts ============ */
@@ -253,12 +262,14 @@ const PAGE_DATA = {
       {label:"Km / cycliste", dyn:"kmpc", yoy:true, sub:"moyenne cyclistes actifs"},
       {label:"Durée moy. / sortie", dyn:"duree", yoy:true, sub:"moyenne période affichée"}
     ],
-    row2Cols:"2fr 1fr",
     row2:[
       {title:"Évolution kilométrique mensuelle", unit:"km / mois", id:"c11", dyn:"line"},
       {title:"Cyclistes par pays", unit:"50 cyclistes", id:"c12", spec:{type:'donut',items:PAYS,center:'50',centerSub:'cyclistes'}}
     ],
-    row3:{type:'chart', title:"Sorties par mois", id:"c13", dyn:"bar"}
+    row2b:[
+      {title:"Sorties par mois", unit:"sorties", id:"c13", dyn:"bar"},
+      {title:"Cyclistes actifs par mois", unit:"actifs", id:"c14", dyn:"actifsLine"}
+    ]
   },
   "1.2":{
     kpis:[
@@ -266,7 +277,6 @@ const PAGE_DATA = {
       {label:"Villes couvertes", value:"16", sub:"zones de pratique"},
       {label:"Cyclistes par pays", value:"36", sub:"Canada (majoritaire)"}
     ],
-    row2Cols:"1fr 2fr",
     row2:[
       {title:"Cyclistes par pays", unit:"effectifs", id:"c21", spec:{type:'bar',labels:['Canada','France','Belgique'],data:[36,9,5]}},
       {title:"Top villes de pratique", unit:"cyclistes", id:"c22", spec:{type:'hbar',items:VILLES}}
@@ -279,7 +289,6 @@ const PAGE_DATA = {
       {label:"Vélos attribués", value:"57", sub:"sur 80 en flotte"},
       {label:"Ratio vélos / cycliste", value:"1,14", sub:"57 vélos · 50 cyclistes"}
     ],
-    row2Cols:"1fr 2fr",
     row2:[
       {title:"Vélos par cycliste", unit:"répartition", id:"c31", spec:{type:'donut',items:VELOS_CYCLISTE,center:'50',centerSub:'cyclistes'}},
       {title:"Marques attribuées", unit:"vélos", id:"c32", spec:{type:'hbar',items:MARQUES_ATTR}}
@@ -293,7 +302,6 @@ const PAGE_DATA = {
       {label:"Année moyenne du parc", value:"2023", sub:"2021 – 2024"},
       {label:"Km total parcouru", dyn:"km", yoy:true, sub:"période affichée"}
     ],
-    row2Cols:"2fr 1fr",
     row2:[
       {title:"Kilomètres par mois (flotte)", unit:"km / mois", id:"c41", dyn:"line"},
       {title:"Flotte par année de sortie", unit:"vélos", id:"c42", spec:{type:'donut',items:ANNEES_FLOTTE,center:'80',centerSub:'vélos'}}
@@ -306,7 +314,6 @@ const PAGE_DATA = {
       {label:"Marque dominante", value:"Trek", sub:"6 vélos · ex æquo Giant"},
       {label:"Part des 3 leaders", value:"21 %", sub:"17 des 80 vélos"}
     ],
-    row2Cols:"2fr 1fr",
     row2:[
       {title:"Vélos par marque", unit:"effectifs", id:"c51", spec:{type:'hbar',items:MARQUES_TOP}},
       {title:"Part de la flotte", unit:"top 5", id:"c52", spec:{type:'donut',items:MARQUES_TOP5,center:'80',centerSub:'vélos'}}
@@ -345,6 +352,7 @@ function dynTrend(key, agg){
 function resolveSpec(c, agg){
   if(c.dyn==='line') return {type:'line', labels:agg.labels, data:agg.kmArr, area:true};
   if(c.dyn==='bar') return {type:'bar', labels:agg.labels, data:agg.ridesArr};
+  if(c.dyn==='actifsLine') return {type:'line', labels:agg.labels, data:agg.actifsArr, area:true};
   if(c.dyn==='hbarPays') return {type:'hbar', items:Object.entries(agg.kmPays).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value)};
   if(c.dyn==='hbarMarque') return {type:'hbar', items:Object.entries(agg.kmMarque).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value)};
   return c.spec;
@@ -371,7 +379,6 @@ function optionFor(spec){
   if(spec.type==='donut') return {
     backgroundColor:'transparent', tooltip:{...baseTooltip,trigger:'item'},
     legend:{orient:'vertical',right:8,top:'center',itemGap:10,textStyle:{color:TEXT2,fontSize:11}},
-    title:{text:spec.center||'',subtext:spec.centerSub||'',left:'30%',top:'middle',textAlign:'center',textVerticalAlign:'middle',textStyle:{color:TEXT1,fontSize:22,fontWeight:700},subtextStyle:{color:TEXT2,fontSize:11}},
     series:[{type:'pie',radius:['52%','72%'],center:['30%','50%'],label:{show:true,formatter:'{d}%',distanceToLabelLine:5,fontSize:10,color:TEXT2},itemStyle:{borderRadius:4,borderColor:SURFACE,borderWidth:2},data:spec.items}]
   };
   if(spec.type==='hbar') return {
@@ -413,9 +420,13 @@ function kpiCard(k, agg){
     ${k.consol?'<span class="consol-pill">En consolidation</span>':''}
   </div>`;
 }
-function vizCard(title, unit, id){
-  return `<div class="viz-card"><div class="vh"><div class="vt">${title}<span class="vu">${unit||''}</span></div></div><div id="${id}" class="chart"></div></div>`;
+function vizCard(title, unit, id, center){
+  const chartHtml = center
+    ? `<div class="chart-holder"><div id="${id}" class="chart"></div><div class="donut-center"><span class="dc-value">${center.text}</span><span class="dc-sub">${center.sub}</span></div></div>`
+    : `<div id="${id}" class="chart"></div>`;
+  return `<div class="viz-card"><div class="vh"><div class="vt">${title}<span class="vu">${unit||''}</span></div></div>${chartHtml}</div>`;
 }
+const donutCenter = c => (c.spec && c.spec.type==='donut') ? {text:c.spec.center||'', sub:c.spec.centerSub||''} : null;
 
 let state = {page:0, subpage:0};
 
@@ -425,13 +436,13 @@ function renderPage(){
   const layout = PAGE_DATA[key];
   const main = document.getElementById('mainArea');
 
+  const row3Html = layout.row3 ? `<div class="viz-card full" id="row3card"></div>` : '';
   main.innerHTML = `
     <div class="nav-l1" id="nav1"></div>
     <div class="nav-l2" id="nav2"></div>
     <div class="content">
       <div class="kpi-row" style="grid-template-columns:repeat(${layout.kpis.length},1fr)">${layout.kpis.map(k=>kpiCard(k,agg)).join('')}</div>
-      <div class="viz-grid" style="grid-template-columns:${layout.row2Cols}">${layout.row2.map(c=>vizCard(c.title,c.unit,c.id)).join('')}</div>
-      <div class="viz-card" style="flex:none;height:300px" id="row3card"></div>
+      <div class="viz-grid">${layout.row2.map(c=>vizCard(c.title,c.unit,c.id,donutCenter(c))).join('')}${(layout.row2b||[]).map(c=>vizCard(c.title,c.unit,c.id,donutCenter(c))).join('')}${row3Html}</div>
     </div>`;
 
   // Navigation L1
@@ -456,11 +467,13 @@ function renderPage(){
   });
 
   // Row 3
-  const r3 = document.getElementById('row3card');
-  if(layout.row3.type==='table'){
-    r3.innerHTML = `<div class="vh"><div class="vt">${layout.row3.title}</div></div>${layout.row3.html}`;
-  } else {
-    r3.innerHTML = `<div class="vh"><div class="vt">${layout.row3.title}</div></div><div id="${layout.row3.id}" class="chart"></div>`;
+  if(layout.row3){
+    const r3 = document.getElementById('row3card');
+    if(layout.row3.type==='table'){
+      r3.innerHTML = `<div class="vh"><div class="vt">${layout.row3.title}</div></div>${layout.row3.html}`;
+    } else {
+      r3.innerHTML = `<div class="vh"><div class="vt">${layout.row3.title}</div></div><div id="${layout.row3.id}" class="chart"></div>`;
+    }
   }
 
   // Popover info
@@ -478,7 +491,8 @@ function renderPage(){
   disposeCharts();
   requestAnimationFrame(()=>{
     layout.row2.forEach(c=>initChart(c.id, resolveSpec(c,agg)));
-    if(layout.row3.type==='chart') initChart(layout.row3.id, resolveSpec(layout.row3,agg));
+    (layout.row2b||[]).forEach(c=>initChart(c.id, resolveSpec(c,agg)));
+    if(layout.row3 && layout.row3.type==='chart') initChart(layout.row3.id, resolveSpec(layout.row3,agg));
   });
 }
 
