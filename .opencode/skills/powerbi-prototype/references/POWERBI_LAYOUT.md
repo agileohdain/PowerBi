@@ -117,6 +117,23 @@ background image — the skill only overlays the **slicer controls** on top of i
 > Phase 3). Render the KPIs/visuals of the active sub-page as specified there —
 > do not improvise alternative chart types.
 
+### Container geometry (MANDATORY — never overlap the header)
+
+The whole content column (L1 nav, L2 nav, KPI row, visuals) lives in **one
+absolutely-positioned container that starts BELOW the header** and stops above
+the footer. Use exactly:
+
+```css
+.content{position:absolute;left:262px;top:97px;right:0;bottom:40px;
+  padding:0 20px 0 16px;display:flex;flex-direction:column;box-sizing:border-box;}
+```
+
+**Never set `top:0` on this container** — the L1 pills and L2 links would then
+render **on top of the banner** (covering the title/subtitle), a fatal layout
+regression. The nav rows, KPI row and visuals grid all flow inside this
+container, in this order, with the visuals grid taking the remaining height
+(`flex:1; min-height:0`).
+
 ### Row 0a — Primary navigation (Level-1 tabs)
 - Rendered dynamically from `CLIENT.md` Page list.
 - Layout: `flex` row of pills, or `grid grid-cols-N` (N = number of pages).

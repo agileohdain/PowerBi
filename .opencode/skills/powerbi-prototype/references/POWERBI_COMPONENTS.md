@@ -426,6 +426,21 @@ embed the underlying monthly series so they can be filtered and compared.
   block, then `renderPage()` paints nav, KPI cards, visuals, info popover and the
   "Filtres actifs" badge from it. Charts are disposed and re-initialised
   (`disposeCharts()` + `echarts.init`) inside `requestAnimationFrame`.
+* **Chart registry — use this exact pattern.** Reassigning a `const` is a
+  runtime `TypeError` that blanks the whole dashboard (the nav is painted, then
+  `renderPage()` dies before the KPIs and visuals render):
+  ```javascript
+  let charts = {};
+  function disposeCharts(){ for (const k of Object.keys(charts)) charts[k].dispose(); charts = {}; }
+  ```
+  Never write `const charts = {}` and later `charts = {}`. The registry must be
+  declared with `let` (or mutated in place with `delete charts[k]`).
+* **DATA identifiers — declare once, reference exactly.** Every identifier a
+  view references must be declared once in the DATA block, with the **exact
+  same casing** (`CITY_CYCLISTES` ≠ `cityCyclistes` — a single typo throws
+  `ReferenceError` and blanks that whole sub-page). Before delivering, run the
+  smoke test (`scripts/smoke-test.js`, see SKILL.md Phase 3) which executes
+  every view and catches these errors mechanically.
 
 > A mockup that only embeds final per-sub-page arrays **cannot** filter or
 > compute YoY — that is the regression this section exists to prevent.

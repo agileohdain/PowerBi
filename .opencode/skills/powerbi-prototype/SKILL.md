@@ -192,7 +192,21 @@ N-1** ne sont possibles — c'est la régression à éviter.
    via `src="../logo.png"` — **ne pas copier** le logo dans `maquette/`
    (pas de doublon). La maquette assume que le dossier parent `clients/<client>/`
    contient `logo.png` et `donnees.xlsx`.
-4. Indiquer à l'utilisateur comment ouvrir le rendu (`start index.html`).
+4. **Validation d'exécution (OBLIGATOIRE, bloquant)** : avant de livrer,
+   exécuter le smoke test fourni et **corriger jusqu'à exit code 0** :
+   ```bash
+   node .opencode/skills/powerbi-prototype/scripts/smoke-test.js clients/<client>/maquette/index.html
+   ```
+   Ce test exécute le JS de la maquette dans Node (DOM et ECharts simulés) :
+   il appelle `renderPage()`, vérifie que la rangée de KPI et les visuels sont
+   remplis, parcourt **toutes** les sous-pages (`go(page, sub)`) et exécute
+   chaque vue. **Ne jamais livrer une maquette qui échoue ce test** — une seule
+   erreur JS fatale (réassignation d'une `const`, `ReferenceError` sur un
+   identifiant non déclaré ou mal orthographié, …) rend la page **vide** dans
+   le navigateur : la navigation s'affiche mais ni les KPI ni les visuels.
+   Voir aussi `POWERBI_LAYOUT.md` §4 (géométrie du conteneur) et
+   `POWERBI_COMPONENTS.md` §6 (registre des charts, identifiants DATA).
+5. Indiquer à l'utilisateur comment ouvrir le rendu (`start index.html`).
 
 ## Sources de données
 - `CLIENT.md` — **fichier pilote, rempli par l'utilisateur** : identité de
@@ -236,5 +250,18 @@ N-1** ne sont possibles — c'est la régression à éviter.
 - **Icône info** : une seule, en haut à droite du bandeau ; le popover explique
   la page active + la sous-page sélectionnée (re-rendu à chaque navigation) et
   reste atteignable au survol (conteneur de survol partagé). Voir §4.3.
+- **Aucune erreur JS tolérée (bloquant)** : `renderPage()` et **chaque**
+  sous-page doivent s'exécuter sans exception — vérifié mécaniquement par
+  `scripts/smoke-test.js` (exit code 0 exigé avant livraison). Les trois pièges
+  classiques à éviter absolument :
+  1. **Réassigner une `const`** (ex. registre de charts : `const charts={}` puis
+     `charts={}` → `TypeError`, page vide). Utiliser le snippet canonique de
+     `POWERBI_COMPONENTS.md` §6.
+  2. **Référencer un identifiant non déclaré** dans une vue (la casse compte :
+     `CITY_CYCLISTES` ≠ `cityCyclistes`). Tout identifiant utilisé doit être
+     déclaré une fois dans le bloc DATA.
+  3. **Placer la zone de contenu en `top:0`** : la navigation L1/L2 se dessine
+     alors **par-dessus le bandeau** et masque le titre. Le conteneur de
+     contenu commence sous le bandeau (`top:97px`) — voir `POWERBI_LAYOUT.md` §4.
 - Une seule page de mockup pleinement validée par exécution ; les autres
   sous-pages sont des defaults cohérents.
