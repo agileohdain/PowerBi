@@ -49,6 +49,16 @@ Le skill déroule alors le processus :
    (canevas 1920×1080, bandeau/fond en CSS, KPIs et graphiques ECharts
    par-dessus). Ouvrez ce fichier dans un navigateur.
 
+La maquette générée est **interactive** :
+- **Panneau de filtres fonctionnel** — année (chiclets), trimestre et mois
+  (dropdowns), plage de dates (slider + champs synchronisés), bouton « Effacer »
+  ; chaque changement recalcule les KPIs et re-rend les visuels, avec un badge
+  « Filtres actifs ».
+- **Variation vs N-1** sur chaque KPI temporel, sur toutes les pages (badge
+  vert/rouge calculé sur périodes comparables).
+- **Icône info** en haut à droite du bandeau : au survol, une infobulle décrit
+  la page active et la sous-page sélectionnée.
+
 Il n'y a **pas** de mode « Téléguidé » : `CLIENT.md` est **toujours rempli par
 vous** ; le skill se contente de le vérifier et de demander les champs
 manquants.

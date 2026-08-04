@@ -19,4 +19,6 @@ Fichiers à déposer par l'utilisateur (le skill ne les crée jamais) :
 - `donnees.xlsx` — les données source (feuilles = tables)
 
 Fichiers produits par le skill (ne pas créer à la main) :
-- `maquette/index.html` (la maquette)
+- `maquette/index.html` (la maquette) — **interactive** : panneau de filtres
+  **fonctionnel** (année, trimestre, mois, plage de dates, bouton Effacer) et
+  KPIs temporels avec **variation vs N-1**.

@@ -86,6 +86,33 @@ mode automatically.
   * The value is still rendered but the dashed red frame + label make the
     provisional state unmistakable.
 
+### 1.4. YoY ("vs N-1") Variation (MANDATORY on every time-derived KPI)
+
+Every KPI whose value derives from the **time series** must display its
+variation **vs the prior year (N-1)**, on **all** pages / sub-pages — not only
+the first one. The figure is **computed from `donnees.xlsx`, never invented**.
+
+* **Comparable periods only** — always compare matched months: a current-year
+  month `i` against the **same month of the previous year** `i-12`. **Never**
+  compare a partial current year against a full prior year. The YoY block exists
+  **only** when at least one current-year month is selected.
+  ```javascript
+  const _pct = (c,p) => p ? (c-p)/p*100 : null;      // % change, null when no base
+  // inside aggregates(): accumulate cX (i>=12) and pX (i-12) over monthPass() months
+  const yoy = { has:cMask!==0, cKm,pKm, cRides,pRides, cMin,pMin, cActifs,pActifs };
+  ```
+* **Derived KPIs recompute their base** — e.g. *km/cycliste* compares
+  `cKm/cActifs` vs `pKm/pActifs`, **not** the % of the already-rounded card values.
+* **Render** a trend badge (§1.1) only when the value is finite: up = green,
+  down = red, format `±x,x % vs N-1` (French decimal comma). **Hide** the badge
+  when YoY is not computable — never show a fabricated number.
+  ```javascript
+  const v = dynTrend(k.dyn, agg);                    // null when not computable
+  if (v!==null) trend = `${v>=0?'+':'−'}${Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})} % vs N-1`;
+  ```
+* **Static KPIs** (dimension counts with no time axis, e.g. *Pays couverts*,
+  *Vélos en flotte*) carry **no** YoY badge — they are not time-derived.
+
 ---
 
 ## 2. Slicers & Filters
@@ -133,6 +160,38 @@ mode automatically.
 * **CSS / Tailwind Rules:**
   * `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-md hover:bg-[var(--canvas)] hover:text-[var(--text-primary)] hover:border-[var(--primary)] transition-all cursor-pointer shadow-xs`
   * **Icon:** reset / filter icon with a clear badge (`w-3.5 h-3.5`).
+
+### 2.7. Functional Slicers (MANDATORY — the pane must actually filter)
+
+The filter pane is **not decorative**. Every slicer is **wired in JavaScript**
+and drives the whole dashboard: any change recomputes the KPI values and
+re-renders every visual (time-based charts are filtered period-by-period).
+
+* **Single source of truth — one filter-state object** over the monthly series
+  embedded from `donnees.xlsx` (see §6). A single gate decides if a month is in:
+  ```javascript
+  const FILT = { years:new Set(), quarter:0, month:0, start:0, end:N_MONTHS-1 };
+  function monthPass(i){ const m=MONTH_META[i];
+    if (FILT.years.size && !FILT.years.has(m.year)) return false;
+    if (FILT.quarter && m.quarter!==FILT.quarter) return false;
+    if (FILT.month   && m.month  !==FILT.month ) return false;
+    return i>=FILT.start && i<=FILT.end; }
+  function isFiltered(){ return FILT.years.size>0||FILT.quarter>0||FILT.month>0||FILT.start>0||FILT.end<N_MONTHS-1; }
+  ```
+* **`aggregates()`** walks the months, keeps only `monthPass(i)`, and rebuilds
+  **all** KPI aggregates + chart series (including the YoY block, §1.4). **Every
+  slicer handler ends with `renderPage()`** (which disposes and re-inits charts).
+* **Year chiclets** — multi-select toggle: a click adds/removes the year from
+  `FILT.years` and toggles `.active`. No year selected = all years.
+* **Quarter & Month dropdowns are mutually exclusive** — selecting a quarter
+  resets the month to `0`, and vice-versa.
+* **Date range** — a dual-handle slider **and** two `JJ/MM/AAAA` inputs, kept in
+  sync (dragging a handle updates the inputs; typing a date moves the handles),
+  each mapped to a month index. Clamp `start ≤ end`.
+* **Clear-all button** resets `FILT` to defaults, clears the UI state and
+  re-renders.
+* **"Filtres actifs" badge** — show a small indicator (e.g. `● Filtres actifs`,
+  in `var(--primary)`) whenever `isFiltered()` is true; empty otherwise.
 
 ---
 
@@ -284,13 +343,26 @@ For all ECharts integrated into the dashboard:
   `i` glyph (`text-lg`, bold).
 * **CSS / Tailwind Rules (icon):**
   * `w-9 h-9 rounded-full bg-[var(--surface)] text-[var(--primary)] inline-flex items-center justify-center text-lg font-serif font-extrabold cursor-help shadow-md`
-* **Popover (hover):** a white card (`var(--surface)`, `border`,
-  `border-radius: 10px`, shadow) anchored under the icon (`top` below header,
-  `right: 16px`, `z-index` high, width ~400px). Content: the page title
-  (`var(--primary)`, uppercase), the page description, a divider, then each
-  sub-page with a colored dot (blue = active sub-page, `var(--primary)` =
-  inactive), sub-page name and its description. Content is re-rendered on every
-  navigation change.
+* **Popover (hover) — MANDATORY.** A white card (`var(--surface)`, `border`,
+  `border-radius: 10px`, shadow) anchored at the top-right (`right: 16px`,
+  `z-index` high, width ~400px). Content **leads with the ACTIVE page and the
+  currently SELECTED sub-page**: page title (`var(--primary)`, uppercase) + page
+  description, then a divider, then each sub-page with a colored dot (blue =
+  active, `var(--primary)` = inactive), its name and description — the selected
+  one visually emphasised. **Re-render the popover on every navigation change**
+  (same `renderPage()` pass).
+* **Hover reachability (do not leave a dead zone).** If the popover `top` sits
+  well below the icon, the pointer crosses a non-hover gap while moving from the
+  icon to the card and the popover closes before it can be read. Prevent this by
+  wrapping the icon and the popover in a **shared hover container** and toggling
+  on the container — guaranteed continuous hover:
+  ```css
+  .info-wrap{position:absolute;top:26px;right:16px;z-index:70;}
+  .info-wrap .popover{position:absolute;top:44px;right:0;width:400px;display:none;}
+  .info-wrap:hover .popover{display:block;}
+  ```
+  (Alternative: position the popover so its top edge overlaps the icon's bottom
+  edge — `top` ≈ icon bottom − 2px — so hover never breaks.)
 
 ---
 
@@ -324,3 +396,36 @@ For all ECharts integrated into the dashboard:
 * **CSS / Tailwind Rules:**
   * **Container:** `w-full text-center py-2 text-[11px] text-[var(--text-secondary)] bg-[var(--canvas)] border-t border-[var(--border)]`
   * **Text example:** *"Fictitious data — High-fidelity Power BI mockup."*
+
+---
+
+## 6. Data Architecture & Interactivity (MANDATORY)
+
+Functional filters (§2.7) and YoY KPIs (§1.4) are only possible if the mockup
+**embeds the data at month grain**. Do not hardcode final chart arrays only —
+embed the underlying monthly series so they can be filtered and compared.
+
+* **Monthly fact series** (one value per month, chronologically ordered), one
+  array per core measure — e.g. `KM[]`, `RIDES[]`, `MINUTES[]`.
+* **`MONTH_META`** derived from the labels — `{year, month, quarter}` per index —
+  so year/quarter/month filtering needs no re-parsing:
+  ```javascript
+  const MONTH_META = KM_LABELS.map((_,i)=>({year:…, month:i%12+1, quarter:Math.floor((i%12)/3)+1}));
+  ```
+* **Entity activity as a bitmask** — for "active entities" KPIs (e.g. active
+  cyclists), store one integer per entity where **bit `i` = active on month `i`**.
+  `actifs` for any filtered period = count of entities whose mask ∩ period-mask ≠ 0.
+  This makes the KPI correct under **any** filter combination.
+* **Per-dimension monthly series** for every dimension you chart or filter by
+  (e.g. `KM_PAYS_M`, `KM_MARQUE_M`): `{dim: [per-month values]}` so bars/lines
+  and YoY stay correct when the period changes.
+* **Static dimension data** (donuts, tables with no time axis) may stay as final
+  `{name, value}` arrays.
+* **`aggregates()`** is the single recompute entry point: it folds the months
+  passing `monthPass()` into KPI aggregates **and** chart series **and** the YoY
+  block, then `renderPage()` paints nav, KPI cards, visuals, info popover and the
+  "Filtres actifs" badge from it. Charts are disposed and re-initialised
+  (`disposeCharts()` + `echarts.init`) inside `requestAnimationFrame`.
+
+> A mockup that only embeds final per-sub-page arrays **cannot** filter or
+> compute YoY — that is the regression this section exists to prevent.

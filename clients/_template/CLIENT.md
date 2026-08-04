@@ -31,6 +31,10 @@
 > rendu avec un cadre rouge pointillé (voir
 > `.opencode/skills/powerbi-prototype/references/POWERBI_COMPONENTS.md` §1.3) ;
 > tous les autres sont des cards normales.
+>
+> La maquette générée est **interactive** : le panneau de filtres est
+> **fonctionnel** (année, trimestre, mois, plage de dates) et chaque KPI dérivé
+> de la série temporelle affiche automatiquement sa **variation vs N-1**.
 
 ### Page 1: <Titre page 1>
 

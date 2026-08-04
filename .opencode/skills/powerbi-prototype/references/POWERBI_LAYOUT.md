@@ -99,6 +99,15 @@ background image — the skill only overlays the **slicer controls** on top of i
   - Month (dropdown).
   - Date range (dual-handle slider with start/end date inputs).
 - **Clear all filters button** at the bottom of the pane, full-width.
+- **These slicers are FUNCTIONAL, not decorative.** Each one is wired in JS to a
+  shared filter-state object and re-renders the whole dashboard (KPIs + visuals)
+  on change — see `POWERBI_COMPONENTS.md` §2.7 (wiring) and §6 (the monthly data
+  architecture that makes it possible). Year chiclets are multi-select; quarter
+  and month dropdowns are mutually exclusive; the date range keeps slider and
+  date inputs in sync.
+- **"Filtres actifs" badge:** show a small `● Filtres actifs` indicator in
+  `var(--primary)` (e.g. under the pane header or in the pane header row)
+  whenever at least one filter differs from the default.
 
 ## 4. Main Canvas Area (right of filter pane, under header)
 

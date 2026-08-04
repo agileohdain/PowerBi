@@ -112,6 +112,21 @@ dans `clients/<client>/` et en déduire le modèle de données (tables/feuilles)
 les formules KPI, les colonnes source et la carte visuelle par page. (Vérifié en
 Phase 1.)
 
+**Agréger au grain MENSUEL pour l'interactivité** (obligatoire — voir
+`references/POWERBI_COMPONENTS.md` §6). En plus des tableaux finaux par
+sous-page, le skill pré-calcule et **embarque dans le HTML** :
+- les **séries mensuelles** des mesures cœur (ex. `KM[]`, `RIDES[]`,
+  `MINUTES[]`), chronologiques, avec `MONTH_META` (`{year, month, quarter}`) ;
+- les **séries mensuelles par dimension** pour chaque dimension filtrée ou
+  chartée (ex. `KM_PAYS_M`, `KM_MARQUE_M`) ;
+- un **masque d'activité par entité** (bit `i` = actif au mois `i`) pour les KPI
+  de type « entités actives », correct sous n'importe quel filtre ;
+- la **comparaison N-1** sur mois comparables (`i` vs `i-12`), jamais une année
+  partielle contre une année complète (voir §1.4).
+
+Sans ce grain mensuel, ni les **filtres fonctionnels** ni la **variation vs
+N-1** ne sont possibles — c'est la régression à éviter.
+
 ## Phase 3 — Génération de la maquette HTML
 
 1. Lire `CLIENT.md` (+ `references/POWERBI_LAYOUT.md` et
@@ -138,19 +153,33 @@ Phase 1.)
       ~0-97px), en `var(--surface)`, **centrés horizontalement dans la zone du
       bandeau** (à droite de la cassure, ex. `left:360px; right:48px;
       text-align:center`).
-    - Pane filtres à gauche avec **"Filtres" + icône en `var(--primary)`**,
-      fond **`var(--surface)`** (blanc, identique à Surface/Cards), **panneau
-      arrondi flottant** fidèle au template : `left:11px`, `top:116px` (gap ~19px
-      sous le bandeau), `width:235px`, `border-radius:10px`, **sans bordure**.
-    - **Icône information unique** en haut à droite du bandeau (~36px, circulaire,
-      sur `var(--surface)`) : au **survol**, un popover explique la **page active
-      et ses sous-pages** (champs `desc`). **Aucun** « i » par carte visuelle.
-    - Navigation L1 (pills) + L2 (liens texte) rendue depuis `CLIENT.md`, avec
-      un **petit routeur JS** (`state = { page, subpage }`) rendant la **page et
-      les sous-pages cliquables** ; chaque sous-page de `CLIENT.md` reçoit un
-      **layout complet** (KPIs + visuels ECharts).
+   - Pane filtres à gauche avec **"Filtres" + icône en `var(--primary)`**,
+     fond **`var(--surface)`** (blanc, identique à Surface/Cards), **panneau
+     arrondi flottant** fidèle au template : `left:11px`, `top:116px` (gap ~19px
+     sous le bandeau), `width:235px`, `border-radius:10px`, **sans bordure**.
+     **Filtres FONCTIONNELS (obligatoire)** : chaque slicer (année en chiclets
+     multi-sélection, trimestre et mois en dropdowns mutuellement exclusifs,
+     plage de dates slider + champs synchronisés, bouton « Effacer ») pilote un
+     **état de filtre JS unique** et relance le rendu complet (KPIs + visuels)
+     — voir `POWERBI_COMPONENTS.md` §2.7 et §6. Badge **« ● Filtres actifs »**
+     affiché dès qu'un filtre diffère du défaut.
+   - **Icône information unique** en haut à droite du bandeau (~36px, circulaire,
+     sur `var(--surface)`) : au **survol**, un popover explique la **page active
+     ET la sous-page actuellement sélectionnée** (en évidence), puis liste les
+     autres sous-pages — re-rendu à chaque navigation. **Survol sans zone
+     morte** : icône + popover dans un **conteneur de survol partagé** (ou
+     popover dont le haut chevauche le bas de l'icône) pour que l'infobulle ne
+     se ferme pas quand on la survole. **Aucun** « i » par carte visuelle. Voir
+     `POWERBI_COMPONENTS.md` §4.3.
+   - Navigation L1 (pills) + L2 (liens texte) rendue depuis `CLIENT.md`, avec
+     un **petit routeur JS** (`state = { page, subpage }`) rendant la **page et
+     les sous-pages cliquables** ; chaque sous-page de `CLIENT.md` reçoit un
+     **layout complet** (KPIs + visuels ECharts).
    - Cartes KPI (avec état consolidation si flag présent) + visuels ECharts
-     depuis la carte visuelle déduite de `donnees.xlsx`.
+     depuis la carte visuelle déduite de `donnees.xlsx`. **Variation vs N-1
+     obligatoire** sur **tout KPI dérivé de la série temporelle, sur toutes les
+     pages** (badge `±x,x % vs N-1`, vert/rouge, calculé sur mois comparables
+     `i` vs `i-1`, masqué si non calculable) — voir `POWERBI_COMPONENTS.md` §1.4.
    - **Visuels principaux** : grille à **hauteurs égales** (`grid-template-rows:
      1fr 1fr`, aucune hauteur fixe en px), par défaut **2×2 avec 4 visuels** si
      les données supportent 4 visuels pertinents (sinon 3, le 3ᵉ en pleine
@@ -195,5 +224,17 @@ Phase 1.)
 - Dériver `--text-primary`/`--text-secondary` selon la luminance de `--canvas`.
 - Responsive : le canevas 1920×1080 est scaled pour s'adapter au viewport sans
   scrollbars, via `transform: scale(...)` calculé par un petit script.
+- **Filtres FONCTIONNELS (bloquant)** : les slicers du pane ne sont jamais
+  décoratifs — chacun pilote un état de filtre JS unique et relance le rendu
+  complet (KPIs + visuels). Voir `POWERBI_COMPONENTS.md` §2.7. **Données au
+  grain mensuel embarquées** (séries mensuelles + séries par dimension + masques
+  d'activité) pour rendre ce filtrage possible. Voir §6.
+- **Variation vs N-1 (bloquant)** : tout KPI dérivé de la série temporelle
+  affiche sa variation vs N-1, sur toutes les pages, calculée sur mois
+  comparables (`i` vs `i-12`) ; badge masqué si non calculable, jamais inventé.
+  Voir `POWERBI_COMPONENTS.md` §1.4.
+- **Icône info** : une seule, en haut à droite du bandeau ; le popover explique
+  la page active + la sous-page sélectionnée (re-rendu à chaque navigation) et
+  reste atteignable au survol (conteneur de survol partagé). Voir §4.3.
 - Une seule page de mockup pleinement validée par exécution ; les autres
   sous-pages sont des defaults cohérents.
