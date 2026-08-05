@@ -46,9 +46,8 @@ Inconsistent gaps read as sloppy. Normalise every vertical rhythm to the grid:
 ## 2. Header — CSS by default, `bg.svg`/`bg.png` as optional fallback
 
 The header (logo zone + primary banner) is **drawn in CSS** from the brand
-variables by default. If the user has exported a background image from their
-`clients/<client>/Maquette Power BI.pptx` ("Enregistrer en tant qu'image" →
-`bg.svg` preferred, vector, crisp, or `bg.png` fallback), that image takes
+variables by default. If the user has provided a background image
+(`bg.svg`/`bg.png` in the client folder, any source), that image takes
 **priority**: apply it on the canvas and do **not** redraw the header in CSS.
 In both cases the skill only overlays the title/subtitle and content.
 
@@ -94,8 +93,8 @@ In both cases the skill only overlays the title/subtitle and content.
   - **Bannière** (trapezoid) `var(--primary)`: full-width band, `clip-path:
     polygon(342px 0, 100% 0, 100% 97px, 267px 97px)`. The diagonal gap between
     this and the logo zone (342→320 px at top, 267→244 px at bottom) lets the
-    canvas background show through = the **cassure** (diagonal break) seen in
-    the `.pptx` template.
+    canvas background show through = the **cassure** (diagonal break) of the
+    reference template.
   - **Zone logo** (trapezoid) `var(--surface)`: left 0-320 px, height 97 px,
     containing `logo.png` (max height ~70px, centered).
   - canvas body background `var(--canvas)`.
@@ -136,7 +135,7 @@ In both cases the skill only overlays the title/subtitle and content.
 
 Positioned beneath the header on the far left — a **white panel `var(--surface)`**
 (identical to Surface/Cards), **rounded** (`border-radius: 10px`), **floating**
-with margins matching the `.pptx` template: `left: 11px`, `top: 116px`
+with margins matching the reference template: `left: 11px`, `top: 116px`
 (~19 px gap below the header), `width: 235px`, **extends down to the footer**
 (`bottom: 40px`, same gap as the content column) so the pane fills the whole
 left rail — **no border**. A "Filtres" label + funnel icon in `var(--primary)`

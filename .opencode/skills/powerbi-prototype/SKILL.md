@@ -64,9 +64,9 @@ manquants.
    une seule fois, sans boucler plusieurs fois** — on ne revient pas en mode PLAN.
 5. **Créer immédiatement le dossier `clients/<client>/`** (dès que le nom est
    confirmé et le dossier inexistant) avec `CLIENT.md` (copie de
-   `templates/CLIENT.template.md`/`clients/_template/CLIENT.md`, nom du client
-   pré-rempli sous `Brand Name` et en titre). **Ne créer aucun logo** (ni
-   `logo.png` ni placeholder) — le logo est fourni par l'utilisateur.
+   `clients/_template/CLIENT.md`, nom du client pré-rempli sous `Brand Name` et
+   en titre). **Ne créer aucun logo** (ni `logo.png` ni placeholder) — le logo
+   est fourni par l'utilisateur.
 6. **Demander de déposer les fichiers** dans `clients/<client>/` :
    - `logo.png` — le logo du client (de préférence **fond transparent**, PNG),
    - `donnees.xlsx` — les données source,
@@ -186,9 +186,9 @@ possibles — c'est la régression à éviter.
     - Sinon → **dessiner en CSS** : bandeau haut (~97px) en `var(--primary)`
       avec zone logo (~245px) en `var(--surface)` contenant `logo.png`, fond
       canevas en `var(--canvas)`, pane filtres à gauche (fond `var(--surface)`).
-    - **Cassure de l'en-tête** : la zone logo et la bannière sont des **trapèzes**
-      (bords diagonaux) fidèles au `.pptx` template — le léger intervalle
-      diagonal entre les deux laisse voir le fond canevas. Via `clip-path` :
+     - **Cassure de l'en-tête** : la zone logo et la bannière sont des **trapèzes**
+       (bords diagonaux) fidèles au template de référence — le léger intervalle
+       diagonal entre les deux laisse voir le fond canevas. Via `clip-path` :
       zone logo `polygon(0 0, 320px 0, 244px 97px, 0 97px)` ; bannière
       `polygon(342px 0, 100% 0, 100% 97px, 267px 97px)`.
    - Variables CSS en `:root` lues depuis `CLIENT.md` :

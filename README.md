@@ -92,13 +92,11 @@ Déposez dans `clients/<mon-client>/` :
   zone logo du bandeau ;
 - les **données** `donnees.xlsx` (feuilles = tables).
 
-> **Optionnel — fond PowerPoint** : le bandeau et le fond sont **dessinés en
-> CSS** par le skill. Si vous préférez un fond personnalisé authored dans
-> PowerPoint, ouvrez `Maquette Power BI.pptx`, ajustez la forme « Banniere »
-> (même couleur que `Primary`) puis **exportez** : tout sélectionner (Ctrl+A) →
-> **clic droit → Enregistrer en tant qu'image** → dossier
-> `clients/<mon-client>/`, nom **`bg`**, format **SVG** (PNG accepté). Si un
-> `bg.*` est présent, il est utilisé en priorité sur le rendu CSS.
+> **Optionnel — fond personnalisé** : le bandeau et le fond sont **dessinés en
+> CSS** par le skill. Si vous préférez une image de fond personnalisée, déposez
+> `bg.svg` (ou `bg.png`, ~3840×2160) dans `clients/<mon-client>/` : si un
+> `bg.*` est présent, il est utilisé en priorité sur le rendu CSS. Sa couleur de
+> bandeau **doit valoir** `Primary` pour que graphiques et onglets matchent.
 
 ---
 
@@ -113,7 +111,7 @@ Déposez dans `clients/<mon-client>/` :
 | `--border`    | Bordures, séparateurs                                       |
 
 > Le bandeau est dessiné en CSS avec `--primary`. Si vous fournissez un fond
-> `bg.*` (optionnel), la couleur du bandeau dans le `.pptx` **doit être la
+> `bg.*` (optionnel), la couleur du bandeau de l'image **doit être la
 > même** que `--primary` pour que graphiques et onglets matchent le bandeau.
 > Les couleurs de texte (`--text-primary` / `--text-secondary`) sont dérivées
 > automatiquement selon la luminance du canvas.
