@@ -31,8 +31,11 @@ cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
 7. Une fois le dépôt confirmé, je **parcours `CLIENT.md`** : si une information
    n'est **pas renseignée** (encore sous forme `<...>`), ou si `logo.png` /
    `donnees.xlsx` manquent, je **m'arrête** et je demande à l'utilisateur de
-   saisir précisément les informations manquantes. Je re-vérifie en boucle
-   jusqu'à ce que tout soit complet, puis je génère.
+   saisir précisément les informations manquantes. Je vérifie aussi la
+   **cohérence des couleurs** vs `Primary` : toute couleur secondaire manquante
+   ou incohérente reçoit une proposition canonique (bonnes pratiques UX/UI,
+   voir Phase 1, étape 3b). Je re-vérifie en boucle jusqu'à ce que tout soit
+   complet et cohérent, puis je génère.
 8. Je génère la maquette (Phase 4 ci-dessous).
 
 Il n'y a **pas** de mode « Téléguidé » : `CLIENT.md` est **toujours rempli par
@@ -83,19 +86,35 @@ Après le dépôt, **vérifier la complétude** avant de générer :
    - **Identité** : `Brand Name`, `Report Title`, `Report Subtitle` — aucun ne
      doit rester sous forme `<...>` (`<CLIENT_NAME>`, `<Titre du rapport>`,
      `<sous-titre / période>`).
-   - **Couleurs** : `Primary / Banner Accent`, `Surface / Cards`,
-     `Canvas Background`, `Card Frame Color`, `Border / Divider` — aucune ne
-     doit rester sous forme `<...>` (`<Primary>`, `<Surface>`,
-     `<Canvas Background>`, `<Card Frame>`, `<Border>`) ; attendre un code
-     hexadécimal (ex. `#00A1B1`).
+   - **Couleurs** : `Primary / Banner Accent` est **obligatoire** (code
+     hexadécimal, ex. `#00A1B1`). Les autres (`Surface / Cards`,
+     `Canvas Background`, `Card Frame Color`, `Border / Divider`) peuvent rester
+     sous forme `<...>` : l'étape 3b propose pour chacune une valeur canonique
+     cohérente avec `Primary`.
    - **Arbre de navigation** : chaque page/sous-page doit avoir un titre
      rempli et chaque `Libellé KPI` doit être renseigné (aucun `<Titre page N>`,
      `<Titre sous-page>`, `<Libellé KPI>` restant).
-4. Si **un seul champ** est encore non rempli (marqueur `<...>`), ou si le
-   logo / les données manquent → **s'arrêter** et demander à l'utilisateur de
-   saisir **exactement** les informations manquantes (les lister clairement),
-   en rappelant qu'il édite `CLIENT.md` lui-même. **Re-vérifier** en boucle
-   jusqu'à complétude totale.
+3b. **Cohérence des couleurs vs `Primary` (bloquant)** : l'utilisateur fournit
+    surtout `Primary` ; le skill vérifie que les autres couleurs sont
+    cohérentes (bonnes pratiques UX/UI, voir `references/POWERBI_LAYOUT.md`
+    §6.1 pour le tableau canonique et les règles) :
+    - déterminer le **mode** (clair / sombre) par la luminance du `Canvas` s'il
+      est renseigné (sinon clair par défaut) ;
+    - pour chaque couleur secondaire (`Surface`, `Canvas`, `Card Frame`,
+      `Border`) : **manquante** (`<...>`) → proposer la **valeur canonique** du
+      mode ; **remplie mais incohérente** (ex. Surface plus sombre que le
+      canevas → les cards ne « décollent » pas ; Canvas saturé qui jure avec
+      `Primary` ; Border couleur de marque ou trop dur ; Card Frame différent
+      de Surface sans raison) → proposer une **correction** ;
+    - si au moins une couleur manque ou est incohérente → **s'arrêter** et
+      présenter un tableau (champ | valeur actuelle | valeur proposée | raison
+      UX) ; l'utilisateur accepte les propositions ou saisit ses valeurs dans
+      `CLIENT.md`. **Re-vérifier en boucle** jusqu'à cohérence totale.
+4. Si un champ d'**identité** ou de **navigation** est encore non rempli
+   (marqueur `<...>`), ou si le logo / les données manquent → **s'arrêter** et
+   demander à l'utilisateur de saisir **exactement** les informations
+   manquantes (les lister clairement), en rappelant qu'il édite `CLIENT.md`
+   lui-même. **Re-vérifier** en boucle jusqu'à complétude totale.
 5. Propriété optionnelle : déduire `--text-primary` / `--text-secondary` selon
    la luminance du `Canvas Background` (clair → `#0F172A`/`#64748B` ; sombre →
    `#F1F5F9`/`#94A3B8`). Ce n'est pas un champ à vérifier.
@@ -126,9 +145,11 @@ les agrégats catégoriels et l'entité active, puis émet un contrat **normalis
 (`FACTS` / `BY_DIM` / `DIM_COUNTS` / `CATEGORY_COUNTS` / `ACTIVE_MASKS` /
 `SCALARS` / `META`). Il propose un manifeste sur `stderr` — copiez-le dans
 `clients/<client>/data-manifest.json` pour corriger/forcer la détection. Pour un
-client **cyclisme existant** (Veloh, agiledss), garder le contrat historique via
-`--profile cyclisme`. Voir `references/POWERBI_COMPONENTS.md` §6.1 pour le
-contrat complet et le mapping `CLIENT.md` → séries.
+client **cyclisme legacy** (Veloh, agiledss), utiliser le **contrat de données
+historique** de l'extracteur via `--profile cyclisme` (format des `const`
+émises : `KM`, `RIDES`, `USER_MASKS`, …) — c'est un contrat de **données**,
+**pas** un layout à copier. Voir `references/POWERBI_COMPONENTS.md` §6.1 pour
+le contrat complet et le mapping `CLIENT.md` → séries.
 
 **Agréger au grain MENSUEL pour l'année N et la variation N-1** (obligatoire —
 voir `references/POWERBI_COMPONENTS.md` §6). Le tableau de bord affiche
@@ -152,6 +173,9 @@ possibles — c'est la régression à éviter.
 
 1. Lire `CLIENT.md` (+ `references/POWERBI_LAYOUT.md` et
    `POWERBI_COMPONENTS.md`), et les données dans `donnees.xlsx` (model/séries).
+   **Ne pas** chercher ni lire `clients/<autre>/maquette/index.html` : chaque
+   maquette se construit depuis les specs + `CLIENT.md` + les données extraites,
+   **jamais** en imitant la maquette d'un autre client.
 2. Produire `clients/<client>/maquette/index.html` — fichier **auto-suffisant** :
    - Tailwind via CDN, Apache ECharts via CDN.
    - Canevas 1920×1080 fixe, scaling CSS pour s'adapter au viewport (pas de scroll).
@@ -259,6 +283,13 @@ possibles — c'est la régression à éviter.
 
 ## Règles de qualité
 - **Ne jamais coder une couleur en dur** : toujours via `var(--xxx)`.
+- **Pas de maquette de référence (bloquant)** : ne **jamais** rechercher ni
+  lire `clients/<autre>/maquette/index.html` (pas de `glob clients/*/maquette`).
+  L'utilisateur ne fournit que `CLIENT.md` (le logo et les données arrivent au
+  dépôt). Chaque maquette est générée depuis `POWERBI_LAYOUT.md` +
+  `POWERBI_COMPONENTS.md` + `CLIENT.md` + les données extraites. Le « profil
+  cyclisme legacy » (`--profile cyclisme`) est un **contrat de données** de
+  l'extracteur, jamais un HTML de référence.
 - **Navigation L1/L2 compacte (bloquant)** : pills L1 en `text-xs` / `py-2.5 px-4`
   (hauteur ~34 px), liens L2 en `12px`. Jamais de classe `.pill` maison plus grosse
   (13 px / padding 11 px) — la navigation devient trop grande. Voir
@@ -410,5 +441,6 @@ possibles — c'est la régression à éviter.
      des charts et les listeners à chaque rendu. Utiliser des conteneurs
      statiques dédiés (`#navL1`, `#navL2`, `#kpis`, `#visuals`) — voir
      `POWERBI_LAYOUT.md` §4.
-- Une seule page de mockup pleinement validée par exécution ; les autres
-  sous-pages sont des defaults cohérents.
+- Valider la maquette **en cours** via le smoke test (exit 0) ; les sous-pages
+  non couvertes par le test restent des defaults cohérents. **Ne jamais** lire
+  la maquette d'un autre client comme référence de layout.

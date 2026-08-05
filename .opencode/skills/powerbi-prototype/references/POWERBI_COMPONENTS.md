@@ -789,8 +789,9 @@ manifest into `clients/<client>/data-manifest.json` (JSON) — it is then used
 verbatim. Only the fact table (a dated sheet) is mandatory.
 
 **Legacy cyclisme profile.** Existing cyclisme clients (Veloh, agiledss) use the
-historical contract (`KM`, `RIDES`, `USURE_STATUT`, `USER_MASKS`, `KM_PAYS_M`,
-`KM_MARQUE_M`, …). Emit it with:
+historical **data contract** (`KM`, `RIDES`, `USURE_STATUT`, `USER_MASKS`,
+`KM_PAYS_M`, `KM_MARQUE_M`, …) — a data extraction format, never an HTML layout
+reference. Emit it with:
 ```bash
 python .opencode/skills/powerbi-prototype/scripts/extract-data.py clients/<client>/donnees.xlsx --profile cyclisme
 ```

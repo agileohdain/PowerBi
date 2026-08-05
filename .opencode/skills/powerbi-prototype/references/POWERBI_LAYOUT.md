@@ -304,3 +304,40 @@ The implementing agent must derive readable text colors from `--canvas`:
   `--primary` (§2): `--surface` when its contrast with `--primary` is ≥ 4,5:1,
   otherwise a dark text color (`--text-primary`). **Never** assume white — a
   light brand color (taupe, yellow) makes white text fail AA.
+
+### 6.1. Color coherence check (UX/UI — blocking in SKILL Phase 1)
+
+The user usually provides **only `Primary`**. The skill checks (SKILL.md Phase 1,
+step 3b) that the other colors are coherent with the primary; any **missing** or
+**incoherent** color gets a canonical proposal before generation.
+
+**Mode.** Derived from the luminance of the provided `Canvas` (L < 0,5 → dark);
+otherwise light mode by default.
+
+| Field | Light mode (canonical) | Dark mode (canonical) | UX rationale |
+|---|---|---|---|
+| `Surface / Cards` | `#FFFFFF` | `#1E293B` | Elevated above the canvas — cards must "pop" |
+| `Canvas Background` | `#F1F5F9` | `#0F172A` | Neutral very light/dark backdrop, never saturated (the primary is the accent) |
+| `Card Frame Color` | = `Surface` | = `Surface` | One single card-frame knob by default |
+| `Border / Divider` | `#CBD5E1` | `#334155` | Soft neutral grey: visible but never harsh |
+
+**Coherence rules (every filled color is tested):**
+1. **Surface vs Canvas** — the `Surface` must be lighter than the `Canvas`
+   (light mode) / lighter than the canvas (dark mode, elevated tone). A surface
+   darker than the canvas = invisible cards → propose the canonical.
+2. **Neutral canvas** — low saturation (≤ ~12 %). A saturated/vivid canvas
+   (e.g. `Canvas = Primary`) clashes with the accent → propose the neutral
+   canonical (or a very light tint of the primary, L ≥ ~95 %, S ≤ ~10 %).
+3. **Soft neutral border** — desaturated grey, contrast vs `Surface` between
+   ~1,2 and ~2,0. A brand-colored or near-black border (contrast > 3) →
+   propose the canonical.
+4. **Card Frame** — defaults to `Surface`. A different `Card Frame` is accepted
+   only if it still contrasts with the `Canvas` (cards visible); otherwise →
+   propose `= Surface`.
+5. **On-primary text** — not checked here: `--on-primary` is derived at runtime
+   for WCAG AA (§2). A light `Primary` does not make the palette incoherent —
+   the token adapts.
+
+**Proposal format (blocking stop)** — a table
+`field | current value | proposed value | UX reason`, then the user accepts or
+edits `CLIENT.md`; re-check in a loop until coherent.
