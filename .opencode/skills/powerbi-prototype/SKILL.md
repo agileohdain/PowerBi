@@ -257,6 +257,12 @@ N-1** ne sont possibles — c'est la régression à éviter.
   **barres horizontales**, jamais un donut. *Vélos par marque* = hbar. Labels `{d} %`
   **toujours** visibles. Centre du donut `['30%','50%']` aligné sur l'overlay
   (`left:30%;top:50%`). Voir `POWERBI_COMPONENTS.md` §3.4.
+- **hbar plafonné à 10 + « Autres » (bloquant)** : un hbar de dimension dépasse
+  rarement 10 barres — au-delà (25 marques, 16 villes), agréger en **top 10 +
+  barre « Autres »** (helper `topBars`, miroir de `topDonut`), tri descendant,
+  barre « Autres » en ton neutre. Régression récurrente : *Vélos par marque* à 25
+  barres écrasées (alors que *Kilométrages par marque*, déjà sliced ~12, est lisible).
+  Voir `POWERBI_COMPONENTS.md` §3.2.B.
 - **Grille 2×2 sans `.wide` quand 4 visuels (bloquant)** : `grid-column: 1 / -1`
   n'est QUE pour 3 visuels ; avec 4 il crée une 3ᵉ ligne tronquée (table coupée).
   Une table de détail est l'une des 4 cartes (corps scrollable). Voir
@@ -289,6 +295,15 @@ N-1** ne sont possibles — c'est la régression à éviter.
   affiche sa variation vs N-1, sur toutes les pages, calculée sur mois
   comparables (`i` vs `i-12`) ; badge masqué si non calculable, jamais inventé.
   Voir `POWERBI_COMPONENTS.md` §1.4.
+- **Visuels temporels (axe mois) — Jan→Déc fixe, courant vs N-1, hors filtres
+  (bloquant)** : tout line/bar d'évolution sur un axe mois affiche **12 points
+  `01`..`12`** (Jan→Déc, jamais la liste plate des mois), en **2 séries** — année
+  courante en `--primary` foncé, N-1 en ton neutre/secondaire — avec **légende**,
+  et `yAxis.scale:true` (ne pas ancrer la courbe à 0, ex. *Durée moy. / sortie*).
+  **Ces visuels ignorent les filtres** : `monthPass` ne s'applique qu'aux KPI et
+  aux visuels non-temporels (donuts, hbar, tables). Multi-séries par dimension
+  (top marques, empilé par pays) → axe Jan→Déc de l'année courante uniquement
+  (pas de split N-1, illisible). Voir `POWERBI_COMPONENTS.md` §3.3.
 - **Icône info** : une seule, en haut à droite du bandeau ; le popover explique
   la page active + la sous-page sélectionnée (re-rendu à chaque navigation) et
   reste atteignable au survol (conteneur de survol partagé). Voir §4.3.

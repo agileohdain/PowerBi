@@ -183,8 +183,11 @@ the first one. The figure is **computed from `donnees.xlsx`, never invented**.
 ### 2.7. Functional Slicers (MANDATORY — the pane must actually filter)
 
 The filter pane is **not decorative**. Every slicer is **wired in JavaScript**
-and drives the whole dashboard: any change recomputes the KPI values and
-re-renders every visual (time-based charts are filtered period-by-period).
+and drives the dashboard: any change recomputes the KPI values and re-renders
+every **non-temporal** visual (donuts §3.4, hbvbar §3.2.B, tables §3.7).
+**Temporal evolution charts (month axis, §3.3) are exempt** — they show a fixed
+Jan→Dec current-vs-N-1 comparison regardless of filters; that YoY view is the
+point of the visual.
 
 * **Single source of truth — one filter-state object** over the monthly series
   embedded from `donnees.xlsx` (see §6). A single gate decides if a month is in:
@@ -198,8 +201,10 @@ re-renders every visual (time-based charts are filtered period-by-period).
   function isFiltered(){ return FILT.years.size>0||FILT.quarter>0||FILT.month>0||FILT.start>0||FILT.end<N_MONTHS-1; }
   ```
 * **`aggregates()`** walks the months, keeps only `monthPass(i)`, and rebuilds
-  **all** KPI aggregates + chart series (including the YoY block, §1.4). **Every
-  slicer handler ends with `renderPage()`** (which disposes and re-inits charts).
+  the KPI aggregates + **non-temporal** chart series + the YoY block (§1.4).
+  Temporal evolution charts are excluded — they derive from the **full** monthly
+  arrays directly (§3.3 helpers `yearSeries`/`yearRatio`), not from `monthPass()`.
+  **Every slicer handler ends with `renderPage()`** (which disposes and re-inits charts).
 * **Year chiclets** — multi-select toggle: a click adds/removes the year from
   `FILT.years` and toggles `.active`. No year selected = all years.
 * **Quarter & Month dropdowns are mutually exclusive** — selecting a quarter
@@ -248,24 +253,118 @@ For all ECharts integrated into the dashboard:
   * **Clustered:** positioned on top of bars (`label: { show: true, position: 'top', fontSize: 11, color: '#334155' }`).
   * **Stacked:** totals callout on top of the stack or embedded inside segments (`stack: 'total'`).
 * **Primary series color:** the resolved `--primary` hex; secondary series use the brand secondary (e.g. `#5CB57D`) or a derived tint.
+* **Month x-axis:** when the category axis is the **month**, this is a temporal
+  evolution chart — apply the §3.3 contract (fixed Jan→Dec `01`..`12` axis,
+  current year vs N-1 as two clustered series, **exempt from filters**). `scale:true`
+  stays **off** for bars (they must start at 0).
 
 #### B. Horizontal Category Bar Charts (Single & Multi-Color)
 * **ECharts Type:** `bar` with inverted axes (`yAxis: { type: 'category' }`, `xAxis: { type: 'value' }`)
 * **Bar Styling:** `barHeight: 16`, `itemStyle: { borderRadius: [0, 4, 4, 0] }`
 * **Individual Bar Coloring:** support array-based color assignment per category item (e.g., `#00A1B1`, `#2563EB`, `#5CB57D`, `#A7F3D0`, `#94A3B8`).
 * **End-of-Bar Value Labels:** `label: { show: true, position: 'right', fontSize: 12, fontWeight: 'bold', color: '#0f172a', distance: 8 }`
+* **Cardinality cap — top-10 + "Autres" (BLOCKING).** A horizontal bar chart of a
+  dimension is unreadable past ~10 bars — the recurring *"Vélos par marque" = 25
+  marques écrasées* regression. Cap it: render the **top 10** values plus a single
+  **"Autres"** bar aggregating the rest — exactly the same pattern as the donut
+  rule (§3.4). Always sort **descending**. (Contrast: *"Kilométrages par marque"*
+  already looks good because it slices to ~12 — *"Vélos par marque"* must do the
+  same.) Use a `topBars()` helper mirroring `topDonut`:
+  ```javascript
+  function topBars(dict, topN){
+    const arr = Object.keys(dict).map(k=>({ name:k, value:dict[k] })).sort((a,b)=>b.value-a.value);
+    const head = arr.slice(0, topN);
+    const rest = arr.slice(topN).reduce((s,d)=>s+d.value, 0);
+    if (rest>0) head.push({ name:'Autres', value:rest });
+    return head;
+  }
+  ```
+  Feed `topBars(MARQUE_VELOS, 10)` / `topBars(VILLE_CYCLISTES, 10)` — never the
+  raw full-cardinality object. Color the **"Autres"** bar in a muted tone (e.g.
+  `--border`/`--text-secondary`) so it reads as the residual, not as a peer.
 
 ---
 
-### 3.3. Line & Area Charts
-* **ECharts Type:** `line`
-* **Line Styling:**
-  * **Stroke Width:** `lineStyle: { width: 2.5 }`
-  * **Smoothing:** `smooth: 0.2` (or crisp stepped lines)
-  * **Fill Opacity (Area):** `areaStyle: { opacity: 0.12 }`
-* **Markers & Points:** `symbol: 'circle'`, `symbolSize: 6`, `itemStyle: { borderWidth: 2, borderColor: '#ffffff' }`
-* **End-of-Line / Value Labels:** `label: { show: true, position: 'top', fontSize: 10, color: '#475569' }`
-* **Multi-Series / Dual Y-Axis:** independent scaling support for count vs currency values.
+### 3.3. Line & Area Charts — Temporal evolution (month axis)
+
+A chart whose **x-axis is the month** is a *temporal evolution* visual. These
+follow a dedicated contract: they are **exempt from filters** and show a
+year-over-year comparison — exactly like a Power BI YoY monthly line. This
+avoids the two recurring regressions: (a) the month axis showing the **full flat
+list of every month** with `null` gaps under filters, and (b) the curve crushed
+against the bottom because the value axis is forced to `0`.
+
+* **ECharts Type:** `line` (area = `line` + `areaStyle`).
+* **Fixed Jan→Dec axis, 2-digit labels (BLOCKING).** The category axis is always
+  the 12 calendar months labelled `01, 02, …, 12` — never the full flat list of
+  every month in the data, and never null-gapped by `monthPass()`. Use `MONTH_AXIS`.
+* **Exempt from the filter pipeline (BLOCKING).** Temporal charts are rebuilt from
+  the **full** monthly arrays, NOT gated by `monthPass()`. The slicers still drive
+  KPIs and non-temporal visuals (donuts §3.4, hbvbar §3.2.B, tables §3.7), but a
+  YoY comparison chart that itself shrank under the date filter would be useless.
+  `monthPass()` gates everything **except** temporal evolution charts.
+* **Single-measure temporal → 2 series: current year vs N-1 (BLOCKING).** For a
+  one-measure evolution (*Km par mois*, *Sorties par mois*, *Durée moyenne /
+  sortie*…) render **two** lines on the Jan→Dec axis:
+  * **Current year** (`CUR_YEAR` = latest year in `MONTH_META`) — resolved
+    `--primary`, **dark/strong**, `lineStyle.width: 2.5`, `symbolSize: 6`.
+  * **Previous year (N-1, `CUR_YEAR - 1`)** — **neutral/secondary** tone (a muted
+    grey such as the resolved `--text-secondary`/`--border`, or the brand
+    secondary at reduced opacity), `lineStyle.width: 2`, `symbolSize: 5`.
+  * A **legend** showing the two years (`legend.show: true`, `bottom: 0`). The
+    current year reads as the prominent curve, N-1 as the reference backdrop.
+* **Multi-series / stacked temporal (by dimension).** For an evolution split by a
+  dimension (*top marques*, *empilé par pays*) keep the **current year only** on
+  the Jan→Dec axis — do **not** also split N-1 (8+ lines/stacks are unreadable).
+  The dimension is the multi-series/stack; the axis is still fixed `01`..`12`.
+* **Value axis `scale: true` on line/area (BLOCKING).** A line whose data lives
+  far from 0 (e.g. *Durée moyenne / sortie* ≈ 120 min) must **zoom into its
+  amplitude** — set `yAxis.scale = true` so ECharts does not force the axis to
+  include 0. **Never** set `scale:true` on a bar/stacked value axis: bars must
+  start at 0 for visual integrity.
+
+Canonical helpers (declare once, reuse for every temporal chart):
+```javascript
+const CUR_YEAR  = Math.max(...MONTH_META.map(m=>m.year));
+const PREV_YEAR = CUR_YEAR - 1;
+const MONTH_AXIS = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+function yearSeries(arr, year){               // flat monthly array -> 12-point Jan..Dec
+  const out = new Array(12).fill(null);
+  for (let i=0;i<N_MONTHS;i++){ const m=MONTH_META[i]; if (m.year===year) out[m.month-1]=arr[i]; }
+  return out;
+}
+function yearRatio(num, den, year){           // per-month ratio (e.g. minutes/rides)
+  const out = new Array(12).fill(null);
+  for (let i=0;i<N_MONTHS;i++){ const m=MONTH_META[i]; if (m.year===year && den[i]) out[m.month-1]=num[i]/den[i]; }
+  return out;
+}
+```
+Single-measure evolution option template (2 series, fixed axis, scale, legend):
+```javascript
+function evoLineOption(curData, prevData){
+  const o = gridBase();
+  o.xAxis.data = MONTH_AXIS;                  // 01..12 fixe, jamais la liste plate
+  o.yAxis.scale = true;                       // ne pas ancrer à 0 (line/area seulement)
+  o.legend = { show:true, bottom:0, itemGap:18, textStyle:{ color:C.textSub, fontSize:11 } };
+  o.series = [
+    { name:String(PREV_YEAR), type:'line', data:prevData, smooth:0.2, symbol:'circle', symbolSize:5,
+      lineStyle:{ width:2, color:C.neutral }, itemStyle:{ color:C.neutral }, connectNulls:true },
+    { name:String(CUR_YEAR),  type:'line', data:curData,  smooth:0.2, symbol:'circle', symbolSize:6,
+      lineStyle:{ width:2.5, color:C.primary }, itemStyle:{ color:C.primary, borderWidth:2, borderColor:'#fff' },
+      areaStyle:{ opacity:0.10, color:C.primary }, connectNulls:true }
+  ];
+  return o;
+}
+```
+(`C.neutral` = a resolved muted grey derived from `--text-secondary`/`--border`,
+or the brand secondary at reduced opacity — defined once in the THEME block.)
+For a month-bar evolution use two clustered `bar` series on the same fixed axis,
+**without** `scale:true`.
+
+* **Line styling (general):** `smooth: 0.2`, markers `symbol:'circle'`,
+  `itemStyle:{ borderWidth:2, borderColor:'#ffffff' }`. Area fill `opacity:0.12`
+  (current-year line only in a 2-series YoY). `connectNulls:true` so a partial
+  current year (e.g. data stops in July) still draws a clean line.
 
 ---
 
@@ -453,10 +552,13 @@ embed the underlying monthly series so they can be filtered and compared.
 * **Static dimension data** (donuts, tables with no time axis) may stay as final
   `{name, value}` arrays.
 * **`aggregates()`** is the single recompute entry point: it folds the months
-  passing `monthPass()` into KPI aggregates **and** chart series **and** the YoY
-  block, then `renderPage()` paints nav, KPI cards, visuals, info popover and the
-  "Filtres actifs" badge from it. Charts are disposed and re-initialised
-  (`disposeCharts()` + `echarts.init`) inside `requestAnimationFrame`.
+  passing `monthPass()` into KPI aggregates **and** non-temporal chart series
+  **and** the YoY block, then `renderPage()` paints nav, KPI cards, visuals, info
+  popover and the "Filtres actifs" badge from it. **Temporal evolution charts
+  (§3.3) sit outside `aggregates()`**: they read the full monthly arrays via
+  `yearSeries()`/`yearRatio()` and are not gated by `monthPass()` — the filters
+  must not shrink a current-vs-N-1 comparison. Charts are disposed and
+  re-initialised (`disposeCharts()` + `echarts.init`) inside `requestAnimationFrame`.
 * **Chart registry — use this exact pattern.** Reassigning a `const` is a
   runtime `TypeError` that blanks the whole dashboard (the nav is painted, then
   `renderPage()` dies before the KPIs and visuals render):
@@ -534,7 +636,8 @@ It emits `const DATA = {…}` with a **normalized contract**:
 - `BY_DIM[dim][valeur][mesure][mois]` — filter-responsive per-dimension series
   (drives bars/lines/stacked and per-dim YoY).
 - `DIM_COUNTS[dim][valeur]` — static counts from the dimension table (drives
-  "X par <dim>" KPIs and the **hbar** of high-cardinality dims, see §3.4).
+  "X par <dim>" KPIs and the **hbar** of high-cardinality dims, top-10 + « Autres »
+  via `topBars`, see §3.2.B; the donut-vs-hbar choice is §3.4).
 - `CATEGORY_COUNTS[source][colonne][valeur]` — non-time categorical aggregates
   (e.g. component wear `Statut`), for donuts.
 - `ACTIVE_MASKS[entité]` — bitmask per entity (bit `i` = active month `i`);
