@@ -1,0 +1,108 @@
+{
+  "labels": {
+    "Depasse": "Dépassé",
+    "Liege": "Liège",
+    "Quebec": "Québec",
+    "Montreal": "Montréal"
+  },
+  "pages": [
+    {
+      "name": "Cyclistes",
+      "desc": "Suivi de l'activité des cyclistes : pratique, répartition géographique et affectation des vélos — données mensuelles 2024–2025.",
+      "subs": [
+        {
+          "name": "Vue d'ensemble",
+          "kpis": [
+            {"label": "Cyclistes actifs", "agg": "active", "yoy": true, "consol": true, "fmt": "int", "sub": "sur {SCALARS.NB_DIM_UTILISATEUR} inscrits · {CUR_YEAR}"},
+            {"label": "Kilomètres totaux", "agg": "sum", "measure": "NB_KM", "yoy": true, "fmt": "km", "sub": "km parcourus en {CUR_YEAR}"},
+            {"label": "Sorties", "agg": "sum", "measure": "_count", "yoy": true, "fmt": "int", "sub": "sorties en {CUR_YEAR}"},
+            {"label": "Km / cycliste", "agg": "ratio", "num": "NB_KM", "den": "ACTIVE", "yoy": true, "fmt": "int", "sub": "km par cycliste actif · {CUR_YEAR}"},
+            {"label": "Durée moy. / sortie", "agg": "ratio", "num": "MINUTES", "den": "_count", "yoy": true, "fmt": "dur", "sub": "par sortie · {CUR_YEAR}"}
+          ],
+          "visuals": [
+            {"type": "line", "measure": "NB_KM", "title": "Kilomètres par mois", "unit": "km"},
+            {"type": "line", "measure": "_count", "title": "Sorties par mois", "unit": "int"},
+            {"type": "ratio-line", "num": "MINUTES", "den": "_count", "title": "Durée moyenne / sortie", "unit": "dur"},
+            {"type": "ratio-line", "num": "NB_KM", "den": "ACTIVE", "title": "Kilomètres par cycliste actif", "unit": "km"}
+          ]
+        },
+        {
+          "name": "Répartition géographique",
+          "kpis": [
+            {"label": "Pays couverts", "agg": "scalar", "from": "SCALARS.NB_PAYS", "fmt": "int", "consol": true, "sub": "Canada · France · Belgique"},
+            {"label": "Villes couvertes", "agg": "scalar", "from": "SCALARS.NB_VILLE", "fmt": "int", "sub": "sur {SCALARS.NB_PAYS} pays"},
+            {"label": "Cyclistes par pays", "agg": "ratio", "num": "ACTIVE", "den": "SCALARS.NB_PAYS", "yoy": true, "fmt": "f1", "sub": "cyclistes actifs par pays · {CUR_YEAR}"}
+          ],
+          "visuals": [
+            {"type": "donut", "from": "DIM_COUNTS.Pays", "top": 6, "title": "Cyclistes par pays", "unit": "int", "centerSub": "cyclistes", "sub": "année {CUR_YEAR}"},
+            {"type": "hbar", "from": "BY_DIM.Pays.NB_KM", "top": 10, "title": "Kilomètres par pays", "unit": "km", "sub": "km · {CUR_YEAR}"},
+            {"type": "hbar", "from": "DIM_COUNTS.Ville", "top": 10, "title": "Cyclistes par ville", "unit": "int", "sub": "année {CUR_YEAR}"},
+            {"type": "table", "from": "DIM_COUNTS.Pays", "title": "Détail par pays", "sub": "année {CUR_YEAR}", "sortBy": "self", "cols": [
+              {"label": "Pays", "source": "name"},
+              {"label": "Cyclistes", "num": true, "fmt": "int"},
+              {"label": "Km", "source": "measure:NB_KM", "num": true, "fmt": "km"},
+              {"label": "Sorties", "source": "measure:_count", "num": true, "fmt": "int"}
+            ]}
+          ]
+        },
+        {
+          "name": "Affectations vélos",
+          "kpis": [
+            {"label": "Cyclistes avec vélo", "agg": "scalar", "from": "SCALARS.DISTINCT_ASSOC_UTILISATEUR_VELO_ID_UTILISATEUR", "fmt": "int", "consol": true, "sub": "cyclistes équipés d'un vélo"},
+            {"label": "Vélos attribués", "agg": "scalar", "from": "SCALARS.DISTINCT_ASSOC_UTILISATEUR_VELO_ID_VELO", "fmt": "int", "sub": "sur {SCALARS.NB_DIM_VELO} vélos en flotte"},
+            {"label": "Ratio vélos / cycliste", "agg": "ratio", "num": "SCALARS.DISTINCT_ASSOC_UTILISATEUR_VELO_ID_VELO", "den": "SCALARS.DISTINCT_ASSOC_UTILISATEUR_VELO_ID_UTILISATEUR", "fmt": "f1", "sub": "vélos par cycliste"}
+          ],
+          "visuals": [
+            {"type": "parts-donut", "title": "Attribution de la flotte", "total": "SCALARS.NB_DIM_VELO", "restLabel": "En réserve", "parts": [{"name": "Attribués", "from": "SCALARS.DISTINCT_ASSOC_UTILISATEUR_VELO_ID_VELO"}], "unit": "int", "centerSub": "vélos", "sub": "année {CUR_YEAR}"},
+            {"type": "hbar", "from": "BY_DIM.Marque.NB_KM", "top": 10, "title": "Kilomètres par marque", "unit": "km", "sub": "km · {CUR_YEAR}"},
+            {"type": "hbar", "from": "BY_DIM.Ville.NB_KM", "top": 10, "title": "Kilomètres par ville", "unit": "km", "sub": "km · {CUR_YEAR}"},
+            {"type": "table", "from": "DIM_COUNTS.Ville", "title": "Détail par ville", "sub": "km · {CUR_YEAR}", "sortBy": "measure:NB_KM", "cols": [
+              {"label": "Ville", "source": "name"},
+              {"label": "Cyclistes", "num": true, "fmt": "int"},
+              {"label": "Km", "source": "measure:NB_KM", "num": true, "fmt": "km"}
+            ]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Flotte vélos",
+      "desc": "Pilotage du parc de vélos : composition de la flotte, marques, kilométrage parcouru et état d'usure des composants.",
+      "subs": [
+        {
+          "name": "Vue d'ensemble",
+          "kpis": [
+            {"label": "Vélos en flotte", "agg": "scalar", "from": "SCALARS.NB_DIM_VELO", "fmt": "int", "sub": "vélos au parc"},
+            {"label": "Marques distinctes", "agg": "scalar", "from": "SCALARS.NB_MARQUE", "fmt": "int", "sub": "marques au catalogue"},
+            {"label": "Année moyenne du parc", "agg": "scalar", "from": "SCALARS.AVG_ANNEE_SORTIE", "fmt": "int", "sub": "année moyenne des vélos"},
+            {"label": "Km total parcouru", "agg": "sum", "measure": "NB_KM", "yoy": true, "fmt": "km", "sub": "km parcourus en {CUR_YEAR}"}
+          ],
+          "visuals": [
+            {"type": "line", "measure": "NB_KM", "title": "Kilomètres parcourus par mois", "unit": "km"},
+            {"type": "donut", "from": "CATEGORY_COUNTS.FAIT_USURE_COMPOSANT.Statut_Alerte", "top": 6, "title": "Usure des composants", "unit": "int", "centerSub": "composants", "sub": "période totale"},
+            {"type": "hbar", "from": "DIM_COUNTS.Marque", "top": 10, "title": "Vélos par marque", "unit": "int", "sub": "année {CUR_YEAR}"},
+            {"type": "line", "measure": "_count", "title": "Sorties par mois", "unit": "int"}
+          ]
+        },
+        {
+          "name": "Répartition par marque",
+          "kpis": [
+            {"label": "Vélos par marque", "agg": "scalar", "from": "SCALARS.NB_DIM_VELO", "fmt": "int", "sub": "{SCALARS.NB_MARQUE} marques au catalogue"},
+            {"label": "Marque dominante", "agg": "top", "from": "DIM_COUNTS.Marque", "fmt": "text", "sub": "vélos en tête"}
+          ],
+          "visuals": [
+            {"type": "hbar", "from": "DIM_COUNTS.Marque", "top": 10, "title": "Vélos par marque", "unit": "int", "sub": "flotte · {SCALARS.NB_DIM_VELO} vélos"},
+            {"type": "hbar", "from": "BY_DIM.Marque.NB_KM", "top": 10, "title": "Kilomètres par marque", "unit": "km", "sub": "km · {CUR_YEAR}"},
+            {"type": "donut", "from": "BY_DIM.Marque.NB_KM", "top": 6, "title": "Part des kilomètres par marque", "unit": "km", "centerSub": "km", "sub": "km · {CUR_YEAR}"},
+            {"type": "table", "from": "DIM_COUNTS.Marque", "title": "Détail par marque", "sub": "flotte · {SCALARS.NB_DIM_VELO} vélos", "sortBy": "self", "cols": [
+              {"label": "Marque", "source": "name"},
+              {"label": "Vélos", "num": true, "fmt": "int"},
+              {"label": "Km", "source": "measure:NB_KM", "num": true, "fmt": "km"},
+              {"label": "% flotte", "ratio": {"num": "self", "den": "SCALARS.NB_DIM_VELO", "pct": true}, "num": true, "fmt": "pct"}
+            ]}
+          ]
+        }
+      ]
+    }
+  ]
+}

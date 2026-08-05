@@ -15,11 +15,11 @@
 ## Couleurs
 
 > **Note :** le bandeau est dessiné en CSS avec `Primary`. Si vous fournissez un
-> fond `bg.*` (optionnel, image personnalisée), sa couleur de bandeau **doit être
+> fond `bg.*` exporté du `.pptx` (optionnel), sa couleur de bandeau **doit être
 > la même** que `Primary` pour que graphiques et onglets matchent. Remplissez
 > chaque valeur par un code hexadécimal (ex. `#00A1B1`).
 
-* Primary / Banner Accent: #B69E7F   <!-- bandeau, "Filtres", onglets actifs, série primaire -->
+* Primary / Banner Accent: #B69E7F   <!-- bandeau pptx, "Filtres", onglets actifs, série primaire -->
 * Surface / Cards:        #FFFFFF    <!-- zone logo, texte sur primaire, cards -->
 * Canvas Background:      #F1F5F9    <!-- fond du canevas, pane filtres, footer -->
 * Card Frame Color:       #FFFFFF    <!-- couleur des encadrés (défaut = Surface) -->

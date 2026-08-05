@@ -339,6 +339,12 @@ def build_normalized(sheets, info, manifest=None):
                 vals = [r.get(col) for r in sh["rows"] if is_num(r.get(col))]
                 if vals:
                     SCALARS["AVG_" + re.sub(r"\W+", "_", col).upper()] = round(sum(vals) / len(vals), 1)
+            # DISTINCT_ : comptage des valeurs distinctes d'une colonne id
+            # (ex. table pont ASSOC_* -> vélos/usagers distincts attribués).
+            if dd["type"] == "id":
+                vals = [r.get(col) for r in sh["rows"] if r.get(col) is not None]
+                if vals:
+                    SCALARS["DISTINCT_" + re.sub(r"\W+", "_", name + "_" + col).upper()] = len(set(vals))
 
     data = {
         "N": N,
@@ -496,11 +502,65 @@ def emit_cyclisme(out):
     return "\n".join(lines) + "\n"
 
 
+def suggest_views(data):
+    """Brouillon declaratif de views.json depuis le contrat DATA normalisé.
+
+    Heuristique générique (tout domaine) :
+      * une mesure -> KPI 'sum' (YoY) + visuel 'line' (N vs N-1)
+      * une dimension -> KPI 'scalar' (NB_<dim>) + donut (<=6 valeurs) ou hbar (>6)
+      * une source catégorielle (ex. usure) -> donut
+      * l'entité active -> KPI 'active' (YoY)
+    Le tout sur une page « Synthèse » unique, à raffiner par l'utilisateur.
+    """
+    meta = data["META"]
+    measures = meta["measures"]
+    dims = meta["dims"]
+    kpis, visuals = [], []
+
+    if meta.get("activity_entity"):
+        kpis.append({"label": "Entités actives", "agg": "active", "yoy": True,
+                     "consol": False, "fmt": "int",
+                     "sub": "actives en {CUR_YEAR}"})
+
+    for m in measures:
+        label = m.replace("_", " ")
+        kpis.append({"label": "Total " + label, "agg": "sum", "measure": m,
+                     "yoy": True, "fmt": "km" if "KM" in m.upper() else "int",
+                     "sub": label + " en {CUR_YEAR}"})
+        visuals.append({"type": "line", "measure": m,
+                        "title": label.capitalize() + " par mois",
+                        "unit": "km" if "KM" in m.upper() else "int"})
+
+    for d in dims:
+        dname = d["name"]
+        nb_key = "NB_" + re.sub(r"\W+", "_", dname).upper()
+        kpis.append({"label": dname + " (distincts)", "agg": "scalar",
+                     "from": "SCALARS." + nb_key, "fmt": "int",
+                     "sub": dname + " couverts"})
+        n = len(data["DIM_COUNTS"].get(dname, {}))
+        vtype = "donut" if n <= 6 else "hbar"
+        visuals.append({"type": vtype, "from": "DIM_COUNTS." + dname, "top": 6 if vtype == "donut" else 10,
+                        "title": "Par " + dname.lower(), "unit": "int",
+                        "centerSub": dname.lower()})
+
+    for src, cols in meta.get("category_sources", {}).items():
+        for col in cols:
+            visuals.append({"type": "donut",
+                            "from": "CATEGORY_COUNTS.%s.%s" % (src, col), "top": 6,
+                            "title": col.replace("_", " ").capitalize(),
+                            "unit": "int", "centerSub": col.replace("_", " ").lower()})
+
+    return {"labels": {}, "pages": [{"name": "Synthèse", "desc": "Vue d'ensemble auto-générée — à raffiner dans views.json.",
+                                      "subs": [{"name": "Vue d'ensemble", "kpis": kpis, "visuals": visuals}]}]}
+
+
 def main():
     ap = argparse.ArgumentParser(description="Extracteur donnees.xlsx -> bloc DATA JS")
     ap.add_argument("xlsx")
-    ap.add_argument("--profile", choices=["cyclisme"], help="contrat legacy cyclisme")
+    ap.add_argument("--profile", choices=["cyclisme"], help="contrat legacy cyclisme (déprécié)")
     ap.add_argument("--manifest", help="chemin vers data-manifest.json (override)")
+    ap.add_argument("--suggest-views", action="store_true",
+                    help="émet un brouillon de views.json (JSON) au lieu du bloc DATA")
     args = ap.parse_args()
 
     sheets = load_wb(args.xlsx)
@@ -527,6 +587,11 @@ def main():
     except SystemExit as e:
         sys.stderr.write(str(e) + "\n")
         sys.exit(1)
+
+    if args.suggest_views:
+        sys.stdout.write(json.dumps(suggest_views(data), ensure_ascii=False, indent=2) + "\n")
+        sys.stderr.write("OK: brouillon views.json émis (à raffiner).\n")
+        return
 
     sys.stdout.write(emit_normalized(data))
     meta = data["META"]

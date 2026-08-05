@@ -36,7 +36,7 @@ cartes KPI, slicers, graphiques ECharts, navigation à deux niveaux).
    ou incohérente reçoit une proposition canonique (bonnes pratiques UX/UI,
    voir Phase 1, étape 3b). Je re-vérifie en boucle jusqu'à ce que tout soit
    complet et cohérent, puis je génère.
-8. Je génère la maquette (Phase 4 ci-dessous).
+8. Je génère la maquette (Phase 3 : `views.json` + `render.py`).
 
 Il n'y a **pas** de mode « Téléguidé » : `CLIENT.md` est **toujours rempli par
 l'utilisateur** ; je me contente de le vérifier et de demander les champs
@@ -141,15 +141,25 @@ python .opencode/skills/powerbi-prototype/scripts/extract-data.py clients/<clien
 
 L'extracteur est **générique (tout domaine)** : il **auto-détecte** la table de
 faits, la colonne date, les mesures, les dimensions (jointures et ponts inclus),
-les agrégats catégoriels et l'entité active, puis émet un contrat **normalisé**
-(`FACTS` / `BY_DIM` / `DIM_COUNTS` / `CATEGORY_COUNTS` / `ACTIVE_MASKS` /
-`SCALARS` / `META`). Il propose un manifeste sur `stderr` — copiez-le dans
-`clients/<client>/data-manifest.json` pour corriger/forcer la détection. Pour un
-client **cyclisme legacy** (Veloh, agiledss), utiliser le **contrat de données
-historique** de l'extracteur via `--profile cyclisme` (format des `const`
-émises : `KM`, `RIDES`, `USER_MASKS`, …) — c'est un contrat de **données**,
-**pas** un layout à copier. Voir `references/POWERBI_COMPONENTS.md` §6.1 pour
-le contrat complet et le mapping `CLIENT.md` → séries.
+les agrégats catégoriels, l'entité active et les compteurs `DISTINCT_` (tables
+ponts), puis émet un contrat **normalisé** (`FACTS` / `BY_DIM` / `DIM_COUNTS` /
+`CATEGORY_COUNTS` / `ACTIVE_MASKS` / `SCALARS` / `META`). Il propose un manifeste
+sur `stderr` — copiez-le dans `clients/<client>/data-manifest.json` pour
+corriger/forcer la détection. Le profil `--profile cyclisme` est **déprécié**
+(contrat legacy `KM`/`RIDES`/…) : tout nouveau client utilise le contrat normalisé.
+Voir `references/POWERBI_COMPONENTS.md` §6.1 pour le contrat complet.
+
+**Carte visuelle déclarative (`views.json`)** — l'extracteur produit un brouillon
+depuis le contrat normalisé :
+
+```bash
+python .opencode/skills/powerbi-prototype/scripts/extract-data.py clients/<client>/donnees.xlsx --suggest-views > clients/<client>/views.json
+```
+
+Le skill **rafine** ensuite `views.json` (pages → sous-pages → KPIs + visuels,
+≤ 4 visuels par sous-page pour la grille 2×2). C'est la **seule** étape de
+curation : aucun HTML n'est écrit à la main. Schéma dans
+`clients/_template/views.json` ; exemples dans `clients/agileDSS/views.json`.
 
 **Agréger au grain MENSUEL pour l'année N et la variation N-1** (obligatoire —
 voir `references/POWERBI_COMPONENTS.md` §6). Le tableau de bord affiche
@@ -171,26 +181,43 @@ possibles — c'est la régression à éviter.
 
 ## Phase 3 — Génération de la maquette HTML
 
-1. Lire `CLIENT.md` (+ `references/POWERBI_LAYOUT.md` et
-   `POWERBI_COMPONENTS.md`), et les données dans `donnees.xlsx` (model/séries).
+La maquette est **générée** par un script qui assemble le `template.html`
+(scaffold + moteur générique ECharts, **source unique** du layout) avec les
+variables client. **On n'écrit plus le HTML à la main.**
+
+1. Vérifier que `clients/<client>/` contient `CLIENT.md` (marque),
+   `views.json` (vues, Phase 2), `logo.png` et `donnees.xlsx`.
    **Ne pas** chercher ni lire `clients/<autre>/maquette/index.html` : chaque
-   maquette se construit depuis les specs + `CLIENT.md` + les données extraites,
+   maquette se construit depuis le template + `CLIENT.md` + `views.json` + DATA,
    **jamais** en imitant la maquette d'un autre client.
-2. Produire `clients/<client>/maquette/index.html` — fichier **auto-suffisant** :
+2. Lancer le générateur (parse `CLIENT.md` → variables CSS dont `--on-primary`
+   WCAG, exécute l'extracteur → DATA, injecte DATA + SPEC dans le template,
+   écrit `maquette/index.html`, **puis lance le smoke test**) :
+   ```bash
+   python .opencode/skills/powerbi-prototype/scripts/render.py <client>
+   ```
+   Le moteur du template lit `DATA` (normalisé) + `SPEC` (`views.json`) et rend
+   nav L1/L2, KPIs (N + variation vs N-1), visuels (line/ratio-line/donut/
+   parts-donut/hbar/table), pane filtres interactif (UI seule) et popover info.
+   Toutes les règles de layout ci-dessous (canevas 16:9, bandeau trapèze, grille
+   2×2 hauteurs égales, donut anti-rognage, badges, etc.) sont **appliquées par
+   `references/template.html`** — les § qui suivent en sont la spécification.
+3. Détail de ce que le template produit (référence, pas étape manuelle) —
+   `clients/<client>/maquette/index.html` est **auto-suffisant** :
    - Tailwind via CDN, Apache ECharts via CDN.
    - Canevas 1920×1080 fixe, scaling CSS pour s'adapter au viewport (pas de scroll).
    - **Fond** :
      - Si `bg.svg`/`bg.png` présent → `background: url(./bg.svg) center/cover
        no-repeat` (adapter l'extension) ; **ne pas redessiner** le bandeau ni la
        zone logo en CSS (ils sont dans l'image).
-    - Sinon → **dessiner en CSS** : bandeau haut (~97px) en `var(--primary)`
-      avec zone logo (~245px) en `var(--surface)` contenant `logo.png`, fond
-      canevas en `var(--canvas)`, pane filtres à gauche (fond `var(--surface)`).
-     - **Cassure de l'en-tête** : la zone logo et la bannière sont des **trapèzes**
-       (bords diagonaux) fidèles au template de référence — le léger intervalle
-       diagonal entre les deux laisse voir le fond canevas. Via `clip-path` :
-      zone logo `polygon(0 0, 320px 0, 244px 97px, 0 97px)` ; bannière
-      `polygon(342px 0, 100% 0, 100% 97px, 267px 97px)`.
+     - Sinon → **dessiner en CSS** : bandeau haut (~97px) en `var(--primary)`
+       avec zone logo (~245px) en `var(--surface)` contenant `logo.png`, fond
+       canevas en `var(--canvas)`, pane filtres à gauche (fond `var(--surface)`).
+      - **Cassure de l'en-tête** : la zone logo et la bannière sont des **trapèzes**
+        (bords diagonaux) fidèles au template de référence — le léger intervalle
+        diagonal entre les deux laisse voir le fond canevas. Via `clip-path` :
+       zone logo `polygon(0 0, 320px 0, 244px 97px, 0 97px)` ; bannière
+       `polygon(342px 0, 100% 0, 100% 97px, 267px 97px)`.
    - Variables CSS en `:root` lues depuis `CLIENT.md` :
      `--primary`, `--surface`, `--canvas`, `--border`, `--card-bg`,
      `--text-primary`, `--text-secondary`.
@@ -269,11 +296,13 @@ possibles — c'est la régression à éviter.
 5. Indiquer à l'utilisateur comment ouvrir le rendu (`start index.html`).
 
 ## Sources de données
-- `CLIENT.md` — **fichier pilote, rempli par l'utilisateur** : identité de
-  marque (couleurs via `--primary`/`--surface`/`--canvas`/`--border`/`--card-bg`),
-  titre, arbre de navigation (pages / sous-pages / KPIs, flags `[En
-  consolidation]`). Le skill vérifie qu'aucun marqueur `<...>` ne reste avant de
-  générer.
+- `CLIENT.md` — **identité de marque, rempli par l'utilisateur** : couleurs
+  (`--primary`/`--surface`/`--canvas`/`--border`/`--card-bg`), `Report Title`,
+  `Report Subtitle`. Le skill vérifie qu'aucun marqueur `<...>` ne reste avant de
+  générer. (L'arbre de navigation vit dans `views.json`.)
+- `views.json` — **carte visuelle déclarative** (pages → sous-pages → KPIs +
+  visuels). Brouillon auto via `extract-data.py --suggest-views`, raffiné par le
+  skill. Schéma : `clients/_template/views.json`.
 - `donnees.xlsx` — **données source, toujours fournies par l'utilisateur**
   (déposées en Phase 0 ; le skill ne les génère jamais). Le skill en déduit le
   modèle de données, le glossaire KPI (formules) et la carte visuelle par page ;
