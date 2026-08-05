@@ -66,11 +66,65 @@ clients/MonClient/
 
 Modèle de départ : `clients/_template/`. Exemple livré : `clients/agiledss/`.
 
+## Modifier la maquette après génération
+
+Le rendu n'est pas figé — tout est déclaratif :
+
+- **`views.json`** → pages, sous-pages, KPIs, visuels ;
+- **`CLIENT.md`** → titre, sous-titre, couleurs ;
+- **`data-spec.json`** → données fictives (régénérez ensuite `donnees.xlsx` via
+  `scripts/generate-data.py`).
+
+Appliquez les changements avec :
+
+```powershell
+python .opencode/skills/powerbi-prototype/scripts/render.py MonClient
+```
+
+Le smoke test se relance à chaque génération (exit 0 exigé). Ou redemandez
+simplement à l'agent — « remplace ce visuel par un graphique en barres » — il
+s'en charge.
+
 ## Installation
 
 ```bash
 gh repo clone agileohdain/PowerBi
 ```
+
+## Installer OpenCode
+
+```powershell
+npm install -g opencode-ai    # Node 18+ requis
+```
+
+OpenCode est un **agent IA en terminal** : il lit, écrit et exécute dans votre
+projet, avec deux modes complémentaires :
+
+- **PLAN** — analyse et plan d'action, lecture seule ;
+- **BUILD** — écriture de fichiers, exécution de commandes.
+
+**Conseil pour démarrer** : passez par [OpenRouter](https://openrouter.ai) —
+une seule clé API donne accès à tous les modèles, facturés à l'usage :
+
+```powershell
+opencode auth login   # collez votre clé OpenRouter (sk-or-…)
+```
+
+Puis configurez les agents dans `opencode.json` :
+
+```json
+{
+  "agent": {
+    "plan":  { "model": "openrouter/z-ai/glm-5.2" },
+    "build": { "model": "openrouter/deepseek/deepseek-v4-pro" }
+  }
+}
+```
+
+- **PLAN = GLM 5.2** — raisonnement et plans solides ;
+- **BUILD = DeepSeek V4 Pro** — génération de code rapide et fiable.
+
+> Identifiants exacts des modèles : [openrouter.ai/models](https://openrouter.ai/models).
 
 ## Auteur
 
