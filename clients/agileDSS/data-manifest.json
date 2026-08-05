@@ -1,0 +1,14 @@
+{
+  "fact_sheet": "FAIT_SORTIES",
+  "date_col": "DATE",
+  "measures": [
+    "NB_KM",
+    "MINUTES"
+  ],
+  "dims": [
+    "Pays",
+    "Ville",
+    "Marque"
+  ],
+  "activity_entity": "DIM_UTILISATEUR"
+}

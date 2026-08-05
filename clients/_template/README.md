@@ -1,25 +1,32 @@
 # Dossier template
 
-Copiez ce dossier dans l'explorateur de fichiers et renommez la copie pour créer
-un nouveau client (`clients/<mon-client>/`).
+Ce dossier sert de modèle au skill `powerbi-prototype` : c'est lui qui crée et
+remplit `clients/<mon-client>/` pendant la commande `/maquette <Nom>`.
+**Vous n'avez rien à copier ni à éditer à la main.**
 
 Contenu du template :
 
-- `CLIENT.md` — **le seul fichier à éditer** (identité, couleurs, navigation,
-  KPIs). Remplissez **toute** valeur `<...>` : le skill s'arrête et pose des
-  questions tant qu'un champ n'est pas renseigné.
+- `CLIENT.md` — **écrit par le skill** à partir de vos réponses au
+  questionnaire guidé (identité, couleurs, contexte & données, arbre de
+  navigation). Vous ne le remplissez pas.
+- `views.json` — schéma de la carte visuelle déclarative (pages → sous-pages →
+  KPIs + visuels), raffiné par le skill après génération d'un brouillon.
+- `data-spec.example.json` — exemple documenté du spec de génération des
+  données (lu par `scripts/generate-data.py`).
 - `bg.svg` (ou `bg.png`) — **optionnel** : si vous déposez une image de fond
-  personnalisée (any source, ~3840×2160), elle est appliquée sur le canevas à la
-  place du bandeau/fond dessinés en CSS. Sa couleur de bandeau **doit valoir**
+  personnalisée (~3840×2160), elle est appliquée sur le canevas à la place du
+  bandeau/fond dessinés en CSS. Sa couleur de bandeau **doit valoir**
   `Primary` pour que graphiques et onglets matchent.
 
 Procédure complète : voir le README.md à la racine du dépôt.
 
-Fichiers à déposer par l'utilisateur (le skill ne les crée jamais) :
+Fichier déposé par l'utilisateur (le skill ne le crée jamais) :
 - `logo.png` — le logo du client (fond transparent)
-- `donnees.xlsx` — les données source (feuilles = tables)
 
 Fichiers produits par le skill (ne pas créer à la main) :
-- `maquette/index.html` (la maquette) — **interactive** : panneau de filtres
-  **fonctionnel** (année, trimestre, mois, plage de dates, bouton Effacer) et
-  KPIs temporels avec **variation vs N-1**.
+- `CLIENT.md` et `data-spec.json` — écrits après le questionnaire guidé
+- `donnees.xlsx` — **données fictives générées** (2 années civiles closes)
+- `views.json` — carte visuelle raffinée
+- `maquette/index.html` — la maquette, **interactive** : panneau de filtres
+  fonctionnel (année, trimestre, mois, plage de dates, bouton Réinitialiser)
+  et KPIs temporels avec **variation vs N-1**.

@@ -99,10 +99,12 @@ def css_vars(c):
 
 
 # ----------------------------- extraction ---------------------------------
-def extract_data(xlsx):
+def extract_data(xlsx, manifest=None):
     env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
-    out = subprocess.run([sys.executable, EXTRACTOR, xlsx],
-                         capture_output=True, text=True, encoding="utf-8",
+    cmd = [sys.executable, EXTRACTOR, xlsx]
+    if manifest and os.path.exists(manifest):
+        cmd += ["--manifest", manifest]
+    out = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
                          errors="replace", env=env)
     if out.returncode != 0:
         sys.stderr.write(out.stderr or "")
@@ -131,7 +133,7 @@ def render(client):
     spec["css"] = {"primary": cfg["primary"], "surface": cfg["surface"],
                    "canvas": cfg["canvas"], "border": cfg["border"], "card": cfg["card"]}
 
-    data_lit = extract_data(xlsx)
+    data_lit = extract_data(xlsx, os.path.join(cdir, "data-manifest.json"))
     tpl = open(TEMPLATE, encoding="utf-8").read()
 
     title = cfg["title"] or (cfg.get("brand") or client)

@@ -15,7 +15,7 @@
           "kpis": [
             {"_a": "KPI somme d'une mesure (YoY)", "label": "Total ventes", "agg": "sum", "measure": "<MESURE>", "yoy": true, "fmt": "int", "sub": "en {CUR_YEAR}"},
             {"_b": "KPI entités actives (YoY)", "label": "Clients actifs", "agg": "active", "yoy": true, "fmt": "int", "sub": "actifs en {CUR_YEAR}"},
-            {"_c": "KPI scalaire statique (pas de YoY)", "label": "Pays couverts", "agg": "scalar", "from": "SCALARS.NB_<DIM>", "fmt": "int", "consol": true, "sub": "présents"},
+            {"_c": "KPI scalaire statique (pas de YoY)", "label": "Pays couverts", "agg": "scalar", "from": "SCALARS.NB_<DIM>", "fmt": "int", "sub": "présents"},
             {"_d": "KPI ratio dérivé (YoY)", "label": "Panier moyen", "agg": "ratio", "num": "<MESURE>", "den": "_count", "yoy": true, "fmt": "f1", "sub": "par commande · {CUR_YEAR}"},
             {"_e": "KPI nommé top-1 (statique)", "label": "Catégorie dominante", "agg": "top", "from": "DIM_COUNTS.<DIM>", "fmt": "text", "sub": "en tête"}
           ],
@@ -31,7 +31,7 @@
   ],
 
   "_schema_kpi_agg": "sum (measure) | active | scalar (from SCALARS.) | ratio (num/den, den peut être _count, ACTIVE, SCALARS.x, ou une mesure) | top (from DIM_COUNTS., renvoie le top-1 + ex aequo)",
-  "_schema_kpi_fmt": "int | km | f1 | dur | pct | text",
+  "_schema_kpi_fmt": "int | km | eur | f1 | dur | pct | text",
   "_schema_kpi_tokens": "{CUR_YEAR} {PREV_YEAR} {SCALARS.XXX} substitués dans sub",
   "_schema_visual_type": "line | ratio-line | donut | parts-donut | hbar | table",
   "_schema_visual_from": "DIM_COUNTS.X | CATEGORY_COUNTS.sheet.col | BY_DIM.dim.mesure (somme sur l'année N)",

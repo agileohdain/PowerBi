@@ -1,10 +1,11 @@
 # Client : <CLIENT_NAME>
 
-> **C'est le SEUL fichier de configuration** pour un client. Le skill
-> `powerbi-prototype` le lit pour générer la maquette. Remplissez **toute**
-> valeur entre `<...>` (elles servent de marqueurs « à compléter »). Les
-> **données** (`donnees.xlsx`) et le **logo** (`logo.png`, fond transparent)
-> sont **toujours fournis par vous** — déposez-les dans ce dossier.
+> **Ce fichier est écrit PAR LE SKILL** `powerbi-prototype`, à partir de vos
+> réponses au **questionnaire guidé** — vous n'avez rien à y saisir. C'est le
+> contrat de marque lu par `scripts/render.py` pour générer la maquette. Le
+> **seul** fichier que vous déposez est `logo.png` (fond transparent) ; les
+> données (`donnees.xlsx`) sont **générées par le skill** depuis
+> `data-spec.json`.
 
 ## Identité
 
@@ -14,34 +15,40 @@
 
 ## Couleurs
 
-> **Note :** le bandeau est dessiné en CSS avec `Primary`. Si vous fournissez un
-> fond `bg.*` (optionnel, image personnalisée), sa couleur de bandeau **doit être
-> la même** que `Primary` pour que graphiques et onglets matchent. Remplissez
-> chaque valeur par un code hexadécimal (ex. `#00A1B1`).
+> Seule la couleur **Primary** est fournie par le client (code hexadécimal,
+> ex. `#00A1B1`). Les autres sont **proposées par le skill** — nommées en
+> clair (« blanc pur », « gris bleuté très clair »…) — puis validées avec le
+> client. Le bandeau est dessiné en CSS avec `Primary` : si un fond `bg.*`
+> est déposé (optionnel), sa couleur de bandeau **doit être la même**.
 
 * Primary / Banner Accent: <Primary>   <!-- bandeau, "Filtres", onglets actifs, série primaire -->
-* Surface / Cards:        <Surface>    <!-- zone logo, texte sur primaire, cards -->
+* Surface / Cards:        <Surface>    <!-- zone logo, cards -->
 * Canvas Background:      <Canvas Background>   <!-- fond du canevas, pane filtres, footer -->
 * Card Frame Color:       <Card Frame> <!-- couleur des encadrés (défaut = Surface) -->
 * Border / Divider:       <Border>
 
+## Contexte & Données
+
+> Résumé des réponses au questionnaire — le skill le traduit en
+> `data-spec.json` puis génère `donnees.xlsx` (2 années civiles closes) via
+> `scripts/generate-data.py`.
+
+* Domaine: <ex. pilotage d'une flotte cyclable>
+* Faits: <FAIT_X — 1 ligne = 1 événement daté>
+* Mesures: <M1 (unité), M2 (unité)>
+* Dimensions: <DIM_A (n modalités), DIM_B (n modalités)>
+* Entité suivie: <DIM_PERSONNE (n individus)>
+
 ## Arbre de navigation
 
-> Chaque sous-page liste ses cartes KPI. Un KPI marqué `[En consolidation]` est
-> rendu avec une barre d'accent + un pill **ambre** discret en haut à droite
-> (voir
-> `.opencode/skills/powerbi-prototype/references/POWERBI_COMPONENTS.md` §1.3) ;
-> tous les autres sont des cards normales.
->
-> La maquette générée est **interactive** : le panneau de filtres est
-> **fonctionnel** (année, trimestre, mois, plage de dates) et chaque KPI dérivé
-> de la série temporelle affiche automatiquement sa **variation vs N-1**.
+> Proposé par le skill et **validé par le client** pendant le questionnaire.
+> Chaque sous-page liste ses cartes KPI.
 
 ### Page 1: <Titre page 1>
 
 * Sub-page 1.1: <Titre sous-page>
   * KPI 1.1.1: <Libellé KPI>
-  * KPI 1.1.2: <Libellé KPI> [En consolidation]
+  * KPI 1.1.2: <Libellé KPI>
 * Sub-page 1.2: <Titre sous-page>
   * KPI 1.2.1: <Libellé KPI>
 

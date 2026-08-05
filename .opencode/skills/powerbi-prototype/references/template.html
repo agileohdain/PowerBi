@@ -77,9 +77,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
 .kpi-card{position:relative;flex:1;height:130px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 1px 2px rgba(0,0,0,.04);box-sizing:border-box;}
 .kpi-bar{position:absolute;left:0;top:0;bottom:0;width:4px;}
 .kpi-bar-primary{background:var(--primary);}
-.kpi-bar-amber{background:#F59E0B;}
-.consol-pill{position:absolute;top:12px;right:12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#92400E;background:#FEF3C7;border:1px solid #FDE68A;padding:2px 6px;border-radius:6px;}
-.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:64px;}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .kpi-value{font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;}
 .kpi-sub{font-size:11px;color:var(--text-secondary);}
 .kpi-footer{min-height:22px;display:flex;align-items:center;}
@@ -216,9 +214,11 @@ function fInt(n){ return Math.round(n).toLocaleString('fr-FR'); }
 function f1(n){ return n.toLocaleString('fr-FR',{maximumFractionDigits:1}); }
 function fKm(n){ return n>=1000 ? (n/1000).toLocaleString('fr-FR',{maximumFractionDigits:1})+' k' : fInt(n); }
 function fDur(min){ min=Math.round(min); const h=Math.floor(min/60), m=min%60; return h>0 ? h+' h '+m : m+' min'; }
+function fEur(n){ return (n>=1000 ? (n/1000).toLocaleString('fr-FR',{maximumFractionDigits:1})+' k' : fInt(n))+' €'; }
 function fmtVal(v, fmt){
   if (v==null || v==='' ) return '';
   if (fmt==='km') return fKm(v);
+  if (fmt==='eur') return fEur(v);
   if (fmt==='f1') return f1(v);
   if (fmt==='dur') return fDur(v);
   if (fmt==='pct') return f1(v)+' %';
@@ -329,9 +329,7 @@ function kpiCard(k, agg){
   const val=kpiValue(k,agg);
   const valTxt = (k.fmt==='text' || k.agg==='top') ? val : fmtVal(val, k.fmt || (k.agg==='sum' && k.measure && /KM/.test(k.measure.toUpperCase()) ? 'km' : 'int'));
   const trd = trendBadge(kpiYoy(k,agg));
-  const consol = k.consol ? '<span class="consol-pill" title="Données en cours de consolidation — chiffres provisoires.">En consolidation</span>' : '';
-  const bar = k.consol ? 'kpi-bar-amber' : 'kpi-bar-primary';
-  return '<div class="kpi-card"><span class="kpi-bar '+bar+'"></span>'+consol
+  return '<div class="kpi-card"><span class="kpi-bar kpi-bar-primary"></span>'
     +'<div class="kpi-label">'+(k.label||'')+'</div>'
     +'<div class="kpi-value">'+valTxt+'</div>'
     +'<div class="kpi-sub">'+sub(k.sub)+'</div>'
@@ -383,7 +381,7 @@ function buildVisual(visuals, idx, v, agg){
   }
   return {html:vcard(cls, title, subT, '<div class="chart-holder"></div>'), chart:null};
 }
-function fmtUnitLabel(u){ return u==='km'?'km':u==='dur'?'min':u==='pct'?'%':''; }
+function fmtUnitLabel(u){ return u==='km'?'km':u==='eur'?'€':u==='dur'?'min':u==='pct'?'%':''; }
 function buildTableRows(v){
   const flat=resolveFlat(v.from);
   const dim=(v.from||'').split('.')[1];

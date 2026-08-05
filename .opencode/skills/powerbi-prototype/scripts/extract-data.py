@@ -519,8 +519,7 @@ def suggest_views(data):
 
     if meta.get("activity_entity"):
         kpis.append({"label": "Entités actives", "agg": "active", "yoy": True,
-                     "consol": False, "fmt": "int",
-                     "sub": "actives en {CUR_YEAR}"})
+                     "fmt": "int", "sub": "actives en {CUR_YEAR}"})
 
     for m in measures:
         label = m.replace("_", " ")

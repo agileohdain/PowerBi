@@ -241,14 +241,10 @@ render, and breaks the separation between navigation and content (see
 
 ### Row 1 — KPI cards (height: 130px, fixed & uniform)
 - Horizontal row of KPI cards (4–6 depending on page), each `flex:1`, **fixed
-  height `130px`** so every card is exactly the same height regardless of content
-  (the consolidation flag must never make one card taller than its neighbours).
+  height `130px`** so every card is exactly the same height regardless of content.
 - See `POWERBI_COMPONENTS.md` §1 for card internals.
-- Some cards may carry a **"consolidation" state** (amber accent bar + amber
-  pill, **never** a red dashed frame — see `POWERBI_COMPONENTS.md` §1.3).
-- **Consolidation pill goes top-right** of the card (absolute, `top:12px;
-  right:12px`), NOT in the footer — so the footer holds only the trend badge and
-  stays one uniform line on every card. See `POWERBI_COMPONENTS.md` §1.3.
+- The footer holds **only the trend badge** and stays one uniform line on every
+  card.
 
 ### Rows 2–3 — Main visuals (equal heights, no fixed px)
 - **All main visuals on a sub-page share the exact same height.** Render them in

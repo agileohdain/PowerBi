@@ -95,10 +95,18 @@ global.getComputedStyle = () => ({
 // visuel » — ex. guard du type `if (!el || !el.__chart) return;`
 // où la propriété testée n'est jamais définie).
 global.__chartInits = [];
+// Options passées à setOption : permet de détecter les visuels rendus SANS
+// données (source `from:` qui ne résout rien — un tel chart passe le test
+// d'init mais s'affiche vide au navigateur).
+global.__chartOptions = [];
 global.echarts = {
   init: (el) => {
-    global.__chartInits.push((el && el.id) || '?');
-    return { setOption() {}, dispose() {}, resize() {}, on() {} };
+    const __id = (el && el.id) || '?';
+    global.__chartInits.push(__id);
+    return {
+      setOption(opt) { global.__chartOptions.push({ id: __id, opt }); },
+      dispose() {}, resize() {}, on() {},
+    };
   },
 };
 // Certaines maquettes testent `window.echarts` avant d'initialiser :
@@ -126,6 +134,22 @@ function __countChartPlaceholders() {
   }
   return n;
 }
+// Un visuel « sans données » = aucune série ne contient la moindre valeur
+// non nulle (objet {value:…} ou scalaire). Cause classique : un from:/measure
+// de views.json qui ne correspond à rien dans DATA — le chart s'initialise
+// sans erreur mais s'affiche vide au navigateur.
+function __optionHasData(opt) {
+  const series = (opt && opt.series) || [];
+  for (const s of series) {
+    const data = (s && s.data) || [];
+    for (const d of data) {
+      if (d === null || d === undefined) continue;
+      if (typeof d === 'object') { if (d.value !== null && d.value !== undefined) return true; }
+      else return true;
+    }
+  }
+  return false;
+}
 function __checkChartsRendered(contexte) {
   const inits = __chartInits.length;
   if (inits === 0)
@@ -135,10 +159,16 @@ function __checkChartsRendered(contexte) {
   if (holders > 0 && inits < holders)
     throw new Error(inits + ' chart(s) initialisé(s) pour ' + holders + ' conteneur(s) rendu(s) ('
       + contexte + ') — des visuels resteront vides.');
+  const vides = __chartOptions.filter(c => !__optionHasData(c.opt));
+  if (vides.length)
+    throw new Error(vides.length + ' visuel(s) sans données (' + contexte + ') : '
+      + vides.map(c => c.id).join(', ')
+      + ' — cause classique : un from:/measure de views.json qui ne résout rien dans DATA.');
 }
 __check('renderPage() ne lève pas d\\'exception', () => {
   if (typeof renderPage !== 'function') throw new Error('renderPage() non défini');
   __chartInits.length = 0;
+  __chartOptions.length = 0;
   renderPage();
   __checkChartsRendered('renderPage initial');
 });
@@ -155,6 +185,7 @@ if (typeof NAV !== 'undefined' && typeof go === 'function') {
     for (let si = 0; si < subs.length; si++) {
       __check('navigation go(' + pi + ',' + si + ') → ' + (NAV[pi].name || pi), () => {
         __chartInits.length = 0;
+        __chartOptions.length = 0;
         go(pi, si);
         __checkChartsRendered('go(' + pi + ',' + si + ')');
       });
@@ -166,6 +197,7 @@ if (typeof VIEWS !== 'undefined' && typeof aggregates === 'function') {
   for (const k of Object.keys(VIEWS)) {
     __check('VIEWS[' + k + '] s\\'exécute sans exception', () => {
       __chartInits.length = 0;
+      __chartOptions.length = 0;
       VIEWS[k](__agg);
       __checkChartsRendered('VIEWS[' + k + ']');
     });

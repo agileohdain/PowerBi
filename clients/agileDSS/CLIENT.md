@@ -27,25 +27,22 @@
 
 ## Arbre de navigation
 
-> Chaque sous-page liste ses cartes KPI. Un KPI marqué `[En consolidation]` est
-> rendu avec un cadre rouge pointillé (voir
-> `.opencode/skills/powerbi-prototype/references/POWERBI_COMPONENTS.md` §1.3) ;
-> tous les autres sont des cards normales.
+> Chaque sous-page liste ses cartes KPI.
 
 ### Page 1: Cyclistes (Active)
 
 * Sub-page 1.1: Vue d'ensemble (Active)
-  * KPI 1.1.1: Cyclistes actifs [En consolidation]
+  * KPI 1.1.1: Cyclistes actifs
   * KPI 1.1.2: Kilomètres totaux 
   * KPI 1.1.3: Sorties
   * KPI 1.1.4: Km / cycliste
   * KPI 1.1.5: Durée moy. / sortie
 * Sub-page 1.2: Répartition géographique
-  * KPI 1.2.1: Pays couverts [En consolidation]
+  * KPI 1.2.1: Pays couverts
   * KPI 1.2.2: Villes couvertes
   * KPI 1.2.3: Cyclistes par pays
 * Sub-page 1.3: Affectations vélos
-  * KPI 1.3.1: Cyclistes avec vélo [En consolidation]
+  * KPI 1.3.1: Cyclistes avec vélo
   * KPI 1.3.2: Vélos attribués
   * KPI 1.3.3: Ratio vélos / cycliste
 

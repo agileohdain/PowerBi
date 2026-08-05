@@ -35,13 +35,8 @@ visual harmonizes with the banner.
   multi-series temporal lines (§3.3). The first entry is the primary itself.
 * The **"Autres"** residual bar/slice and the **N-1** temporal line use a single
   **neutral** (`C.neutral`), never a palette slot.
-* Two reserved, non-palette color families: the **consolidation amber** (§1.3 —
-  a metadata flag, not an error) and the **trend-badge green/red/neutral** (§1.1)
-  — these are semantic, not categorical. **Never use red `#FF0000` for
-  consolidation**: red reads as an *error/alert* and steals the eye away from the
-  actual KPI value. Consolidation is provisional data, not a fault — amber
-  (`#D97706` text on `bg-amber-100`) signals "attention, provisoire" without
-  screaming.
+* One reserved, non-palette color family: the **trend-badge green/red/neutral**
+  (§1.1) — semantic, not categorical.
 
 ```javascript
 function hexToHsl(hex){
@@ -104,7 +99,7 @@ CSS variables are set (e.g. a dark client: `--primary:#E0BE7E`,
       nor a red `-0,1 %` (noise). A near-zero variation is **information** ("flat"),
       not a success/failure.
     * **Badge wording uses the REAL year** (`vs 2024`, `vs {PREV_YEAR}`), never the
-      jargon `vs N-1` — see §1.4.
+      jargon `vs N-1` — see §1.3.
   * **Accent Bar (optional):** `absolute left-0 top-0 bottom-0 w-1 bg-[var(--primary)]`
 
 ### 1.2. Multi-Metric Card (Multi-Row Card)
@@ -115,35 +110,7 @@ CSS variables are set (e.g. a dark client: `--primary:#E0BE7E`,
   * **Metric Label:** `text-xs font-medium text-[var(--text-secondary)]`
   * **Metric Value:** `text-sm font-semibold text-[var(--text-primary)] font-mono`
 
-### 1.3. Consolidation-State KPI Card (NEW)
-* **Usage:** A KPI whose data is still being consolidated; visually flagged so
-  reviewers do not mistake it for a final figure — **without hijacking the eye**.
-* **Trigger (data-driven, mandatory):** render a KPI in this consolidation
-  state **only** when that KPI is explicitly marked `[En consolidation]` in the
-  active `CLIENT.md` (see its Dynamic Navigation Structure KPI lists). If a KPI
-  has no such marker, render it as a normal §1.1 card. Never apply the
-  consolidation treatment on your own initiative. The flag lives **only** in
-  `CLIENT.md`.
-* **Discreet, not alarming (BLOCKING).** Consolidation is *provisional data*,
-  not an error — so it must **never** use the saturated red (`#FF0000`) + bold
-  dashed frame of an error state. Red screams "fault" and becomes the single
-  loudest pixel on the dashboard, pulling the eye away from the real KPI values.
-  Use a **muted amber** treatment that reads "attention, provisoire":
-  * **Accent bar** on the left edge becomes **amber** (`bg-amber-500`) instead of
-    `var(--primary)` — the only persistent cue at a glance.
-  * **Flag pill** top-right, amber tones (NOT red): `text-[10px] font-semibold
-    uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-200
-    px-1.5 py-0.5 rounded`, text "En consolidation".
-  * The pill carries a `title` attribute: *"Données en cours de consolidation —
-    chiffres provisoires."* so hover/AT users get the reason.
-  * **Card frame stays a normal solid border** (`border border-[var(--border)]`) —
-    **not** a bold dashed red frame. The amber accent bar + amber pill are enough
-    signal; the border must match every other card so the row stays uniform.
-* **The value is still rendered** in full (consolidation ≠ missing). The amber
-  bar + pill make the provisional state unmistakable without inflating the card
-  or screaming at the reader.
-
-### 1.4. YoY ("vs N-1") Variation (MANDATORY on every time-derived KPI)
+### 1.3. YoY ("vs N-1") Variation (MANDATORY on every time-derived KPI)
 
 Every KPI whose value derives from the **time series** displays the **year-N
 value** plus its variation **vs the prior year (N-1)**, on **all** pages /
@@ -176,7 +143,7 @@ sub-pages. The figure is **computed from `donnees.xlsx`, never invented**.
 * **Static KPIs** (dimension counts with no time axis, e.g. *Pays couverts*,
   *Vélos en flotte*) carry **no** YoY badge — they are not time-derived.
 
-### 1.5. KPI Value Semantics & Card Typography (BLOCKING)
+### 1.4. KPI Value Semantics & Card Typography (BLOCKING)
 
 * **One KPI = one meaningful number (or one short label).** A KPI card must never
   show a concatenation of raw counts like `36 / 9 / 5` for *"Cyclistes par pays"* —
@@ -188,15 +155,14 @@ sub-pages. The figure is **computed from `donnees.xlsx`, never invented**.
   - or a **short named value** (*Marque dominante* → `Trek · Giant`).
 * **Time-derived KPIs recompute from the year-N aggregates** (`agg.km`,
   `agg.rides`, `agg.actifs`, …) so the value reflects year N; **static dimension
-  counts** are constants with no YoY badge (§1.4).
+  counts** are constants with no YoY badge (§1.3).
 * **Card typography (match exactly):** label `11px / 600 / uppercase /
   var(--text-secondary)`; value `28px / 700 / var(--text-primary)`; a one-line
   **sub-label** `11px / var(--text-secondary)` under the value; the footer row
   holds **only the trend badge** (`min-height:22px` so cards align). Do not
   inflate the value to 30px+ or drop the sub-label.
 * **Uniform card height (BLOCKING).** Every KPI card in a row is exactly the same
-  height (`130px`), regardless of content. The consolidation flag never inflates
-  a card: it is a top-right pill (§1.3), so the footer stays one uniform line and
+  height (`130px`), regardless of content: the footer stays one uniform line and
   no card grows taller than its neighbours.
 
 ---
@@ -643,7 +609,7 @@ For a month-bar evolution use two clustered `bar` series on the same fixed axis,
     (BLOCKING).** A subtitle like *"km — N vs N-1"* repeated across three cards
     is insider shorthand; a reviewer reads *"km — 2025 vs 2024"* instantly.
     Resolve `CUR_YEAR`/`PREV_YEAR` into the subtitle string (`${CUR_YEAR} vs
-    ${PREV_YEAR}`, `année ${CUR_YEAR}`). Same for KPI trend badges (§1.4) and
+    ${PREV_YEAR}`, `année ${CUR_YEAR}`). Same for KPI trend badges (§1.3) and
     the header subtitle period.
 
 ### 5.2. Info Note Bar (NEW)
@@ -671,7 +637,7 @@ For a month-bar evolution use two clustered `bar` series on the same fixed axis,
 
 ## 6. Data Architecture (MANDATORY)
 
-Year-N visuals (§2.7) and N-vs-N-1 KPIs (§1.4) require the mockup to **embed the
+Year-N visuals (§2.7) and N-vs-N-1 KPIs (§1.3) require the mockup to **embed the
 data at month grain**. Do not hardcode final chart arrays only — embed the
 underlying monthly series so year N and N-1 can be derived and compared.
 
@@ -690,7 +656,7 @@ underlying monthly series so year N and N-1 can be derived and compared.
 * **Static dimension data** (counts with no time axis, e.g. `PAYS_CYCLISTES`,
   `MARQUE_VELOS`) stay as final `{name: value}` objects.
 * **`aggregates()`** computes the **year-N** totals (KPI values) **and** the
-  **N vs N-1** YoY block (comparable months, §1.4) — once, no filter state. Then
+  **N vs N-1** YoY block (comparable months, §1.3) — once, no filter state. Then
   `renderPage()` paints nav, KPI cards, visuals and the info popover from it.
   Temporal evolution charts (§3.3) read the full monthly arrays via
   `yearSeries()`/`yearRatio()`. Charts are disposed and re-initialised

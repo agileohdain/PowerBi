@@ -1,20 +1,21 @@
 # PowerBi — Maquettes dashboard en minutes, pas en heures
 
-Produisez une **maquette Power BI haute-fidélité** à partir de **trois éléments**
-— un logo, un fichier Excel, un `CLIENT.md` rempli — et ouvrez un dashboard
+Produisez une **maquette Power BI haute-fidélité** à partir de **trois choses**
+— un **nom**, un **logo**, une **couleur primaire** — et ouvrez un dashboard
 interactif dans votre navigateur. Pas de Power BI Desktop, pas de licence, pas
-de rendering manuel : le skill génère un `index.html` auto-suffisant (canevas
-16:9, bandeau aux couleurs du client, KPIs et graphiques ECharts) prêt à montrer
-en pré-vente ou en démo.
+de données à préparer : le skill vous **télé-guide par questionnaire** (il
+propose, vous validez), **génère les données fictives** lui-même, puis produit
+un `index.html` auto-suffisant (canevas 16:9, bandeau aux couleurs du client,
+KPIs et graphiques ECharts) prêt à montrer en pré-vente ou en démo.
 
 > **Le problème résolu** : un client veut « voir à quoi ça ressemblerait ».
-> Avant, on ouvrait PowerPoint. Maintenant, on dépose un logo + un Excel, on
-> remplit un seul fichier texte, et on obtient un dashboard navigable avec
-**filtres, variation vs N-1, et arbre de navigation à deux niveaux**.
+> Avant, on ouvrait PowerPoint. Maintenant, on donne un nom, un logo et une
+> couleur, on répond à quelques questions, et on obtient un dashboard navigable
+> avec **filtres, variation vs N-1, et arbre de navigation à deux niveaux**.
 
 ---
 
-## Quickstart — 3 étapes
+## Quickstart — 4 étapes
 
 ```powershell
 opencode
@@ -22,18 +23,21 @@ opencode
 > /maquette MonClient
 ```
 
-1. **`/maquette <Nom>`** — le skill crée `clients/MonClient/` avec un
-   `CLIENT.md` pré-rempli du nom.
-2. **Déposez** dans ce dossier : `logo.png` (fond transparent),
-   `donnees.xlsx` (les données source), et **éditez `CLIENT.md`** (couleurs,
-   titre, arbre de navigation). Le skill s'arrête et vous réclame exactement ce
-   qui manque tant que tout n'est pas complet et cohérent.
-3. **`start clients/MonClient/maquette/index.html`** — le dashboard s'ouvre
+1. **`/maquette <Nom>`** — le skill confirme le nom (casse exacte) et crée
+   `clients/MonClient/`.
+2. **Fournissez** : `logo.png` (fond transparent, déposé dans le dossier) **et
+   la couleur primaire** en hexadécimal (ex. `#00A1B1`).
+3. **Répondez au questionnaire guidé** — le skill propose, vous validez ou
+   ajustez : domaine métier → modèle de données → arbre de navigation + KPIs →
+   couleurs secondaires (nommées en clair : « blanc pur `#FFFFFF` », « gris
+   bleuté très clair `#F1F5F9` »…) → titre. Les **données fictives sont générées
+   par le skill** (2 années civiles complètes, ex. 2024–2025).
+4. **`start clients/MonClient/maquette/index.html`** — le dashboard s'ouvre
    dans le navigateur. Fait.
 
-> Le skill **ne génère jamais** les données ni le logo — vous les fournissez.
-> Il ne **lit jamais** la maquette d'un autre client : chaque dashboard est
-> construit depuis les specs + votre `CLIENT.md` + votre Excel.
+> Le skill **génère toujours** les données (`donnees.xlsx`) à partir de vos
+> réponses — vous ne fournissez jamais de fichier de données. Il ne crée
+> **jamais** le logo, et ne **lit jamais** la maquette d'un autre client.
 
 ---
 
@@ -52,17 +56,15 @@ navigateur, qui rend fidèlement le langage visuel Power BI :
 - **Panneau de filtres interactif** — année (chiclets), trimestre (chiclets),
   mois (dropdown), plage de dates (slider + champs synchronisés), un slicer par
   dimension du modèle. Les clics réagissent et affichent un badge
-  « ● Filtres actifs », mais **les visuels montrent toujours l'année N** : la
-  maquette reste lisible, pas un tableau figé.
+  « ● Filtres actifs », mais **les visuels montrent toujours l'année N**.
 - **Navigation à deux niveaux** : pills L1 + liens L2, chaque sous-page a son
   propre layout (KPIs + visuels). Une **icône info** en haut à droite ouvre un
   popover décrivant la page active et permettant de sauter à une sous-page.
 - **Visuels ECharts** : lignes N-vs-N-1 (axe Jan→Déc fixe), donuts (≤6
-  tranches), barres horizontales (top-10 + « Autres »), tables de détail,
-  multi-séries par dimension. Palette catégorielle **dérivée du primaire** —
-  jamais d'arc-en-ciel.
-- **KPIs « en consolidation »** signalés par un pill ambre discret (pas de
-  rouge qui hurle « faute »).
+  tranches), barres horizontales (top-10 + « Autres »), tables de détail.
+  Palette catégorielle **dérivée du primaire** — jamais d'arc-en-ciel.
+- **Données fictives réalistes** : saisonnalité, tendance annuelle, entités
+  actives suivies mois par mois — le footer l'indique (« Données fictives »).
 
 ---
 
@@ -71,19 +73,22 @@ navigateur, qui rend fidèlement le langage visuel Power BI :
 Le skill **refuse de livrer une maquette cassée** :
 
 - **Smoke test JS** (`scripts/smoke-test.js`) exécuté avant chaque livraison :
-  il parcourt toutes les sous-pages, vérifie qu'aucune erreur JS n'est levée et
-  que chaque visuel reçoit bien son `echarts.init`. **Exit code 0 obligatoire**.
-- **Cohérence des couleurs vs `Primary`** : si vous ne donnez que la couleur
-  principale (cas le plus fréquent), le skill propose les couleurs secondaires
-  canoniques (mode clair/sombre) et corrige toute incohérence (surface plus
-  sombre que le canevas, bordure couleur de marque, canevas saturé…). Bloquant
-  jusqu'à acceptation.
+  il parcourt toutes les sous-pages, vérifie qu'aucune erreur JS n'est levée,
+  que chaque visuel reçoit son `echarts.init` **et qu'aucun visuel n'est vide
+  de données**. **Exit code 0 obligatoire**.
+- **Données conformes par construction** : le générateur
+  (`scripts/generate-data.py`) écrit un Excel que l'extracteur comprend à coup
+  sûr (dates typées, clés cohérentes, cardinalités maîtrisées), puis
+  **s'auto-contrôle** en relançant l'extracteur — toute divergence est
+  bloquante.
+- **Cohérence des couleurs vs `Primary`** : vous ne donnez que la couleur
+  principale ; le skill propose les secondaires canoniques (mode clair/sombre)
+  **nommées en clair**, et corrige toute incohérence.
 - **Contraste WCAG AA** : le texte sur le bandeau est dérivé automatiquement
   (`--on-primary`) selon la luminance du `Primary` — un primaire clair (taupe,
   jaune) ne rend jamais le titre illisible.
-- **Données au grain mensuel** embarquées dans le HTML : l'année N et la
-  variation vs N-1 sont toujours calculées sur **mois comparables** (jamais une
-  année partielle contre une complète).
+- **Données au grain mensuel** : l'année N (complète) et la variation vs N-1
+  sont calculées sur **mois comparables**.
 
 ---
 
@@ -91,30 +96,35 @@ Le skill **refuse de livrer une maquette cassée** :
 
 ```
 clients/MonClient/
-├── CLIENT.md          ← le SEUL fichier à éditer (identité, couleurs, navigation)
-├── logo.png           ← fourni par vous (fond transparent)
-├── donnees.xlsx       ← fourni par vous (feuilles = tables)
-├── bg.svg             ← optionnel : fond personnalisé (any source, ~3840×2160)
+├── CLIENT.md            ← écrit par le skill (identité, couleurs, contexte, navigation)
+├── data-spec.json       ← écrit par le skill (spec de génération des données)
+├── donnees.xlsx         ← GÉNÉRÉ par le skill (2 années civiles closes)
+├── logo.png             ← fourni par vous (fond transparent) — SEUL fichier déposé
+├── bg.svg               ← optionnel : fond personnalisé (~3840×2160)
+├── views.json           ← carte visuelle déclarative (brouillon auto + raffinement)
 └── maquette/
-    └── index.html     ← généré par le skill (auto-suffisant)
+    └── index.html       ← généré par le skill (auto-suffisant)
 ```
 
-Le dossier modèle à copier est `clients/_template/`.
+Le dossier modèle est `clients/_template/`.
 
 ---
 
-## Remplir `CLIENT.md`
+## Le questionnaire guidé (ce qu'on vous demande — et ce qu'on ne vous demande pas)
 
-C'est **le seul fichier à éditer**. Il contient :
+Après le logo et la couleur primaire, le skill déroule **4 questions** :
 
-- **Identité** : `Brand Name`, `Report Title`, `Report Subtitle`.
-- **Couleurs** : `Primary` (obligatoire) + `Surface`/`Canvas`/`Card Frame`/`Border`
-  (le skill propose des canoniques si elles manquent ou jurent).
-- **Arbre de navigation** : pages → sous-pages → KPIs (avec flags
-  `[En consolidation]`).
+1. **Domaine métier** — « Que pilote ce dashboard ? » (une phrase suffit).
+2. **Modèle de données proposé** — table de faits, mesures (unités, ordres de
+   grandeur), dimensions, volumes. Vous validez ou ajustez.
+3. **Arbre de navigation + KPIs proposés** — pages, sous-pages, indicateurs.
+   Vous validez, ajustez en texte libre, ou demandez une version plus
+   riche/compacte.
+4. **Couleurs secondaires + titre proposés** — chaque couleur est nommée en
+   clair (« blanc pur », « gris ardoise »…), pas seulement en hex.
 
-Remplissez **toute** valeur entre `<...>`. Si un champ reste vide, le skill
-l'identifie, s'arrête, et vous le demande précisément — il re-vérifie en boucle.
+Le skill décide seul de tout le reste : formules des KPIs, types de visuels,
+disposition, badges de variation, palette harmonisée.
 
 ### Variables de marque (`CLIENT.md` → CSS `:root`)
 
@@ -127,9 +137,9 @@ l'identifie, s'arrête, et vous le demande précisément — il re-vérifie en b
 | `--border`    | Bordures, séparateurs                                       |
 
 > Le bandeau est dessiné en CSS avec `--primary`. Si vous fournissez un fond
-> `bg.*` (optionnel), la couleur du bandeau de l'image **doit être la
-> même** que `--primary`. Les couleurs de texte sont dérivées automatiquement
-> selon la luminance du canvas.
+> `bg.*` (optionnel), la couleur du bandeau de l'image **doit être la même**
+> que `--primary`. Les couleurs de texte sont dérivées automatiquement selon
+> la luminance du canvas.
 
 ---
 
@@ -137,21 +147,20 @@ l'identifie, s'arrête, et vous le demande précisément — il re-vérifie en b
 
 Pour le détail, voici ce que le skill déroule lors de `/maquette <Nom>` :
 
-1. Le **nom est passé en argument** (la casse est conservée ; si absent, il
-   vous le demande, **sans proposer de nom**).
+1. Le **nom est passé en argument** (casse conservée ; si absent, il le
+   demande, **sans proposer de nom**).
 2. Il **confirme** : « Est-ce bien le client « X » ? — Oui / Modifier ».
-3. Si `clients/<nom>/` **existe déjà**, il demande : régénérer, ou modifier le
-   nom.
+3. Si `clients/<nom>/` **existe déjà**, il demande : régénérer (réutilise les
+   specs existants), refaire le questionnaire, ou modifier le nom.
 4. Il **crée** le dossier + `CLIENT.md` (nom pré-rempli), **sans logo**.
-5. Il vous demande de **déposer** `logo.png`, `donnees.xlsx`, et le `CLIENT.md`
-   rempli.
-6. Il **parcourt `CLIENT.md`** : arrêt + demande précise des champs manquants
-   (identité, navigation, logo, données) **et** des couleurs incohérentes.
-   Boucle jusqu'à complétude et cohérence.
-7. Il **extrait le modèle** de `donnees.xlsx` (`scripts/extract-data.py`,
-   auto-détection de la table de faits, mesures, dimensions, masques d'activité)
-   et **génère** `maquette/index.html`.
-8. Il **valide** par le smoke test (exit 0) et vous indique comment ouvrir.
+5. Il réclame **le logo** et **la couleur primaire** (hex).
+6. Il déroule le **questionnaire guidé** (domaine → modèle → navigation →
+   couleurs/titre), avec validation à chaque étape.
+7. Il **écrit** `CLIENT.md` + `data-spec.json`, **génère** `donnees.xlsx`
+   (`scripts/generate-data.py`) et vérifie le modèle détecté par
+   `scripts/extract-data.py` (auto-contrôle bloquant).
+8. Il **génère** `maquette/index.html` (`scripts/render.py`) et **valide** par
+   le smoke test (exit 0), puis indique comment ouvrir le rendu.
 
 ---
 
