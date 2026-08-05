@@ -116,13 +116,13 @@ Puis configurez les agents dans `opencode.json` :
 {
   "agent": {
     "plan":  { "model": "openrouter/z-ai/glm-5.2" },
-    "build": { "model": "openrouter/deepseek/deepseek-v4-pro" }
+    "build": { "model": "openrouter/deepseek/deepseek-v4-flash-0731" }
   }
 }
 ```
 
 - **PLAN = GLM 5.2** — raisonnement et plans solides ;
-- **BUILD = DeepSeek V4 Pro** — génération de code rapide et fiable.
+- **BUILD = DeepSeek V4 Flash 0731** — génération de code rapide et fiable.
 
 > Identifiants exacts des modèles : [openrouter.ai/models](https://openrouter.ai/models).
 
