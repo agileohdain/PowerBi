@@ -1,0 +1,53 @@
+{
+  "_comment": "Spec de génération des données fictives agiledss (lu par scripts/generate-data.py). Écrit PAR LE SKILL après validation du questionnaire. Période : 2 années civiles closes (2024+2025).",
+  "_comment_seed": "Reproductibilité : même seed + même spec = même classeur.",
+  "seed": 42,
+
+  "_comment_fact": "FAIT_ENTREE : 1 ligne = 1 écriture comptable datée (facture encaissée ou charge payée).",
+  "fact": {"name": "FAIT_ENTREE", "pk": "ID_ENTREE", "date_col": "DATE", "rows_per_month": [80, 140]},
+
+  "_comment_measures": "MONTANT = montant de l'écriture (k€) ; MONTANT_PREVU = montant budgété (k€) -> taux de réalisation.",
+  "measures": [
+    {"name": "MONTANT", "avg": 55, "std": 25, "min": 2, "decimals": 2, "trend_pct": 8,
+     "seasonality": [0.85, 0.8, 0.9, 0.95, 1.0, 1.05, 1.0, 0.9, 1.05, 1.1, 1.25, 1.4]},
+    {"name": "MONTANT_PREVU", "avg": 48, "std": 18, "min": 1, "decimals": 2, "trend_pct": 7,
+     "seasonality": [0.85, 0.8, 0.9, 0.95, 1.0, 1.05, 1.0, 0.95, 1.0, 1.1, 1.2, 1.35]}
+  ],
+
+  "_comment_dimensions": "DIM_CLIENT matche la regex PERSON_RE -> entité active (clients facturés/mois).",
+  "dimensions": [
+    {"sheet": "DIM_POSTE", "pk": "ID_POSTE", "size": 12, "columns": [
+      {"name": "Categorie", "values": {"Revenus": 0.35, "Coûts OPEX": 0.25, "Coûts CAPEX": 0.2, "Masse salariale": 0.2}},
+      {"name": "SousFamille", "parent": "Categorie", "values": {
+        "Revenus": {"Ventes": 0.4, "Abonnements": 0.35, "Services": 0.25},
+        "Coûts OPEX": {"Location": 0.3, "Maintenance": 0.25, "Marketing": 0.25, "Déplacements": 0.2},
+        "Coûts CAPEX": {"Équipements": 0.5, "Licences": 0.3, "Rénovation": 0.2},
+        "Masse salariale": {"Salaires fixes": 0.5, "Primes": 0.3, "Charges sociales": 0.2}
+      }}
+    ]},
+    {"sheet": "DIM_ENTITE", "pk": "ID_ENTITE", "size": 6, "columns": [
+      {"name": "Zone", "values": {"Île-de-France": 0.3, "Auvergne-Rhône-Alpes": 0.2, "Nouvelle-Aquitaine": 0.15, "Occitanie": 0.15, "Grand Est": 0.1, "Provence-Alpes-Côte d'Azur": 0.1}}
+    ]},
+    {"sheet": "DIM_CLIENT", "pk": "ID_CLIENT", "size": 120, "columns": [
+      {"name": "Segment", "values": {"Particulier": 0.55, "PME": 0.3, "Grand compte": 0.15}},
+      {"name": "Region", "values": {"Nord": 0.3, "Île-de-France": 0.25, "Sud": 0.2, "Est": 0.15, "Ouest": 0.1}}
+    ]}
+  ],
+
+  "_comment_bridges": "Aucun pont N-N.",
+  "bridges": [],
+
+  "_comment_extra_sheets": "FAIT_CREANCE (trésorerie : statut, DSO, encours) et FAIT_INVESTISSEMENT (solvabilité : statut, ROI, enveloppe) — CATEGORY_COUNTS + SCALARS AVG_*.",
+  "extra_sheets": [
+    {"name": "FAIT_CREANCE", "pk": "ID_CREANCE", "size": 120, "columns": [
+      {"name": "Statut", "type": "categorical", "values": {"Recouvrée": 0.5, "En attente": 0.3, "En retard": 0.2}},
+      {"name": "DELAI_PAIEMENT", "type": "numeric", "avg": 45, "std": 12, "min": 5, "decimals": 0},
+      {"name": "MONTANT_DU", "type": "numeric", "avg": 18, "std": 9, "min": 1, "decimals": 2}
+    ]},
+    {"name": "FAIT_INVESTISSEMENT", "pk": "ID_INVEST", "size": 60, "columns": [
+      {"name": "Statut", "type": "categorical", "values": {"Proposé": 0.2, "Validé": 0.25, "En cours": 0.35, "Clos": 0.2}},
+      {"name": "ROI", "type": "numeric", "avg": 12, "std": 6, "min": -3, "decimals": 1},
+      {"name": "MONTANT", "type": "numeric", "avg": 250, "std": 120, "min": 20, "decimals": 2}
+    ]}
+  ]
+}
