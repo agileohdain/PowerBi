@@ -41,9 +41,11 @@ l'utilisateur ne fournit **jamais** de données, et je ne crée **jamais** le lo
    tel quel à nommer le dossier (ex. `Veloh` → `clients/Veloh/`). **Ne proposer
    aucun nom** — l'utilisateur saisit lui-même le client. Ne pas transformer en
    slug minuscule.
-2. **Confirmer le nom** : reformuler par écrit « Est-ce bien le client « X » ? —
-   Oui / Modifier ». L'utilisateur peut corriger ; boucler tant que le nom n'est
-   pas validé. **Ne créer rien** tant que le nom n'est pas confirmé.
+2. **Confirmer le nom** : poser « Est-ce bien le client « X » ? » **via l'outil
+   `question`** (jamais un prompt texte seul) avec les options cliquables
+   **Oui** / **Modifier** (la saisie libre est ajoutée d'office par l'outil).
+   L'utilisateur peut corriger ; boucler tant que le nom n'est pas validé.
+   **Ne créer rien** tant que le nom n'est pas confirmé.
 3. **Garde client existant** : si `clients/<Nom>/` existe déjà, demander via
    l'outil `question` :
    - **Régénérer la maquette** → réutilise `CLIENT.md` + `data-spec.json`
@@ -74,8 +76,18 @@ la version corrigée. Une itération suffit en général. Ce que l'utilisateur n
 voit jamais : les décisions techniques (formules KPI, nombre de visuels, types de
 charts) — je les prends seul.
 
-1. **Domaine métier** (question ouverte) : « Que pilote ce dashboard ? » —
-   ex. « une flotte de vélos partagés », « les ventes d'un e-commerce ».
+**Validation interactive (bloquant)** : **toute** demande de validation passe par
+l'outil `question` — des **options cliquables prédéfinies** (Valider / Ajuster /
+…), **jamais** un prompt texte seul. La saisie libre est ajoutée d'office par
+l'outil (« Type your own answer ») : « Ajuster » est une option cliquable qui
+débouche sur le texte libre. Même règle pour les questions ouvertes : proposer
+des **exemples cliquables** + saisie libre plutôt qu'une question nue.
+
+1. **Domaine métier** : « Que pilote ce dashboard ? » — question posée **via
+   l'outil `question`** avec des domaines d'exemple cliquables (Ventes /
+   E-commerce, Finance & contrôle de gestion, RH & paie, Logistique & flotte,
+   Production & maintenance, Santé, Éducation, Énergie & utilities…) + saisie
+   libre. L'utilisateur choisit ou décrit son domaine.
 2. **Schéma de données proposé** : je traduis le domaine en **schéma en étoile**
    et je le présente en clair avant de générer :
    - table de faits (`FAIT_X` — « 1 ligne = 1 événement daté ») ;
@@ -85,16 +97,16 @@ charts) — je les prends seul.
    - **entité « personne »** nommée pour matcher `PERSON_RE` (`DIM_CLIENT`,
      `DIM_UTILISATEUR`, `DIM_EMPLOYE`…) — requis pour les KPI « actifs » ;
    - tables catégorielles annexes éventuelles (ex. statuts d'alerte).
-   → **Validation** de l'utilisateur (il peut changer tailles, modalités,
-   mesures).
+   → **Validation** via l'outil `question` : **Valider** / **Ajuster** (saisie
+   libre pour changer tailles, modalités, mesures).
 3. **Arbre de navigation proposé** : pages → sous-pages → KPIs, présenté en clair
    dans le chat, cohérent avec le schéma validé (chaque KPI est calculable depuis
-   le modèle). Question unique : **Valider / Ajuster / Version plus riche /
-   Version plus compacte**. *Ajuster* = texte libre (« renomme X », « fusionne
-   1.2 et 1.3 », « ajoute une page Maintenance ») → je re-présente la version
-   corrigée. **Je décide seul** : nombre de KPIs par sous-page (3-5), visuels
-   associés (≤ 4 par sous-page, grille 2×2), formules (sum/ratio/scalar/top),
-   badges de variation.
+   le modèle).    Question unique posée **via l'outil `question`** : **Valider** / **Ajuster** /
+   **Version plus riche** / **Version plus compacte**. *Ajuster* = saisie libre
+   (« renomme X », « fusionne 1.2 et 1.3 », « ajoute une page Maintenance ») →
+   je re-présente la version corrigée. **Je décide seul** : nombre de KPIs par
+   sous-page (3-5), visuels associés (≤ 4 par sous-page, grille 2×2), formules
+   (sum/ratio/scalar/top), badges de variation.
 4. **Couleurs secondaires + titre/sous-titre proposés** :
    - le **Primary** vient du client (Phase 0) ; je détermine le **mode** (clair /
      sombre) et je propose les valeurs canoniques (`POWERBI_LAYOUT.md` §6.1) ;
@@ -108,7 +120,8 @@ charts) — je les prends seul.
    - je propose aussi **Report Title** et **Report Subtitle** déduits du domaine
      (ex. « VELOH — Pilotage de flotte cyclable » / « Cyclistes · Flotte ·
      Sorties — 2024–2025 »).
-   → **Validation** unique pour l'ensemble.
+   → **Validation** unique pour l'ensemble, posée **via l'outil `question`** :
+   **Valider** / **Ajuster** (saisie libre).
 
 ## Phase 2 — Génération (CLIENT.md + data-spec.json + donnees.xlsx)
 

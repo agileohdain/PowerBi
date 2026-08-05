@@ -23,6 +23,9 @@ opencode
 > ex. 2024–2025) — vous ne fournissez jamais d'Excel. Le skill ne crée jamais
 > le logo, et ne lit jamais la maquette d'un autre client.
 
+> Chaque validation du questionnaire est un **menu à choix cliquable**
+> (Valider / Ajuster / …) — la saisie libre reste toujours possible.
+
 ## Ce que vous obtenez
 
 Un **`maquette/index.html`** auto-suffisant, fidèle au langage visuel Power BI :
