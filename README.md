@@ -1,21 +1,20 @@
-# PowerBi
+# PowerBi — Maquettes dashboard en minutes, pas en heures
 
-Dépôt Power BI — génération de **maquettes dashboard haute-fidélité** pour
-clients (pré-vente / démo).
+Produisez une **maquette Power BI haute-fidélité** à partir de **trois éléments**
+— un logo, un fichier Excel, un `CLIENT.md` rempli — et ouvrez un dashboard
+interactif dans votre navigateur. Pas de Power BI Desktop, pas de licence, pas
+de rendering manuel : le skill génère un `index.html` auto-suffisant (canevas
+16:9, bandeau aux couleurs du client, KPIs et graphiques ECharts) prêt à montrer
+en pré-vente ou en démo.
 
-## Contenu du dépôt
-
-| Dossier          | Description                                                            |
-| ---------------- | --------------------------------------------------------------------- |
-| `clients/`       | **1 dossier par client** : `CLIENT.md` (à remplir), logo, données, `bg.*` optionnel, maquette HTML |
-| `clients/_template/` | Dossier modèle à copier pour créer un nouveau client              |
-| `.opencode/`     | Skill opencode `powerbi-prototype` (génération des maquettes HTML)    |
+> **Le problème résolu** : un client veut « voir à quoi ça ressemblerait ».
+> Avant, on ouvrait PowerPoint. Maintenant, on dépose un logo + un Excel, on
+> remplit un seul fichier texte, et on obtient un dashboard navigable avec
+**filtres, variation vs N-1, et arbre de navigation à deux niveaux**.
 
 ---
 
-## Workflow — créer une maquette pour un client
-
-Dans opencode, lancez la **commande `/maquette`** suivie du nom du client :
+## Quickstart — 3 étapes
 
 ```powershell
 opencode
@@ -23,98 +22,136 @@ opencode
 > /maquette MonClient
 ```
 
-Le skill déroule alors le processus :
-1. Le **nom du client est passé en argument** de `/maquette` (la **casse est
-   conservée telle quelle** ; si aucun nom n'est fourni, il vous le demande, et
-   il **ne propose pas de nom**).
-2. Il **confirme le nom** — « Est-ce bien le client « MonClient » ? — **Oui /
-   Modifier** » — et n'avance que si le nom est validé.
-3. Si `clients/<nom>/` **existe déjà**, il vous demande de choisir :
-   **régénérer** la maquette de ce client, ou **modifier le nom**.
-4. S'il détecte que vous êtes en mode **PLAN**, il vous demande de passer en
-   mode **BUILD** (créer le dossier nécessite d'écrire sur le disque) — une
-   seule fois, sans retour PLAN par la suite.
-5. Il **crée automatiquement** le dossier `clients/<client>/` avec `CLIENT.md`
-   (nom pré-rempli) — **il ne crée aucun logo**.
-6. Il vous demande de **déposer** dans `clients/<client>/` :
-   - le **logo** `logo.png` (idéalement **fond transparent**) ;
-   - les **données** `donnees.xlsx` (feuilles = tables) ;
-   - le **`CLIENT.md` rempli** (voir « Remplir `CLIENT.md` » ci-dessous).
-7. Il **parcourt `CLIENT.md`** : si une information n'est **pas renseignée**
-   (encore sous forme `<...>`), ou si le logo / les données manquent, il
-   **s'arrête** et vous demande de saisir **précisément** les informations
-   manquantes. Il re-vérifie en boucle jusqu'à ce que tout soit complet.
-8. Il déduit de `donnees.xlsx` le modèle de données, les formules KPI et la
-   carte visuelle, puis **génère** `clients/<client>/maquette/index.html`
-   (canevas 1920×1080, bandeau/fond en CSS, KPIs et graphiques ECharts
-   par-dessus). Ouvrez ce fichier dans un navigateur.
+1. **`/maquette <Nom>`** — le skill crée `clients/MonClient/` avec un
+   `CLIENT.md` pré-rempli du nom.
+2. **Déposez** dans ce dossier : `logo.png` (fond transparent),
+   `donnees.xlsx` (les données source), et **éditez `CLIENT.md`** (couleurs,
+   titre, arbre de navigation). Le skill s'arrête et vous réclame exactement ce
+   qui manque tant que tout n'est pas complet et cohérent.
+3. **`start clients/MonClient/maquette/index.html`** — le dashboard s'ouvre
+   dans le navigateur. Fait.
 
-La maquette générée est **interactive** :
-- **Panneau de filtres fonctionnel** — année (chiclets), trimestre et mois
-  (dropdowns), plage de dates (slider + champs synchronisés), bouton « Effacer »
-  ; chaque changement recalcule les KPIs et re-rend les visuels, avec un badge
-  « Filtres actifs ».
-- **Variation vs N-1** sur chaque KPI temporel, sur toutes les pages (badge
-  vert/rouge calculé sur périodes comparables).
-- **Icône info** en haut à droite du bandeau : au survol, une infobulle décrit
-  la page active et la sous-page sélectionnée.
-
-Il n'y a **pas** de mode « Téléguidé » : `CLIENT.md` est **toujours rempli par
-vous** ; le skill se contente de le vérifier et de demander les champs
-manquants.
-
-Les **données** (`donnees.xlsx`) sont **toujours fournies par vous** — le skill
-ne génère pas de données fictives. Elles vivent **uniquement** dans
-`donnees.xlsx` ; le skill s'appuie sur l'Excel seul, sans fichier de glossaire
-séparé.
-
-> **Création manuelle (alternative sans opencode)** : dans l'explorateur de
-> fichiers, **copiez le dossier `clients/_template/`** et **renommez la copie**
-> en `clients/<mon-client>/`, puis suivez les étapes ci-dessous.
-
-### Remplir `CLIENT.md`
-
-C'est le **seul fichier à éditer**. Il contient :
-- L'identité de marque (nom)
-- Les **couleurs** (voir tableau ci-dessous)
-- Le **titre / sous-titre** du rapport
-- L'**arbre de navigation** : pages → sous-pages → KPIs (avec flags `[En consolidation]`)
-
-Remplissez **toute** valeur entre `<...>` (ex. `<Primary>`, `<Surface>`,
-`<Canvas Background>`, `<Titre du rapport>`, `<Titre sous-page>`,
-`<Libellé KPI>`). Si un champ reste non renseigné, le skill l'identifie et
-s'arrête pour vous le demander.
-
-### Déposer le logo et les données
-
-Déposez dans `clients/<mon-client>/` :
-- le **logo** `logo.png` (idéalement **fond transparent**) — affiché dans la
-  zone logo du bandeau ;
-- les **données** `donnees.xlsx` (feuilles = tables).
-
-> **Optionnel — fond personnalisé** : le bandeau et le fond sont **dessinés en
-> CSS** par le skill. Si vous préférez une image de fond personnalisée, déposez
-> `bg.svg` (ou `bg.png`, ~3840×2160) dans `clients/<mon-client>/` : si un
-> `bg.*` est présent, il est utilisé en priorité sur le rendu CSS. Sa couleur de
-> bandeau **doit valoir** `Primary` pour que graphiques et onglets matchent.
+> Le skill **ne génère jamais** les données ni le logo — vous les fournissez.
+> Il ne **lit jamais** la maquette d'un autre client : chaque dashboard est
+> construit depuis les specs + votre `CLIENT.md` + votre Excel.
 
 ---
 
-## Variables de marque (`CLIENT.md` → CSS `:root`)
+## Ce que vous obtenez
+
+Un fichier **`maquette/index.html`** unique, ouvert dans n'importe quel
+navigateur, qui rend fidèlement le langage visuel Power BI :
+
+- **Canevas 1920×1080** (16:9, slide PowerPoint) qui se scale au viewport —
+  pas de scrollbars, pas de déformation.
+- **Bandeau + zone logo en trapèzes** (CSS, aux couleurs exactes du client)
+  avec la cassure diagonale signature du template.
+- **KPIs temporels avec variation N vs N-1** — chaque indicateur dérivé de la
+  série temporelle affiche sa valeur de l'année N **et** son badge
+  `±x,x % vs 2024` (vert/rouge/neutre, calculé sur mois comparables).
+- **Panneau de filtres interactif** — année (chiclets), trimestre (chiclets),
+  mois (dropdown), plage de dates (slider + champs synchronisés), un slicer par
+  dimension du modèle. Les clics réagissent et affichent un badge
+  « ● Filtres actifs », mais **les visuels montrent toujours l'année N** : la
+  maquette reste lisible, pas un tableau figé.
+- **Navigation à deux niveaux** : pills L1 + liens L2, chaque sous-page a son
+  propre layout (KPIs + visuels). Une **icône info** en haut à droite ouvre un
+  popover décrivant la page active et permettant de sauter à une sous-page.
+- **Visuels ECharts** : lignes N-vs-N-1 (axe Jan→Déc fixe), donuts (≤6
+  tranches), barres horizontales (top-10 + « Autres »), tables de détail,
+  multi-séries par dimension. Palette catégorielle **dérivée du primaire** —
+  jamais d'arc-en-ciel.
+- **KPIs « en consolidation »** signalés par un pill ambre discret (pas de
+  rouge qui hurle « faute »).
+
+---
+
+## Garde-fous qualité (automatiques)
+
+Le skill **refuse de livrer une maquette cassée** :
+
+- **Smoke test JS** (`scripts/smoke-test.js`) exécuté avant chaque livraison :
+  il parcourt toutes les sous-pages, vérifie qu'aucune erreur JS n'est levée et
+  que chaque visuel reçoit bien son `echarts.init`. **Exit code 0 obligatoire**.
+- **Cohérence des couleurs vs `Primary`** : si vous ne donnez que la couleur
+  principale (cas le plus fréquent), le skill propose les couleurs secondaires
+  canoniques (mode clair/sombre) et corrige toute incohérence (surface plus
+  sombre que le canevas, bordure couleur de marque, canevas saturé…). Bloquant
+  jusqu'à acceptation.
+- **Contraste WCAG AA** : le texte sur le bandeau est dérivé automatiquement
+  (`--on-primary`) selon la luminance du `Primary` — un primaire clair (taupe,
+  jaune) ne rend jamais le titre illisible.
+- **Données au grain mensuel** embarquées dans le HTML : l'année N et la
+  variation vs N-1 sont toujours calculées sur **mois comparables** (jamais une
+  année partielle contre une complète).
+
+---
+
+## Anatomie d'un dossier client
+
+```
+clients/MonClient/
+├── CLIENT.md          ← le SEUL fichier à éditer (identité, couleurs, navigation)
+├── logo.png           ← fourni par vous (fond transparent)
+├── donnees.xlsx       ← fourni par vous (feuilles = tables)
+├── bg.svg             ← optionnel : fond personnalisé (any source, ~3840×2160)
+└── maquette/
+    └── index.html     ← généré par le skill (auto-suffisant)
+```
+
+Le dossier modèle à copier est `clients/_template/`.
+
+---
+
+## Remplir `CLIENT.md`
+
+C'est **le seul fichier à éditer**. Il contient :
+
+- **Identité** : `Brand Name`, `Report Title`, `Report Subtitle`.
+- **Couleurs** : `Primary` (obligatoire) + `Surface`/`Canvas`/`Card Frame`/`Border`
+  (le skill propose des canoniques si elles manquent ou jurent).
+- **Arbre de navigation** : pages → sous-pages → KPIs (avec flags
+  `[En consolidation]`).
+
+Remplissez **toute** valeur entre `<...>`. Si un champ reste vide, le skill
+l'identifie, s'arrête, et vous le demande précisément — il re-vérifie en boucle.
+
+### Variables de marque (`CLIENT.md` → CSS `:root`)
 
 | Variable      | Rôle                                                        |
 | ------------- | ----------------------------------------------------------- |
 | `--primary`   | Bandeau (CSS), "Filtres" + icône, onglets actifs, série principale |
-| `--surface`   | Zone logo, texte sur primaire                               |
+| `--surface`   | Zone logo, cards, pane filtres                              |
 | `--canvas`    | Fond du canevas (couleur)                                   |
 | `--card-bg`   | Couleur des encadrés / cards                                |
 | `--border`    | Bordures, séparateurs                                       |
 
 > Le bandeau est dessiné en CSS avec `--primary`. Si vous fournissez un fond
 > `bg.*` (optionnel), la couleur du bandeau de l'image **doit être la
-> même** que `--primary` pour que graphiques et onglets matchent le bandeau.
-> Les couleurs de texte (`--text-primary` / `--text-secondary`) sont dérivées
-> automatiquement selon la luminance du canvas.
+> même** que `--primary`. Les couleurs de texte sont dérivées automatiquement
+> selon la luminance du canvas.
+
+---
+
+## Workflow détaillé (référence)
+
+Pour le détail, voici ce que le skill déroule lors de `/maquette <Nom>` :
+
+1. Le **nom est passé en argument** (la casse est conservée ; si absent, il
+   vous le demande, **sans proposer de nom**).
+2. Il **confirme** : « Est-ce bien le client « X » ? — Oui / Modifier ».
+3. Si `clients/<nom>/` **existe déjà**, il demande : régénérer, ou modifier le
+   nom.
+4. Il **crée** le dossier + `CLIENT.md` (nom pré-rempli), **sans logo**.
+5. Il vous demande de **déposer** `logo.png`, `donnees.xlsx`, et le `CLIENT.md`
+   rempli.
+6. Il **parcourt `CLIENT.md`** : arrêt + demande précise des champs manquants
+   (identité, navigation, logo, données) **et** des couleurs incohérentes.
+   Boucle jusqu'à complétude et cohérence.
+7. Il **extrait le modèle** de `donnees.xlsx` (`scripts/extract-data.py`,
+   auto-détection de la table de faits, mesures, dimensions, masques d'activité)
+   et **génère** `maquette/index.html`.
+8. Il **valide** par le smoke test (exit 0) et vous indique comment ouvrir.
 
 ---
 
@@ -125,12 +162,13 @@ gh repo clone agileohdain/PowerBi
 ```
 
 > Un clone est une **copie locale en lecture seule** : votre collègue ne peut
-> pas modifier votre dépôt GitHub sans que vous l'ajoutiez comme **collaborateur**
-> (accès en écriture). Sans ça, il contribue via un **fork + pull request**.
-> Note : ce dépôt est **public** → tout son contenu (et l'historique) est lisible
-> par tous. Passez-le en **Privé** (*Settings → Danger Zone*) pour restreindre.
+> pas modifier le dépôt sans être ajouté comme **collaborateur** (accès en
+> écriture). Sinon, contribution via **fork + pull request**. Ce dépôt est
+> **public** → tout son contenu (et l'historique) est lisible par tous ;
+> passez-le en **Privé** (*Settings → Danger Zone*) pour restreindre.
 
 ### Workflow Git usuel
+
 ```bash
 git add .                          # indexer les modifications
 git commit -m "message explicite"  # créer un commit
@@ -138,8 +176,11 @@ git push origin main               # envoyer vers GitHub
 ```
 
 ### Conventions de commit
-- Messages en français, à l'infinitif : `Ajoute maquette client acme`
-- Un commit = un changement logique
+
+- Messages en français, à l'infinitif : `Ajoute maquette client acme`.
+- Un commit = un changement logique.
+
+---
 
 ## Auteur
 
