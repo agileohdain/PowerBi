@@ -66,25 +66,6 @@ clients/MonClient/
 
 Modèle de départ : `clients/_template/`. Exemple livré : `clients/agiledss/`.
 
-## Modifier la maquette après génération
-
-Le rendu n'est pas figé — tout est déclaratif :
-
-- **`views.json`** → pages, sous-pages, KPIs, visuels ;
-- **`CLIENT.md`** → titre, sous-titre, couleurs ;
-- **`data-spec.json`** → données fictives (régénérez ensuite `donnees.xlsx` via
-  `scripts/generate-data.py`).
-
-Appliquez les changements avec :
-
-```powershell
-python .opencode/skills/powerbi-prototype/scripts/render.py MonClient
-```
-
-Le smoke test se relance à chaque génération (exit 0 exigé). Ou redemandez
-simplement à l'agent — « remplace ce visuel par un graphique en barres » — il
-s'en charge.
-
 ## Installation
 
 ```bash
