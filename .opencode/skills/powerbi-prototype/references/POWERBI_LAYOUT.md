@@ -23,6 +23,26 @@
 - **Outer padding:** 16px around canvas edges.
 - **Card gaps:** 12px between visual cards.
 
+### Spacing & rhythm system (BLOCKING — no ad-hoc paddings)
+
+Inconsistent gaps read as sloppy. Normalise every vertical rhythm to the grid:
+
+- **One spacing scale.** Only ever use `4 / 8 / 12 / 16 / 20 / 24` px (multiples
+  of 4, on the 8px grid). Never an arbitrary value (no `10px`, `14px`, `19px`
+  gaps between sibling blocks).
+- **Content column rhythm.** The `.content` column is a single `flex` column with
+  ONE consistent `gap:12px` between its blocks (`#navL1`, `#navL2`, `#kpis`,
+  `#visuals`) — **no per-block `padding-top/bottom` hack**. The `.visuals` grid
+  takes the remaining height (`flex:1; min-height:0`); its bottom gap to the
+  footer equals the inter-card gap.
+- **Filter pane internal rhythm.** The pane is a `flex` column with `gap:12px`
+  between each slicer group (label + control) and `padding:16px`. The **"Effacer"
+  button is pinned to the bottom** (`margin-top:auto`) so the pane reads as a
+  finished panel.
+- **Control height.** Every filter control (chiclet, dropdown, date input, clear
+  button) shares the same height (~32px) and border-radius (8px) — a chiclet row,
+  a select and the date fields align on one consistent baseline.
+
 ## 2. Header — CSS by default, `bg.svg`/`bg.png` as optional fallback
 
 The header (logo zone + primary banner) is **drawn in CSS** from the brand
@@ -85,31 +105,44 @@ In both cases the skill only overlays the title/subtitle and content.
 Positioned beneath the header on the far left — a **white panel `var(--surface)`**
 (identical to Surface/Cards), **rounded** (`border-radius: 10px`), **floating**
 with margins matching the `.pptx` template: `left: 11px`, `top: 116px`
-(~19 px gap below the header), `width: 235px`, `bottom` leaves a small gap above
-the footer, **no border**. A "Filtres" label + funnel icon in `var(--primary)`
+(~19 px gap below the header), `width: 235px`, **extends down to the footer**
+(`bottom: 40px`, same gap as the content column) so the pane fills the whole
+left rail — **no border**. A "Filtres" label + funnel icon in `var(--primary)`
 and the slicer controls are stacked inside. **If `bg.*` is present**: the pane
 background (rounded panel + "Filtres" label + funnel icon) comes from the
 background image — the skill only overlays the **slicer controls** on top of it.
 
+- **Full height (BLOCKING).** The pane must descend to the footer
+  (`top:116px; bottom:40px`) — never stop mid-canvas leaving an empty gap below.
+  It is a `flex` column; the **"Effacer"** button sits at the bottom
+  (`margin-top:auto`).
 - **Alignment & spacing:** the pane starts immediately under the header (no gap
   above). Its left edge is flush with the canvas left edge; the gap to the main
-  content area is the standard 16px. Internal padding 16px.
+  content area is the standard 16px. Internal `padding:16px`, inter-group
+  `gap:12px` (see §1 spacing system).
 - **Right edge:** ~245px, aligned with the logo zone above.
 - **Pane header ("Filtres" + funnel icon):** in `var(--primary)` (drawn in CSS
   by default, or part of `bg.*` when present — never both).
-- **Slicers (stacked vertically, overlaid on the pane):**
+- **Harmonized typography (BLOCKING).** One type system for the whole pane:
+  - **Group labels** (Année, Pays, …): `11px / 600 / uppercase / var(--text-secondary)`,
+    `letter-spacing:.05em` — same for every group.
+  - **Controls** (chiclets, dropdowns, date inputs, clear button): `12px`,
+    height `32px`, `border-radius:8px`, `font-weight:500`. A chiclet row and a
+    select line up on the same baseline.
+  - No stray smaller text (no `10px` note, no `11px` input against `12px` select).
+- **Slicers (stacked vertically, overlaid on the pane):** time slicers then
+  **one slicer per data dimension** (chiclets if ≤ ~6 values, else dropdown) —
+  enough to fill the pane to the footer without cramming:
   - Fiscal year (button slicer / chiclet).
   - Quarter (dropdown).
   - Month (dropdown).
   - Date range (dual-handle slider with start/end date inputs).
-- **Clear all filters button** at the bottom of the pane, full-width.
+  - Per-dimension slicers (chiclet or dropdown).
+- **Clear all filters button** pinned to the bottom of the pane, full-width.
 - **Interactive but NOT data-bound.** The slicers are fully interactive UI
   (click/select/drag updates their own visual state, the "● Filtres actifs" badge
   appears, "Effacer" resets) but **none of it recomputes** the dashboard — KPIs
-  and visuals always show year N. Add **one slicer per data dimension** (chiclets
-  if ≤ ~6 values, else dropdown) below the time slicers so the pane extends to
-  the footer, aerated with the standard gaps (never shrink the controls to fit).
-  See `POWERBI_COMPONENTS.md` §2.7.
+  and visuals always show year N. See `POWERBI_COMPONENTS.md` §2.7.
 
 ## 4. Main Canvas Area (right of filter pane, under header)
 
@@ -127,14 +160,17 @@ the footer. Use exactly:
 
 ```css
 .content{position:absolute;left:262px;top:97px;right:0;bottom:40px;
-  padding:0 20px 0 16px;display:flex;flex-direction:column;box-sizing:border-box;}
+  padding:8px 20px 0 16px;display:flex;flex-direction:column;gap:12px;
+  box-sizing:border-box;}
 ```
 
 **Never set `top:0` on this container** — the L1 pills and L2 links would then
 render **on top of the banner** (covering the title/subtitle), a fatal layout
 regression. The nav rows, KPI row and visuals grid all flow inside this
-container, in this order, with the visuals grid taking the remaining height
-(`flex:1; min-height:0`).
+container, in this order, separated by the single `gap:12px` (§1 spacing system)
+— **never** with per-block `padding-top/bottom` hacks. The visuals grid takes the
+remaining height (`flex:1; min-height:0`) and its bottom edge stops at the footer
+gap (`bottom:40px`), flush with the filter pane's bottom edge.
 
 **Static sub-containers (MANDATORY).** Inside `.content`, each zone lives in
 its **own static element present in the HTML from the start** —
@@ -172,10 +208,15 @@ render, and breaks the separation between navigation and content (see
   - **Active:** `color:var(--primary); font-weight:600; border-bottom:2px solid
     var(--primary); padding-bottom:4px;`
 
-### Row 1 — KPI cards (height: ~130px)
-- Horizontal row of KPI cards (4–6 depending on page).
+### Row 1 — KPI cards (height: 130px, fixed & uniform)
+- Horizontal row of KPI cards (4–6 depending on page), each `flex:1`, **fixed
+  height `130px`** so every card is exactly the same height regardless of content
+  (the consolidation flag must never make one card taller than its neighbours).
 - See `POWERBI_COMPONENTS.md` §1 for card internals.
 - Some cards may carry a **"consolidation" state** (red dashed border + label).
+- **Consolidation pill goes top-right** of the card (absolute, `top:12px;
+  right:12px`), NOT in the footer — so the footer holds only the trend badge and
+  stays one uniform line on every card. See `POWERBI_COMPONENTS.md` §1.3.
 
 ### Rows 2–3 — Main visuals (equal heights, no fixed px)
 - **All main visuals on a sub-page share the exact same height.** Render them in

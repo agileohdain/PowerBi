@@ -300,6 +300,17 @@ possibles — c'est la régression à éviter.
 - Dériver `--text-primary`/`--text-secondary` selon la luminance de `--canvas`.
 - Responsive : le canevas 1920×1080 est scaled pour s'adapter au viewport sans
   scrollbars, via `transform: scale(...)` calculé par un petit script.
+- **Espacements normalisés (bloquant)** : une seule échelle (`4/8/12/16/20/24` px,
+  multiples de 4) — jamais de gaps arbitraires entre blocs. Colonne `.content` en
+  `flex` avec **un seul `gap:12px`** entre nav L1/L2, rangée KPI et visuels (pas
+  de `padding-top/bottom` par bloc). Rangée KPI à hauteur **fixe uniforme**
+  (`130px`) ; le flag consolidation est un **pill en haut à droite** de la carte,
+  jamais dans le footer. Voir `POWERBI_LAYOUT.md` §1 & §4.
+- **Pane filtres jusqu'en bas (bloquant)** : le pane descend jusqu'au footer
+  (`top:116px; bottom:40px`), « Effacer » épinglé en bas (`margin-top:auto`).
+  **Typographie harmonisée** : labels `11px/600/uppercase/--text-secondary`,
+  contrôles `12px` / hauteur `32px` / `border-radius:8px` (chiclets, dropdowns,
+  champs date, bouton). Voir `POWERBI_LAYOUT.md` §3.
 - **Filtres interactifs, non liés aux données (bloquant)** : les slicers sont
   interactifs (le clic colore le bouton, met à jour la sélection, affiche le
   badge « ● Filtres actifs », « Effacer » réinitialise) — **un slicer par

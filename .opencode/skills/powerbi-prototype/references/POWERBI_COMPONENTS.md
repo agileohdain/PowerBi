@@ -117,9 +117,11 @@ CSS variables are set (e.g. a dark client: `--primary:#E0BE7E`,
 * **CSS / Tailwind Rules:**
   * Start from §1.1, then override the container border:
     `border-2 border-dashed border-[#FF0000]`
-  * **Flag label:** a small red pill in the card footer —
+  * **Flag label:** a small red pill in the **top-right** of the card
+    (`position:absolute; top:12px; right:12px`) —
     `text-[10px] font-semibold uppercase tracking-wide text-[#FF0000] bg-[#FF0000]/10 px-1.5 py-0.5 rounded`
-    with text such as "Indicateur en consolidation".
+    with text such as "En consolidation". **Never** in the footer — the footer
+    holds only the trend badge so every KPI card keeps one uniform footer line.
   * The value is still rendered but the dashed red frame + label make the
     provisional state unmistakable.
 
@@ -166,8 +168,12 @@ sub-pages. The figure is **computed from `donnees.xlsx`, never invented**.
 * **Card typography (match exactly):** label `11px / 600 / uppercase /
   var(--text-secondary)`; value `28px / 700 / var(--text-primary)`; a one-line
   **sub-label** `11px / var(--text-secondary)` under the value; the footer row
-  (trend badge + consolidation flag) has `min-height:22px` so cards align. Do not
+  holds **only the trend badge** (`min-height:22px` so cards align). Do not
   inflate the value to 30px+ or drop the sub-label.
+* **Uniform card height (BLOCKING).** Every KPI card in a row is exactly the same
+  height (`130px`), regardless of content. The consolidation flag never inflates
+  a card: it is a top-right pill (§1.3), so the footer stays one uniform line and
+  no card grows taller than its neighbours.
 
 ---
 
@@ -240,6 +246,11 @@ filter change must never call `renderPage()` or alter a KPI/chart.
   the cyclisme `*_M` / count keys): chiclets if the dimension has ≤ ~6 values,
   otherwise a dropdown. This lengthens the pane to the bottom of the canvas
   without cramming — keep the standard gaps, never shrink the controls to fit.
+* **Harmonized pane typography & heights (BLOCKING).** One type system for the
+  whole pane: group labels `11px / 600 / uppercase / var(--text-secondary)`;
+  every control (chiclet, dropdown, date input, clear button) at `12px`,
+  height `32px`, `border-radius:8px`, `font-weight:500`. No stray smaller text.
+  See POWERBI_LAYOUT.md §3.
 * Default state = **no filter selected** (all chiclets inactive, dropdowns on
   "All/Toutes", full date window, badge hidden). The user toggles to see the UI
   react, but the data never moves.
