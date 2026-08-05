@@ -37,6 +37,8 @@
   .pop-now{font-size:10px;color:var(--text-secondary);font-weight:600;}
   .filter-pane{position:absolute;left:11px;top:116px;width:235px;background:var(--surface);border-radius:10px;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);z-index:5;}
   .pane-head{display:flex;align-items:center;gap:8px;color:var(--primary);font-weight:600;font-size:13px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+  .badge{display:none;font-size:10px;font-weight:600;color:var(--primary);margin-left:auto;}
+  .badge.show{display:inline-flex;align-items:center;gap:4px;}
   .pane-note{font-size:10px;color:var(--text-secondary);line-height:1.3;}
   .slicer-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-top:2px;}
   .chiclets{display:flex;gap:8px;}
@@ -46,9 +48,14 @@
   .date-inputs{display:flex;align-items:center;gap:6px;}
   .date-inputs input{flex:1;min-width:0;padding:5px 4px;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);background:var(--surface);text-align:center;outline:none;}
   .date-inputs span{color:var(--text-secondary);font-size:11px;}
-  .range-wrap{position:relative;height:18px;}
+  .range-wrap{position:relative;height:20px;}
   .range-track{position:absolute;top:50%;left:0;right:0;height:6px;transform:translateY(-50%);background:var(--border);border-radius:9999px;}
   .range-fill{position:absolute;top:50%;height:6px;transform:translateY(-50%);background:var(--primary);border-radius:9999px;}
+  .range-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;-webkit-appearance:none;appearance:none;pointer-events:none;}
+  .range-input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--surface);border:2px solid var(--primary);cursor:pointer;pointer-events:auto;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+  .range-input::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--surface);border:2px solid var(--primary);cursor:pointer;pointer-events:auto;}
+  #rangeStart{z-index:3;}
+  #rangeEnd{z-index:2;}
   .clear-btn{margin-top:2px;width:100%;padding:7px 10px;font-size:12px;font-weight:500;color:var(--text-secondary);background:var(--surface);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;gap:6px;}
   .content{position:absolute;left:262px;top:97px;right:0;bottom:40px;padding:0 20px 0 16px;display:flex;flex-direction:column;box-sizing:border-box;}
   .nav-l1{display:flex;gap:12px;padding-top:8px;flex-shrink:0;}
@@ -111,8 +118,8 @@
       <div class="pane-head">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
         <span>Filtres</span>
+        <span class="badge" id="badge">● Filtres actifs</span>
       </div>
-      <div class="pane-note">Exemple visuel — volet non fonctionnel.</div>
       <div class="slicer-label">Année</div>
       <div class="chiclets" id="yearChiclets"></div>
       <div class="slicer-label">Trimestre</div>
@@ -133,14 +140,22 @@
       </select>
       <div class="slicer-label">Période</div>
       <div class="date-inputs">
-        <input type="text" id="dateStart" value="01/01/2025">
+        <input type="text" id="dateStart">
         <span>→</span>
-        <input type="text" id="dateEnd" value="31/12/2025">
+        <input type="text" id="dateEnd">
       </div>
       <div class="range-wrap">
         <div class="range-track"></div>
-        <div class="range-fill" id="rangeFill" style="left:0;width:100%"></div>
+        <div class="range-fill" id="rangeFill"></div>
+        <input type="range" id="rangeStart" min="0" max="18" value="0" class="range-input">
+        <input type="range" id="rangeEnd" min="0" max="18" value="18" class="range-input">
       </div>
+      <div class="slicer-label">Pays</div>
+      <div class="chiclets" id="paysChiclets"></div>
+      <div class="slicer-label">Marque</div>
+      <select id="marqueSel"></select>
+      <div class="slicer-label">Ville</div>
+      <select id="villeSel"></select>
       <button class="clear-btn" id="clearBtn">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M3 3l18 18M6 6a8 8 0 1011 11M6 6a8 8 0 0111-1M9 3h6"/></svg>
         Effacer tous les filtres
@@ -604,13 +619,113 @@ function renderPopover(){
   });
   document.getElementById('popover').innerHTML = h;
 }
-function renderDecorativePane(){
+function toggleClass(el, cls, on){
+  if (!el) return;
+  if (el.classList){ el.classList.toggle(cls, !!on); return; }
+  var re = new RegExp('(^|\\s)' + cls + '(\\s|$)', 'g');
+  var c = String(el.className||'');
+  if (on){ if (!c.match(re)) el.className = (c + ' ' + cls).trim(); }
+  else { el.className = c.replace(re, ' ').trim(); }
+}
+var FILT = { years:{}, quarter:0, month:0, start:0, end:N_MONTHS-1, pays:'', marque:'', ville:'' };
+function isFiltered(){
+  for (var y in FILT.years){ if (FILT.years[y]) return true; }
+  return FILT.quarter>0 || FILT.month>0 || FILT.start>0 || FILT.end<N_MONTHS-1
+      || FILT.pays!=='' || FILT.marque!=='' || FILT.ville!=='';
+}
+function fmtDate(i){ var m = MONTH_META[i]; return ('0'+m.month).slice(-2) + '/01/' + m.year; }
+function parseDateInput(v, def){
+  var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(v).trim());
+  if (!m) return def;
+  var y=parseInt(m[3],10), mo=parseInt(m[2],10);
+  for (var i=0;i<N_MONTHS;i++){ if (MONTH_META[i].year===y && MONTH_META[i].month===mo) return i; }
+  return def;
+}
+function buildPane(){
   var years = []; MONTH_META.forEach(function(m){ if (years.indexOf(m.year)<0) years.push(m.year); });
   years.sort();
-  var yc = document.getElementById('yearChiclets');
-  var h = '';
-  years.forEach(function(y){ h += '<div class="chiclet' + (y===CUR_YEAR?' active':'') + '">' + y + '</div>'; });
+  var yc = document.getElementById('yearChiclets'); var h = '';
+  years.forEach(function(y){ h += '<div class="chiclet" data-year="' + y + '">' + y + '</div>'; });
   yc.innerHTML = h;
+  var pc = document.getElementById('paysChiclets'); var hp = '';
+  Object.keys(KM_PAYS_M).forEach(function(p){ hp += '<div class="chiclet" data-pays="' + p + '">' + p + '</div>'; });
+  pc.innerHTML = hp;
+  var ms = document.getElementById('marqueSel'); ms.innerHTML = '<option value="">Toutes les marques</option>';
+  Object.keys(MARQUE_VELOS).forEach(function(k){ ms.innerHTML += '<option value="' + k + '">' + k + '</option>'; });
+  var vs = document.getElementById('villeSel'); vs.innerHTML = '<option value="">Toutes les villes</option>';
+  Object.keys(VILLE_CYCLISTES).forEach(function(k){ vs.innerHTML += '<option value="' + k + '">' + k + '</option>'; });
+}
+function syncPaneUI(){
+  var yc = document.getElementById('yearChiclets');
+  if (yc && yc.querySelectorAll){
+    yc.querySelectorAll('[data-year]').forEach(function(el){
+      toggleClass(el, 'active', !!FILT.years[el.getAttribute('data-year')]);
+    });
+  }
+  var pc = document.getElementById('paysChiclets');
+  if (pc && pc.querySelectorAll){
+    pc.querySelectorAll('[data-pays]').forEach(function(el){
+      toggleClass(el, 'active', FILT.pays===el.getAttribute('data-pays'));
+    });
+  }
+  document.getElementById('quarterSel').value = String(FILT.quarter);
+  document.getElementById('monthSel').value = String(FILT.month);
+  document.getElementById('marqueSel').value = FILT.marque;
+  document.getElementById('villeSel').value = FILT.ville;
+  var s=FILT.start, e=FILT.end;
+  document.getElementById('rangeStart').value = String(s);
+  document.getElementById('rangeEnd').value = String(e);
+  document.getElementById('dateStart').value = fmtDate(s);
+  document.getElementById('dateEnd').value = fmtDate(e);
+  var pctS=s/(N_MONTHS-1)*100, pctE=e/(N_MONTHS-1)*100;
+  var fill = document.getElementById('rangeFill');
+  fill.style.left = pctS + '%'; fill.style.width = Math.max(0, pctE-pctS) + '%';
+  toggleClass(document.getElementById('badge'), 'show', isFiltered());
+}
+function initFilters(){
+  var yc = document.getElementById('yearChiclets');
+  if (yc && yc.querySelectorAll){
+    yc.querySelectorAll('[data-year]').forEach(function(el){
+      el.addEventListener('click', function(){
+        var y = el.getAttribute('data-year');
+        if (FILT.years[y]){ delete FILT.years[y]; } else { FILT.years[y] = true; }
+        syncPaneUI();
+      });
+    });
+  }
+  var pc = document.getElementById('paysChiclets');
+  if (pc && pc.querySelectorAll){
+    pc.querySelectorAll('[data-pays]').forEach(function(el){
+      el.addEventListener('click', function(){
+        var p = el.getAttribute('data-pays');
+        FILT.pays = (FILT.pays===p ? '' : p); syncPaneUI();
+      });
+    });
+  }
+  document.getElementById('quarterSel').addEventListener('change', function(ev){
+    FILT.quarter = parseInt(ev.target.value,10); if (FILT.quarter>0) FILT.month=0; syncPaneUI();
+  });
+  document.getElementById('monthSel').addEventListener('change', function(ev){
+    FILT.month = parseInt(ev.target.value,10); if (FILT.month>0) FILT.quarter=0; syncPaneUI();
+  });
+  document.getElementById('marqueSel').addEventListener('change', function(ev){ FILT.marque=ev.target.value; syncPaneUI(); });
+  document.getElementById('villeSel').addEventListener('change', function(ev){ FILT.ville=ev.target.value; syncPaneUI(); });
+  document.getElementById('rangeStart').addEventListener('input', function(ev){
+    var s=parseInt(ev.target.value,10); if (s>FILT.end) FILT.end=s; FILT.start=s; syncPaneUI();
+  });
+  document.getElementById('rangeEnd').addEventListener('input', function(ev){
+    var e2=parseInt(ev.target.value,10); if (e2<FILT.start) FILT.start=e2; FILT.end=e2; syncPaneUI();
+  });
+  document.getElementById('dateStart').addEventListener('change', function(ev){
+    FILT.start = parseDateInput(ev.target.value, FILT.start); if (FILT.start>FILT.end) FILT.end=FILT.start; syncPaneUI();
+  });
+  document.getElementById('dateEnd').addEventListener('change', function(ev){
+    FILT.end = parseDateInput(ev.target.value, FILT.end); if (FILT.end<FILT.start) FILT.start=FILT.end; syncPaneUI();
+  });
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    FILT.years={}; FILT.quarter=0; FILT.month=0; FILT.start=0; FILT.end=N_MONTHS-1;
+    FILT.pays=''; FILT.marque=''; FILT.ville=''; syncPaneUI();
+  });
 }
 function renderPage(){
   disposeCharts();
@@ -631,7 +746,9 @@ function fit(){
     'translate(' + ((w-1920*s)/2) + 'px,' + ((h-1080*s)/2) + 'px) scale(' + s + ')';
 }
 window.addEventListener('resize', fit);
-renderDecorativePane();
+buildPane();
+initFilters();
+syncPaneUI();
 renderPage();
 fit();
 </script>
