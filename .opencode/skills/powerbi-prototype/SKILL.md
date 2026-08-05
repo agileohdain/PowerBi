@@ -178,13 +178,15 @@ possibles — c'est la régression à éviter.
       fond **`var(--surface)`** (blanc, identique à Surface/Cards), **panneau
       arrondi flottant** fidèle au template : `left:11px`, `top:116px` (gap ~19px
       sous le bandeau), `width:235px`, `border-radius:10px`, **sans bordure**.
-      **Filtres DÉCORATIFS (le pane n'est pas fonctionnel)** : on rend les slicers
-      (année en chiclets, trimestre et mois en dropdowns, plage de dates slider +
-      champs, bouton « Effacer ») comme un **exemple visuel statique** — chiclet
-      année N pré-sélectionné, trimestre/mois sur « Tous », plage sur la fenêtre
-      de N — mais **aucune logique de recompute** : cliquer un slicer ne change ni
-      KPI ni visuel. Pas d'état de filtre JS, pas de badge « Filtres actifs ». Le
-      tableau de bord montre toujours l'année N. Voir `POWERBI_COMPONENTS.md` §2.7.
+      **Filtres interactifs, non liés aux données** : les slicers réagissent au
+      clic (année en chiclets multi-sélection, trimestre/mois en dropdowns
+      mutuellement exclusifs, plage de dates slider + champs synchronisés, **un
+      slicer par dimension** du modèle — chiclets si ≤ ~6 valeurs sinon dropdown
+      —, bouton « Effacer ») — le bouton cliqué se colore, le badge **« ● Filtres
+      actifs »** s'affiche, « Effacer » réinitialise le pane — **mais aucun
+      recompute** : KPIs et visuels montrent toujours l'année N. Les slicers de
+      dimensions remplissent le pane jusqu'en bas (aérés, pas de tassement).
+      Voir `POWERBI_COMPONENTS.md` §2.7.
    - **Icône information unique** en haut à droite du bandeau (~36px, circulaire,
      sur `var(--surface)`) : au **survol**, un popover explique la **page active
      ET la sous-page actuellement sélectionnée** (en évidence), puis liste les
@@ -298,14 +300,14 @@ possibles — c'est la régression à éviter.
 - Dériver `--text-primary`/`--text-secondary` selon la luminance de `--canvas`.
 - Responsive : le canevas 1920×1080 est scaled pour s'adapter au viewport sans
   scrollbars, via `transform: scale(...)` calculé par un petit script.
-- **Filtres DÉCORATIFS (bloquant)** : les slicers du pane sont un **exemple
-  visuel statique** — jamais de logique de recompute. Le tableau de bord montre
-  toujours **l'année N** (KPIs : valeur N + variation N vs N-1 ; visuels non-
-  temporels : N ; visuels temporels : N vs N-1). Aucun état de filtre JS, pas de
-  `monthPass`, pas de badge « Filtres actifs ». Données au grain mensuel
-  embarquées (séries mensuelles + séries par dimension + masques d'activité)
-  pour calculer l'année N et la variation N-1. Voir `POWERBI_COMPONENTS.md` §2.7
-  et §6.
+- **Filtres interactifs, non liés aux données (bloquant)** : les slicers sont
+  interactifs (le clic colore le bouton, met à jour la sélection, affiche le
+  badge « ● Filtres actifs », « Effacer » réinitialise) — **un slicer par
+  dimension** (chiclets ≤6 valeurs sinon dropdown) remplit le pane jusqu'en bas,
+  aéré — **mais aucun recompute** : le tableau de bord montre toujours l'année N
+  (KPIs : valeur N + variation N vs N-1 ; visuels non-temporels : N ; visuels
+  temporels : N vs N-1). Données au grain mensuel embarquées pour calculer
+  l'année N et la variation N-1. Voir `POWERBI_COMPONENTS.md` §2.7 et §6.
 - **Variation vs N-1 (bloquant)** : tout KPI dérivé de la série temporelle
   affiche sa variation N vs N-1, sur toutes les pages, calculée sur mois
   comparables (mêmes mois que N) ; badge masqué si non calculable, jamais inventé.

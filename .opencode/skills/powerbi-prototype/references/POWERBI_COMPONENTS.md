@@ -217,25 +217,32 @@ sub-pages. The figure is **computed from `donnees.xlsx`, never invented**.
   * `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-md hover:bg-[var(--canvas)] hover:text-[var(--text-primary)] hover:border-[var(--primary)] transition-all cursor-pointer shadow-xs`
   * **Icon:** reset / filter icon with a clear badge (`w-3.5 h-3.5`).
 
-### 2.7. Decorative filter pane (NOT functional)
+### 2.7. Interactive filter pane (UI only — NOT data-bound)
 
-The filter pane is a **visual example only** — it is **not wired** to the data.
-Render the slicers statically (year chiclets, quarter/month dropdowns, date
-range, clear button) exactly as a real Power BI pane looks, but **do not**
-attach any recompute logic: clicking a slicer must not change the KPIs or
-visuals. The dashboard always shows **year N** (KPIs: N value + N vs N-1 badge;
-non-temporal visuals: year N; temporal visuals: N vs N-1 per §3.3).
+The filter pane **looks and feels real** but is **not bound to the data**. Slicers
+are fully interactive UI: clicking a year chiclet colors it, selecting a
+quarter/month/dimension updates the displayed choice, dragging the date range
+moves the handles, the **"● Filtres actifs"** badge appears as soon as any slicer
+differs from its default, and **"Effacer"** resets the whole pane. **None of this
+recomputes anything** — `aggregates()` and the visuals always show **year N**; a
+filter change must never call `renderPage()` or alter a KPI/chart.
 
-* **Default aesthetic state** — pre-highlight the year-N chiclet, leave quarter
-  / month on "All" and the date range on the full N window, so the pane reads as
-  a plausible default snapshot. **No `FILT`, no `monthPass`, no `isFiltered`, no
-  "Filtres actifs" badge logic** — the pane is pure chrome.
-* **No filter-state object.** There is no filter pipeline. `aggregates()` (§6)
-  computes the **year-N** totals and the **N vs N-1** YoY block once; non-
-  temporal visuals read year-N series; temporal visuals read full N/N-1 series.
-* Keep the pane header "Filtres" + funnel icon in `var(--primary)` and the
-  rounded `var(--surface)` panel (POWERBI_LAYOUT.md §3) — only the **behavior**
-  is removed, not the look.
+* **UI state, not data state.** Keep a `FILT` object for the *visual* state only
+  (selected years, quarter, month, date window, one value per dimension). It
+  drives the badge (`isFiltered()`) and the slicers' active classes — and nothing
+  else. `aggregates()` (§6) ignores it entirely; the dashboard renders year N
+  once (and on navigation), never on filter change.
+* **Time slicers** — year chiclets (toggle multi-select), quarter & month
+  dropdowns (mutually exclusive), date range (dual-handle slider + two
+  `JJ/MM/AAAA` inputs kept in sync), clear button.
+* **Dimension slicers (fill the pane to the footer).** Below the time slicers,
+  add **one slicer per dimension** of the data model (extractor `META` dims, or
+  the cyclisme `*_M` / count keys): chiclets if the dimension has ≤ ~6 values,
+  otherwise a dropdown. This lengthens the pane to the bottom of the canvas
+  without cramming — keep the standard gaps, never shrink the controls to fit.
+* Default state = **no filter selected** (all chiclets inactive, dropdowns on
+  "All/Toutes", full date window, badge hidden). The user toggles to see the UI
+  react, but the data never moves.
 
 ---
 

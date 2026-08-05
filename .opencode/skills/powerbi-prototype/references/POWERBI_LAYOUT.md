@@ -103,13 +103,13 @@ background image — the skill only overlays the **slicer controls** on top of i
   - Month (dropdown).
   - Date range (dual-handle slider with start/end date inputs).
 - **Clear all filters button** at the bottom of the pane, full-width.
-- **Decorative only (the pane is NOT functional).** The slicers are a **visual
-  example**: render them statically — year-N chiclet pre-highlighted, quarter and
-  month on "All", date range on the full N window, clear button present — but
-  **do not wire any recompute logic**. Clicking a slicer must not change the KPIs
-  or visuals. The dashboard always shows year N (KPIs: N + N vs N-1 badge;
-  non-temporal visuals: N; temporal visuals: N vs N-1). No filter-state object,
-  no `monthPass`, no "Filtres actifs" badge. See `POWERBI_COMPONENTS.md` §2.7.
+- **Interactive but NOT data-bound.** The slicers are fully interactive UI
+  (click/select/drag updates their own visual state, the "● Filtres actifs" badge
+  appears, "Effacer" resets) but **none of it recomputes** the dashboard — KPIs
+  and visuals always show year N. Add **one slicer per data dimension** (chiclets
+  if ≤ ~6 values, else dropdown) below the time slicers so the pane extends to
+  the footer, aerated with the standard gaps (never shrink the controls to fit).
+  See `POWERBI_COMPONENTS.md` §2.7.
 
 ## 4. Main Canvas Area (right of filter pane, under header)
 
