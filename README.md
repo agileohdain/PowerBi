@@ -64,7 +64,7 @@ clients/MonClient/
     └── index.html    ← le rendu, prêt à ouvrir
 ```
 
-Modèle de départ : `clients/_template/`. Exemple livré : `clients/agiledss/`.
+Modèle de départ : `clients/_template/`.
 
 ## Installation
 
