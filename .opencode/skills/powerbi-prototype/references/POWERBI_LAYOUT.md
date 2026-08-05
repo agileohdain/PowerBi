@@ -69,7 +69,22 @@ In both cases the skill only overlays the title/subtitle and content.
   Only `logo.png` goes there; do **not** place content over it. **Center the logo
   on the trapezoid centroid (~142 px), not on the full 320 px box** — add
   `padding-right: 36px` to the flex container so it doesn't appear shifted right
-  toward the slanted edge.
+  toward the slanted edge. **Canonical CSS (do not deviate — BLOCKING):**
+  ```css
+  .logo-zone{position:absolute;left:0;top:0;width:320px;height:97px;
+    background:var(--surface);
+    clip-path:polygon(0 0,320px 0,244px 97px,0 97px);
+    display:flex;align-items:center;justify-content:center;
+    padding-right:36px;z-index:2;}
+  .logo-zone img{max-height:70px;max-width:230px;object-fit:contain;}
+  ```
+  **Never** use `justify-content:flex-end` (pushes the logo against the slanted
+  edge) nor `justify-content:flex-start`/`left` (collapses it onto the canvas
+  edge): the logo must sit **visually centred in the white trapezoid**. The
+  centroid of the `0→320 / 0→244` trapezoid is ≈ **142 px** from the left, so the
+  flex container is `justify-content:center` **plus** `padding-right:36px` (which
+  recentres the content box on the centroid, not on the 160 px mid-point of the
+  full 320 px width).
 - **Filter pane:** a rounded panel, `left: 11px`, `top: 116px` (~19 px gap under
   the header), width `235px`, `border-radius: 10px`, no border.
 - **Main content area:** x > ~262 px, y > ~97 px (after the L1/L2 navigation rows).
@@ -88,7 +103,24 @@ In both cases the skill only overlays the title/subtitle and content.
   `background: url(./bg.svg) center top / cover no-repeat;` (use `./bg.png` for
   the PNG fallback, 3840×2160 = 2× the 1920×1080 design) and **never redraw**
   the banner, logo zone, canvas fill, or filter panel in CSS.
-- The **title/subtitle** are overlaid on the banner in `var(--surface)`.
+- The **title/subtitle** are overlaid on the banner. Their color is
+  **`var(--on-primary)`** — a token derived for WCAG AA contrast (see the
+  on-primary rule below), **not** a hardcoded `var(--surface)`.
+- **On-primary text contrast — WCAG AA, BLOCKING.** White text on a light brand
+  color (e.g. `#B69E7F` taupe, `#F4D35E` yellow) fails AA badly (ratio ≈ 2,5:1,
+  threshold 4,5:1) — the report title becomes hard to read, especially projected.
+  Derive a single `--on-primary` token at runtime by comparing contrast:
+  ```javascript
+  function relLum(hex){ /* relative luminance per WCAG */ }
+  function contrast(a,b){ const L=x=>{const c=relLum(x);return Math.max(c,.05)/Math.min...}; ... }
+  // Pick the most legible of surface vs a dark text:
+  const ON_PRIMARY = contrast(C.surface, C.primary) >= 4.5 ? C.surface : C.text;
+  document.documentElement.style.setProperty('--on-primary', ON_PRIMARY);
+  ```
+  Apply `var(--on-primary)` to **everything sitting on the banner**: the `<h1>`
+  title, the `<p>` subtitle, the active L1 pill text, the active chiclet text,
+  the info-`i` glyph (when on primary). One token, one decision, AA-compliant on
+  any brand color. **Never** blindly write `color:var(--surface)` on the banner.
 - **Banner typography (do not deviate):** the report title is a single `<h1>`
   — `font-size:26px; font-weight:700; letter-spacing:.02em;` — and the subtitle a
   `<p>` — `font-size:13px; opacity:.92;`. **Never** use `font-weight:800` +
@@ -213,7 +245,8 @@ render, and breaks the separation between navigation and content (see
   height `130px`** so every card is exactly the same height regardless of content
   (the consolidation flag must never make one card taller than its neighbours).
 - See `POWERBI_COMPONENTS.md` §1 for card internals.
-- Some cards may carry a **"consolidation" state** (red dashed border + label).
+- Some cards may carry a **"consolidation" state** (amber accent bar + amber
+  pill, **never** a red dashed frame — see `POWERBI_COMPONENTS.md` §1.3).
 - **Consolidation pill goes top-right** of the card (absolute, `top:12px;
   right:12px`), NOT in the footer — so the footer holds only the trend badge and
   stays one uniform line on every card. See `POWERBI_COMPONENTS.md` §1.3.
@@ -260,10 +293,14 @@ render, and breaks the separation between navigation and content (see
 | `--card-bg` | Card Frame Color (default = `--surface`) | Explicit color for the "encadrés" / card frames — lets the user choose a different card color than the surface |
 | `--bg-image` | Background Image (optional) | Optional `url(...)` applied to the canvas background. `none` by default. When set, render the image with a subtle dark/white overlay (per canvas luminance) to preserve readability |
 | `--border` | Border / Divider | Card borders, dividers, table gridlines |
+| `--on-primary` | derived (contrast vs primary) | **All text/glyphs sitting on the banner** (title, subtitle, active L1 pill text, active chiclet text) — picked for WCAG AA. See §2 on-primary rule. |
 
 ### Derived text tokens (auto-derived from canvas luminance)
 
 The implementing agent must derive readable text colors from `--canvas`:
 - **Light canvas** → `--text-primary: #0F172A`, `--text-secondary: #64748B`.
 - **Dark canvas** → `--text-primary: #F1F5F9`, `--text-secondary: #94A3B8`.
-- **On-primary text** → always `--surface` (readable on the banner regardless of theme).
+- **On-primary text** → **`--on-primary`**, derived from a contrast test against
+  `--primary` (§2): `--surface` when its contrast with `--primary` is ≥ 4,5:1,
+  otherwise a dark text color (`--text-primary`). **Never** assume white — a
+  light brand color (taupe, yellow) makes white text fail AA.

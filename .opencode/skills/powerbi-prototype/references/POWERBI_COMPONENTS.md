@@ -35,8 +35,13 @@ visual harmonizes with the banner.
   multi-series temporal lines (§3.3). The first entry is the primary itself.
 * The **"Autres"** residual bar/slice and the **N-1** temporal line use a single
   **neutral** (`C.neutral`), never a palette slot.
-* Two reserved, non-palette colors: consolidation alert `#FF0000` (§1.3) and the
-  trend-badge green/red (§1.1) — these are semantic, not categorical.
+* Two reserved, non-palette color families: the **consolidation amber** (§1.3 —
+  a metadata flag, not an error) and the **trend-badge green/red/neutral** (§1.1)
+  — these are semantic, not categorical. **Never use red `#FF0000` for
+  consolidation**: red reads as an *error/alert* and steals the eye away from the
+  actual KPI value. Consolidation is provisional data, not a fault — amber
+  (`#D97706` text on `bg-amber-100`) signals "attention, provisoire" without
+  screaming.
 
 ```javascript
 function hexToHsl(hex){
@@ -92,9 +97,14 @@ CSS variables are set (e.g. a dark client: `--primary:#E0BE7E`,
   * **Title / Label:** `text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-1`
   * **Callout Value:** `text-3xl font-bold text-[var(--text-primary)] tracking-tight my-1` (28px–36px)
   * **Trend Badge:** `inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold`
-    * *Positive:* `bg-emerald-100 text-emerald-800 border border-emerald-200` (e.g., `+12.5% vs PY`)
-    * *Negative:* `bg-rose-100 text-rose-800 border border-rose-200` (e.g., `-4.2% vs PY`)
-    * *Neutral:* `bg-[var(--canvas)] text-[var(--text-secondary)] border border-[var(--border)]`
+    * *Positive:* `bg-emerald-100 text-emerald-800 border border-emerald-200` (e.g., `+12,5 % vs 2024`)
+    * *Negative:* `bg-rose-100 text-rose-800 border border-rose-200` (e.g., `-4,2 % vs 2024`)
+    * *Neutral (MANDATORY when |Δ| < 1 %):* `bg-slate-100 text-slate-600 border border-slate-200`,
+      text `≈ stable vs <année N-1>` — never render a green `+0 %` (false signal)
+      nor a red `-0,1 %` (noise). A near-zero variation is **information** ("flat"),
+      not a success/failure.
+    * **Badge wording uses the REAL year** (`vs 2024`, `vs {PREV_YEAR}`), never the
+      jargon `vs N-1` — see §1.4.
   * **Accent Bar (optional):** `absolute left-0 top-0 bottom-0 w-1 bg-[var(--primary)]`
 
 ### 1.2. Multi-Metric Card (Multi-Row Card)
@@ -107,23 +117,31 @@ CSS variables are set (e.g. a dark client: `--primary:#E0BE7E`,
 
 ### 1.3. Consolidation-State KPI Card (NEW)
 * **Usage:** A KPI whose data is still being consolidated; visually flagged so
-  reviewers do not mistake it for a final figure.
+  reviewers do not mistake it for a final figure — **without hijacking the eye**.
 * **Trigger (data-driven, mandatory):** render a KPI in this consolidation
   state **only** when that KPI is explicitly marked `[En consolidation]` in the
   active `CLIENT.md` (see its Dynamic Navigation Structure KPI lists). If a KPI
   has no such marker, render it as a normal §1.1 card. Never apply the
-  consolidation frame on your own initiative. The flag lives **only** in
+  consolidation treatment on your own initiative. The flag lives **only** in
   `CLIENT.md`.
-* **CSS / Tailwind Rules:**
-  * Start from §1.1, then override the container border:
-    `border-2 border-dashed border-[#FF0000]`
-  * **Flag label:** a small red pill in the **top-right** of the card
-    (`position:absolute; top:12px; right:12px`) —
-    `text-[10px] font-semibold uppercase tracking-wide text-[#FF0000] bg-[#FF0000]/10 px-1.5 py-0.5 rounded`
-    with text such as "En consolidation". **Never** in the footer — the footer
-    holds only the trend badge so every KPI card keeps one uniform footer line.
-  * The value is still rendered but the dashed red frame + label make the
-    provisional state unmistakable.
+* **Discreet, not alarming (BLOCKING).** Consolidation is *provisional data*,
+  not an error — so it must **never** use the saturated red (`#FF0000`) + bold
+  dashed frame of an error state. Red screams "fault" and becomes the single
+  loudest pixel on the dashboard, pulling the eye away from the real KPI values.
+  Use a **muted amber** treatment that reads "attention, provisoire":
+  * **Accent bar** on the left edge becomes **amber** (`bg-amber-500`) instead of
+    `var(--primary)` — the only persistent cue at a glance.
+  * **Flag pill** top-right, amber tones (NOT red): `text-[10px] font-semibold
+    uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-200
+    px-1.5 py-0.5 rounded`, text "En consolidation".
+  * The pill carries a `title` attribute: *"Données en cours de consolidation —
+    chiffres provisoires."* so hover/AT users get the reason.
+  * **Card frame stays a normal solid border** (`border border-[var(--border)]`) —
+    **not** a bold dashed red frame. The amber accent bar + amber pill are enough
+    signal; the border must match every other card so the row stays uniform.
+* **The value is still rendered** in full (consolidation ≠ missing). The amber
+  bar + pill make the provisional state unmistakable without inflating the card
+  or screaming at the reader.
 
 ### 1.4. YoY ("vs N-1") Variation (MANDATORY on every time-derived KPI)
 
@@ -142,12 +160,18 @@ sub-pages. The figure is **computed from `donnees.xlsx`, never invented**.
   ```
 * **Derived KPIs recompute their base** — e.g. *km/cycliste* compares
   `cKm/cActifs` vs `pKm/pActifs`, **not** the % of the already-rounded card values.
-* **Render** a trend badge (§1.1) only when the value is finite: up = green,
-  down = red, format `±x,x % vs N-1` (French decimal comma). **Hide** the badge
-  when YoY is not computable — never show a fabricated number.
+* **Render** a trend badge (§1.1) only when the value is finite. **Use the REAL
+  prior-year number**, never the jargon `N-1`: format `±x,x % vs 2024` (French
+  decimal comma, `PREV_YEAR` resolved). Up = green, down = red, **|Δ| < 1 % =
+  neutral grey "≈ stable vs 2024"** (§1.1) — never a green `+0 %`. **Hide** the
+  badge when YoY is not computable — never show a fabricated number.
   ```javascript
+  const y = String(PREV_YEAR);
   const v = dynTrend(k.dyn, agg);                    // null when not computable
-  if (v!==null) trend = `${v>=0?'+':'−'}${Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})} % vs N-1`;
+  if (v !== null) {
+    if (Math.abs(v) < 1)      trend = '≈ stable vs ' + y;        // neutral (§1.1)
+    else                       trend = `${v>=0?'+':'−'}${Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})} % vs ${y}`;
+  }
   ```
 * **Static KPIs** (dimension counts with no time axis, e.g. *Pays couverts*,
   *Vélos en flotte*) carry **no** YoY badge — they are not time-derived.
@@ -219,9 +243,17 @@ sub-pages. The figure is **computed from `donnees.xlsx`, never invented**.
   * **Icon:** Funnel / Filter icon `w-4 h-4 text-[var(--text-secondary)]`
 
 ### 2.6. Clear All Filters Button
+* **Label = « Réinitialiser », never « Effacer » (BLOCKING).** A trash-can icon
+  + "Effacer" reads as *destructive delete* (am I deleting data?). A reset
+  action is **restorative** — use a **rotate / refresh arrow** icon
+  (Feather `rotate-ccw`: `<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>`)
+  and the label "Réinitialiser". The button **must also reset the date-range
+  inputs** to their default window, not just the chiclets/dropdowns (a recurring
+  bug: dates stay mutated while everything else resets, leaving the "Filtres
+  actifs" badge logic inconsistent).
 * **CSS / Tailwind Rules:**
   * `inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border)] rounded-md hover:bg-[var(--canvas)] hover:text-[var(--text-primary)] hover:border-[var(--primary)] transition-all cursor-pointer shadow-xs`
-  * **Icon:** reset / filter icon with a clear badge (`w-3.5 h-3.5`).
+  * **Icon:** reset / refresh arrow (`w-3.5 h-3.5`), **not** a trash can.
 
 ### 2.7. Interactive filter pane (UI only — NOT data-bound)
 
@@ -238,9 +270,27 @@ filter change must never call `renderPage()` or alter a KPI/chart.
   drives the badge (`isFiltered()`) and the slicers' active classes — and nothing
   else. `aggregates()` (§6) ignores it entirely; the dashboard renders year N
   once (and on navigation), never on filter change.
-* **Time slicers** — year chiclets (toggle multi-select), quarter & month
-  dropdowns (mutually exclusive), date range (dual-handle slider + two
-  `JJ/MM/AAAA` inputs kept in sync), clear button.
+* **Time slicers** — year chiclets (toggle multi-select, displayed in
+  **chronological ascending order** `[N-1, N]`, never `[N, N-1]` which reads
+  backwards), quarter & month (mutually exclusive — picking a quarter clears the
+  month and vice-versa, so the two can never contradict each other like "T1" +
+  "Août"), date range (two `JJ/MM/AAAA` inputs side by side in a flex row, kept
+  in sync), clear button. **Quarter has ≤ 4 values → render it as chiclets too**
+  (consistent with the ≤6 rule), not a dropdown.
+* **The date-range inputs MUST feed the badge (BLOCKING).** A recurring bug: the
+  period inputs have change-listeners but `isFiltered()` ignores them, so editing
+  the dates never lights up "● Filtres actifs" while editing a chiclet does —
+  inconsistent and confusing. Track `FILT.drFrom`/`FILT.drTo` and treat a value
+  **differing from the default window** as an active filter (same as a selected
+  chiclet). The reset button restores the default window.
+* **Humanize every visible label (BLOCKING).** Raw dimension keys from the
+  extractor are often machine-cased and unaccented (`Depasse`, `Saint_Bruno`,
+  `2024-01`). Map them to a **human-readable label** before rendering in any
+  chiclet, dropdown option, donut slice name, hbar category or legend entry:
+  accent errors (`Depasse` → `Dépassé`), underscores → spaces, title-case names.
+  Keep a single `LBL(key)` helper (or a `LABELS` map) applied at **every** call
+  site that turns a key into user-facing text. A reviewer reading "Depasse" in a
+  French dashboard reads it as a typo.
 * **Dimension slicers (fill the pane to the footer).** Below the time slicers,
   add **one slicer per dimension** of the data model (extractor `META` dims, or
   the cyclisme `*_M` / count keys): chiclets if the dimension has ≤ ~6 values,
@@ -384,13 +434,22 @@ function evoLineOption(curData, prevData){
   o.xAxis.data = MONTH_AXIS;                  // 01..12 fixe, jamais la liste plate
   o.yAxis.scale = true;                       // ne pas ancrer à 0 (line/area seulement)
   o.legend = { show:true, bottom:0, itemGap:18, textStyle:{ color:C.textSub, fontSize:11 } };
+  // Dernier mois connu de l'année N (année en cours → données partielles) :
+  let lastIdx = -1;
+  curData.forEach((v,i)=>{ if (v !== null && v !== undefined) lastIdx = i; });
   o.series = [
     { name:String(PREV_YEAR), type:'line', data:prevData, smooth:0.2, symbol:'circle', symbolSize:4,
       lineStyle:{ type:'dashed', width:1.5, color:C.neutral }, itemStyle:{ color:C.neutral, opacity:0.7 },
       connectNulls:true },
     { name:String(CUR_YEAR),  type:'line', data:curData,  smooth:0.2, symbol:'circle', symbolSize:6,
       lineStyle:{ width:2.5, color:C.primary }, itemStyle:{ color:C.primary, borderWidth:2, borderColor:'#fff' },
-      areaStyle:{ opacity:0.10, color:C.primary }, connectNulls:true }
+      connectNulls:true,
+      // Marqueur "année en cours" au lieu d'une areaStyle qui s'arrête net
+      // (un rectangle gris abrupt évoque un bug / une sélection, pas une zone).
+      markLine:{ silent:true, symbol:'none',
+        lineStyle:{ type:'dashed', color:C.neutral, width:1 },
+        label:{ show:true, formatter:'année en cours', fontSize:10, color:C.textSub, position:'insideEndTop' },
+        data: lastIdx >= 0 ? [{ xAxis: MONTH_AXIS[lastIdx] }] : [] } }
   ];
   return o;
 }
@@ -401,9 +460,14 @@ For a month-bar evolution use two clustered `bar` series on the same fixed axis,
 **without** `scale:true` (bars must start at 0).
 
 * **Line styling (general):** `smooth: 0.2`, markers `symbol:'circle'`,
-  `itemStyle:{ borderWidth:2, borderColor:'#ffffff' }`. Area fill `opacity:0.12`
-  (current-year line only in a 2-series YoY). `connectNulls:true` so a partial
-  current year (e.g. data stops in July) still draws a clean line.
+  `itemStyle:{ borderWidth:2, borderColor:'#ffffff' }`. `connectNulls:true` so a
+  partial current year (e.g. data stops in July) still draws a clean line.
+  **Do NOT fill the area under the current-year line in a 2-series YoY chart** —
+  an `areaStyle` that ends mid-axis (year N is partial) renders as an abrupt
+  grey rectangle that looks like a selection box or a rendering bug. Use the
+  `markLine` "année en cours" cue (above) to signal partial data instead. A
+  solid area fill is acceptable only on a **complete** single series, never on a
+  partial current year.
 
 ---
 
@@ -417,11 +481,26 @@ For a month-bar evolution use two clustered `bar` series on the same fixed axis,
   yields an unreadable rainbow ring + a legend that overflows the card — a
   recurring regression. When a *share-of-total* is wanted for a high-cardinality
   dimension, aggregate to **top-N (≤6) + "Autres"** before the donut.
-* **Donut Sizing:** `radius: ['52%', '72%']`, `center: ['30%', '50%']`
-  (legend on the right; the centre overlay below anchors on the same `30%/50%`).
-* **Slice labels are ALWAYS on:** `label: { show: true, formatter: '{d} %',
-  fontSize: 10, color: <text-secondary>, distanceToLabelLine: 5 }`. Never render a
+* **Donut Sizing & anti-crop (BLOCKING):** `radius: ['48%', '66%']`,
+  `center: ['35%', '50%']` (legend on the right; the centre overlay below anchors
+  on the same `35%/50%`). **Do not** use `center:['30%','50%']` with the larger
+  `['52%','72%']` radius — the leader-line `%` labels of left-side slices get
+  pushed past the card's left edge and render clipped ("1,74 %" instead of
+  "11,74 %"), a recurring regression. The `35%` center + slightly smaller ring
+  leaves room for the left labels. Keep the centre overlay CSS in sync:
+  `.donut-center{ left:35%; top:50%; transform:translate(-50%,-50%); }`.
+* **Slice labels are ALWAYS on, French-formatted:** `label: { show: true,
+  formatter: p => p.percent.toLocaleString('fr-FR', { maximumFractionDigits:1 })
+  + ' %', fontSize: 10, color: <text-secondary>, distanceToLabelLine: 5 }`.
+  Use the function form (not the string `'{d} %'`) so the decimal separator is a
+  French comma (`10,5 %`) and the value is rounded to 1 decimal — the default
+  `{d}` prints an Anglo dot and 2+ noisy decimals (`10.51 %`). Never render a
   donut with `label:{show:false}` — a bare ring with no % reads as broken.
+* **Centre total is COMPUTED, never hardcoded.** The `dc-value` shown in the
+  middle (e.g. the total km, total components) must be `fInt(values.reduce(+))`
+  / `fKm(...)` derived from the same `items` array the slices use — never a
+  magic string like `'200'` or `'50'`. A hardcoded centre drifts out of sync the
+  day the data changes; compute it from the slice data.
 * **Center Metric Callout — MUST be a CSS overlay, not an ECharts `title` /
   `graphic`:**
   * ECharts `title` and `graphic.text` do **not** center text on their anchor
@@ -520,6 +599,21 @@ For a month-bar evolution use two clustered `bar` series on the same fixed axis,
   active, `var(--primary)` = inactive), its name and description — the selected
   one visually emphasised. **Re-render the popover on every navigation change**
   (same `renderPage()` pass).
+* **Sub-page rows are CLICKABLE navigation, not decoration (BLOCKING).** Each
+  sub-page row in the popover must navigate to that sub-page on click
+  (`cursor:pointer`, hover background, calls the router `go(page, sub)`). A
+  popover that merely *lists* the sub-pages without letting you reach them is a
+  dead-end — the user opens it precisely to jump somewhere. The selected row is
+  still shown but remains clickable (re-affirms the current page).
+* **Keyboard reachable (BLOCKING).** Hover-only popovers are invisible to
+  keyboard and touch users. Make the info `i` focusable (`tabindex="0"`) and
+  show the popover on `:focus-within` in addition to `:hover`:
+  ```css
+  .info-ico{ /* ... */ tabindex via HTML attribute */ }
+  .info-wrap:hover .popover,
+  .info-wrap:focus-within .popover{ display:block; }
+  ```
+  Both triggers must work — never `:hover` alone.
 * **Hover reachability (do not leave a dead zone).** If the popover `top` sits
   well below the icon, the pointer crosses a non-hover gap while moving from the
   icon to the card and the popover closes before it can be read. Prevent this by
@@ -543,7 +637,14 @@ For a month-bar evolution use two clustered `bar` series on the same fixed axis,
   * `bg-[var(--card-bg)] border border-[var(--border)] rounded-lg p-4 shadow-xs flex flex-col justify-between h-full`
   * **Card Header:** `display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:6px;` — the title sits on the **left**, the sub/unit on the **right** (`justify-content:space-between`), never inline next to the title.
   * **Card Title:** `font-size:13px; font-weight:600; color:var(--text-primary);` (sober — not 800).
-  * **Subtitle / Unit:** `font-size:11px; color:var(--text-secondary);` right-aligned in the header.
+  * **Subtitle / Unit:** `font-size:11px; color:var(--text-secondary);`
+    right-aligned in the header.
+  * **Subtitle wording uses the REAL years, never the jargon `N vs N-1`
+    (BLOCKING).** A subtitle like *"km — N vs N-1"* repeated across three cards
+    is insider shorthand; a reviewer reads *"km — 2025 vs 2024"* instantly.
+    Resolve `CUR_YEAR`/`PREV_YEAR` into the subtitle string (`${CUR_YEAR} vs
+    ${PREV_YEAR}`, `année ${CUR_YEAR}`). Same for KPI trend badges (§1.4) and
+    the header subtitle period.
 
 ### 5.2. Info Note Bar (NEW)
 * **Usage:** A small informational note rendered at the bottom of a card or

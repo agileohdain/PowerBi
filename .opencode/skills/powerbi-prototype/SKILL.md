@@ -187,14 +187,16 @@ possibles — c'est la régression à éviter.
       recompute** : KPIs et visuels montrent toujours l'année N. Les slicers de
       dimensions remplissent le pane jusqu'en bas (aérés, pas de tassement).
       Voir `POWERBI_COMPONENTS.md` §2.7.
-   - **Icône information unique** en haut à droite du bandeau (~36px, circulaire,
-     sur `var(--surface)`) : au **survol**, un popover explique la **page active
-     ET la sous-page actuellement sélectionnée** (en évidence), puis liste les
-     autres sous-pages — re-rendu à chaque navigation. **Survol sans zone
-     morte** : icône + popover dans un **conteneur de survol partagé** (ou
-     popover dont le haut chevauche le bas de l'icône) pour que l'infobulle ne
-     se ferme pas quand on la survole. **Aucun** « i » par carte visuelle. Voir
-     `POWERBI_COMPONENTS.md` §4.3.
+    - **Icône information unique** en haut à droite du bandeau (~36px, circulaire,
+      sur `var(--surface)`) : au **survol OU au focus clavier** (`tabindex="0"`,
+      `:focus-within`), un popover explique la **page active ET la sous-page
+      actuellement sélectionnée** (en évidence), puis liste les autres
+      sous-pages — **chaque ligne est cliquable et navigue** vers sa sous-page
+      (`go(page, sub)`). Re-rendu à chaque navigation. **Survol sans zone
+      morte** : icône + popover dans un **conteneur de survol partagé** (ou
+      popover dont le haut chevauche le bas de l'icône) pour que l'infobulle ne
+      se ferme pas quand on la survole. **Aucun** « i » par carte visuelle. Voir
+      `POWERBI_COMPONENTS.md` §4.3.
    - Navigation L1 (pills) + L2 (liens texte) rendue depuis `CLIENT.md`, avec
      un **petit routeur JS** (`state = { page, subpage }`) rendant la **page et
      les sous-pages cliquables** ; chaque sous-page de `CLIENT.md` reçoit un
@@ -212,8 +214,12 @@ possibles — c'est la régression à éviter.
      largeur sur la 2ᵉ ligne). Chiffre central des donuts en **superposition
      HTML centrée** (jamais en `title`/`graphic` ECharts). Voir
      `POWERBI_LAYOUT.md` §4 et `POWERBI_COMPONENTS.md` §3.4.
-   - Logo `logo.png` affiché dans la zone logo (en haut à gauche).
-   - Footer disclaimer "Données fictives".
+    - Logo `logo.png` affiché dans la zone logo (en haut à gauche), **centré sur le
+      centroïde du trapèze (~142px)** — `justify-content:center` +
+      `padding-right:36px`, jamais `flex-end`/`flex-start` (logo plaqué contre le
+      bord diagonal ou le bord canevas). Voir `POWERBI_LAYOUT.md` §2 (snippet CSS
+      canonique, bloquant).
+    - Footer disclaimer "Données fictives".
 3. **Référencer** `logo.png` (+ `bg.*` si présent) **depuis le dossier parent**
    via `src="../logo.png"` — **ne pas copier** le logo dans `maquette/`
    (pas de doublon). La maquette assume que le dossier parent `clients/<client>/`
@@ -283,8 +289,10 @@ possibles — c'est la régression à éviter.
   arc-en-ciel (vert/bleu/jaune/violet). Toute couleur catégorielle (tranches de
   donut, barres hbar, multi-séries) vient de `derivePalette(--primary)` (primaire
   + nuances harmonisées). Seuls « Autres » et la courbe N-1 utilisent un neutre.
-  Couleurs sémantiques réservées : rouge consolidation `#FF0000`, vert/rouge des
-  badges de variation. Voir `POWERBI_COMPONENTS.md` § palette.
+  Couleurs sémantiques réservées : **ambre consolidation** (metadata, pas une
+  erreur — **jamais** de rouge `#FF0000` qui hurle « faute » et vole l'attention ;
+  voir §1.3), vert/rouge/neutre des badges de variation. Voir
+  `POWERBI_COMPONENTS.md` § palette.
 - **Hauteurs des visuels normalisées** : les visuels principaux d'une sous-page
   sont rendus dans une grille à lignes égales (`grid-template-rows: 1fr 1fr`) —
   **jamais** de hauteur fixe en px. Disposition **par défaut 2×2 avec 4 visuels**
@@ -323,6 +331,49 @@ possibles — c'est la régression à éviter.
   affiche sa variation N vs N-1, sur toutes les pages, calculée sur mois
   comparables (mêmes mois que N) ; badge masqué si non calculable, jamais inventé.
   Voir `POWERBI_COMPONENTS.md` §1.4.
+- **Badge de variation : état neutre (bloquant)** : `|Δ| < 1 %` → badge **neutre
+  gris** `≈ stable vs <année>` — jamais un vert `+0 %` (faux succès) ni un rouge
+  `-0,1 %` (bruit). Le "plat" est une information. **Libellé en année réelle**
+  (`vs 2024`), jamais le jargon `vs N-1`. Voir `POWERBI_COMPONENTS.md` §1.1/§1.4.
+- **Contraste on-primary WCAG AA (bloquant)** : le texte sur le bandeau (titre,
+  sous-titre, pill L1 active, chiclet actif, icône `i`) utilise un token
+  `--on-primary` **dérivé** (`--surface` si contraste ≥ 4,5:1 avec `--primary`,
+  sinon texte sombre). Un primaire clair (taupe, jaune) rend le blanc illisible
+  (≈ 2,5:1). **Jamais** de `color:var(--surface)` codé en dur sur le bandeau.
+  Voir `POWERBI_LAYOUT.md` §2 & §6.
+- **Consolidation = ambre discret, pas rouge (bloquant)** : un KPI `[En
+  consolidation]` porte une barre d'accent + un pill **ambre** en haut à droite
+  (avec `title` "chiffres provisoires"), cadre normal. **Jamais** de cadre rouge
+  pointillé saturé — le rouge hurle « faute » et vole l'œil au détriment des
+  vraies valeurs. Voir `POWERBI_COMPONENTS.md` §1.3.
+- **Libellés en années réelles (bloquant)** : sous-titres de visuels et badges
+  affichent `${CUR_YEAR} vs ${PREV_YEAR}` (ex. `2025 vs 2024`), jamais `N vs N-1`
+  (jargon). Voir `POWERBI_COMPONENTS.md` §5.1 & §1.4.
+- **Aire sous la courbe N interdite si année partielle (bloquant)** : sur un
+  line N-vs-N-1, **pas d'`areaStyle`** sur N — l'aire s'arrête net en milieu
+  d'axe et ressemble à un bug/sélection. Signaler l'année en cours par une
+  `markLine` verticale pointillée "année en cours" au dernier mois connu. Voir
+  `POWERBI_COMPONENTS.md` §3.3.
+- **Donut anti-rognage (bloquant)** : `center:['35%','50%']`,
+  `radius:['48%','66%']`, overlay `left:35%` — **jamais** `['30%']/['52%','72%']`
+  (les labels `%` de gauche sortent de la carte). Labels `%` au format français
+  (`10,5 %`, fonction `formatter`, pas `{d}`). Total central **calculé** depuis
+  les tranches, jamais hardcoded. Voir `POWERBI_COMPONENTS.md` §3.4.
+- **Filtres : bouton « Réinitialiser » + plage de dates liée au badge
+  (bloquant)** : le bouton de reset porte une icône **rotate-ccw** et le label
+  « Réinitialiser » (pas « Effacer » + poubelle = destruction). Les champs de
+  **période** alimentent le badge « Filtres actifs » (un écart vs la fenêtre par
+  défaut = filtre actif) et sont remis à défaut par le reset. Trimestre (≤ 4
+  valeurs) en **chiclets**, mutuellement exclusif avec Mois. Voir
+  `POWERBI_COMPONENTS.md` §2.6 & §2.7.
+- **Humanisation des libellés (bloquant)** : les clés brutes de l'extracteur
+  (`Depasse`, `Saint_Bruno`, `2024-01`) sont **mappées** (accents, espaces,
+  casse) avant tout affichage (chiclets, dropdowns, légendes, tranches, barres)
+  via un helper `LBL()`/`LABELS`. Voir `POWERBI_COMPONENTS.md` §2.7.
+- **Popover info cliquable + clavier (bloquant)** : les lignes de sous-pages du
+  popover **naviguent** au clic (`go(page, sub)`), et le popover s'ouvre aussi
+  au `:focus-within` (icône `tabindex="0"`) — pas seulement au `:hover`. Voir
+  `POWERBI_COMPONENTS.md` §4.3.
 - **Visuels temporels (axe mois) — Jan→Déc fixe, N vs N-1 (bloquant)** : tout
   line/bar d'évolution sur un axe mois affiche **12 points `01`..`12`**
   (Jan→Déc, jamais la liste plate des mois), en **2 séries** — **année N** en

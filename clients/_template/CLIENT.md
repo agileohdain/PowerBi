@@ -28,7 +28,8 @@
 ## Arbre de navigation
 
 > Chaque sous-page liste ses cartes KPI. Un KPI marqué `[En consolidation]` est
-> rendu avec un cadre rouge pointillé (voir
+> rendu avec une barre d'accent + un pill **ambre** discret en haut à droite
+> (voir
 > `.opencode/skills/powerbi-prototype/references/POWERBI_COMPONENTS.md` §1.3) ;
 > tous les autres sont des cards normales.
 >
