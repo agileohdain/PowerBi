@@ -6,8 +6,8 @@ Extracteur de données  donnees.xlsx  ->  bloc DATA JavaScript (grain MENSUEL).
 Pourquoi ce script existe
 -------------------------
 Le skill `powerbi-prototype` embarque les données DANS le HTML (grain mensuel +
-séries par dimension + masques d'activité + agrégats catégoriels) pour rendre les
-filtres fonctionnels et la variation vs N-1 possibles. Dériver ce modèle « à la
+séries par dimension + masques d'activité + agrégats catégoriels) pour afficher
+l'année N et rendre la variation vs N-1 possible. Dériver ce modèle « à la
 main » mène à des KPI mal interprétés et des dimensions oubliées. Ce script
 **auto-détecte** le modèle de n'importe quel Excel (star/snowflake : une table de
 faits datée + dimensions) et émet un contrat **normalisé**, indépendant du domaine

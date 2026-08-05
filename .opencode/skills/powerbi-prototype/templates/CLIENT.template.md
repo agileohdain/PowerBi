@@ -32,9 +32,10 @@
 > `.opencode/skills/powerbi-prototype/references/POWERBI_COMPONENTS.md` §1.3) ;
 > tous les autres sont des cards normales.
 >
-> La maquette générée est **interactive** : le panneau de filtres est
-> **fonctionnel** (année, trimestre, mois, plage de dates) et chaque KPI dérivé
-> de la série temporelle affiche automatiquement sa **variation vs N-1**.
+> La maquette générée affiche **l'année N** (la plus récente des données) sur
+> tous les visuels ; chaque KPI dérivé de la série temporelle montre sa **valeur
+> N** et sa **variation N vs N-1**. Le panneau de filtres est un **exemple
+> visuel** (non fonctionnel).
 
 ### Page 1: <Titre page 1>
 

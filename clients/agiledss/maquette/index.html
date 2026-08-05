@@ -2,213 +2,169 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VELOH — Pilotage de flotte cyclable</title>
+<title>agiledss — Maquette Power BI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <style>
   :root{
-    --primary:#B69E7F; --surface:#FFFFFF; --canvas:#F1F5F9;
-    --card-bg:#FFFFFF; --border:#CBD5E1;
-    --text-primary:#0F172A; --text-secondary:#64748B;
+    --primary:#B69E7F; --surface:#FFFFFF; --canvas:#F1F5F9; --border:#CBD5E1;
+    --card-bg:#FFFFFF; --text-primary:#0F172A; --text-secondary:#64748B;
   }
-  html,body{margin:0;height:100%;overflow:hidden;background:#0b1220;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;font-family:Inter,system-ui,-apple-system,sans-serif;background:var(--canvas);}
   #viewport{position:fixed;inset:0;overflow:hidden;}
-  #slide{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:top left;
-    background:var(--canvas);font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--text-primary);}
-  /* --- En-tête : zone logo + bannière en trapèzes (cassure diagonale) --- */
-  .logo-zone{position:absolute;left:0;top:0;width:320px;height:97px;background:var(--surface);
-    clip-path:polygon(0 0,320px 0,244px 97px,0 97px);display:flex;align-items:center;justify-content:center;
-    padding-right:36px;box-sizing:border-box;}
+  .slide{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:top left;background:var(--canvas);}
+  .banner{position:absolute;top:0;left:0;right:0;height:97px;background:var(--primary);clip-path:polygon(342px 0,100% 0,100% 97px,267px 97px);}
+  .logo-zone{position:absolute;top:0;left:0;width:320px;height:97px;background:var(--surface);clip-path:polygon(0 0,320px 0,244px 97px,0 97px);display:flex;align-items:center;justify-content:center;padding-right:36px;z-index:2;}
   .logo-zone img{max-height:70px;max-width:200px;object-fit:contain;}
-  .banner{position:absolute;left:0;top:0;width:1920px;height:97px;background:var(--primary);
-    clip-path:polygon(342px 0,100% 0,100% 97px,267px 97px);}
-  .banner-title{position:absolute;left:360px;right:110px;top:0;height:97px;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;text-align:center;color:var(--surface);pointer-events:none;}
-  .banner-title h1{margin:0;font-size:26px;font-weight:700;letter-spacing:.02em;}
-  .banner-title p{margin:3px 0 0;font-size:13px;opacity:.92;}
-  /* --- Icône info unique + popover au survol (conteneur partagé) --- */
-  .info-wrap{position:absolute;top:26px;right:16px;z-index:70;}
-  .info-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);color:var(--primary);
-    display:inline-flex;align-items:center;justify-content:center;font-size:18px;font-family:Georgia,serif;
-    font-weight:800;cursor:help;box-shadow:0 2px 6px rgba(0,0,0,.25);}
-  .info-wrap .popover{position:absolute;top:44px;right:0;width:400px;display:none;background:var(--surface);
-    border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:14px 16px;}
+  .header-text{position:absolute;top:0;left:360px;right:52px;height:97px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--surface);z-index:2;pointer-events:none;}
+  .header-text h1{font-size:26px;font-weight:700;letter-spacing:.02em;margin:0;line-height:1.15;}
+  .header-text p{font-size:13px;opacity:.92;margin:2px 0 0;}
+  .info-wrap{position:absolute;top:30px;right:16px;z-index:70;}
+  .info-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;font-family:Georgia,'Times New Roman',serif;cursor:help;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+  .info-wrap .popover{position:absolute;top:42px;right:0;width:400px;display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,.15);padding:14px 16px;box-sizing:border-box;text-align:left;}
   .info-wrap:hover .popover{display:block;}
-  .popover h3{margin:0 0 4px;font-size:13px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.04em;}
-  .popover .pdesc{font-size:12px;color:var(--text-secondary);margin:0 0 8px;line-height:1.4;}
-  .popover .sub-item{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-top:1px solid var(--border);}
-  .popover .dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;background:var(--primary);}
-  .popover .dot.active{background:#2563EB;}
-  .popover .sub-name{font-size:12px;font-weight:600;color:var(--text-primary);}
-  .popover .sub-name.active{color:#2563EB;}
-  .popover .sub-desc{font-size:11px;color:var(--text-secondary);line-height:1.35;}
-  /* --- Pane filtres flottant --- */
-  #filters{position:absolute;left:11px;top:116px;width:235px;bottom:44px;background:var(--surface);
-    border-radius:10px;padding:16px;box-sizing:border-box;overflow-y:auto;}
-  .f-head{display:flex;align-items:center;gap:8px;padding-bottom:8px;margin-bottom:12px;
-    border-bottom:1px solid var(--border);color:var(--primary);font-weight:600;font-size:14px;}
-  .f-head svg{width:16px;height:16px;stroke:var(--primary);}
-  #fBadge{margin-left:auto;font-size:10px;font-weight:600;color:var(--primary);}
-  .f-group{margin-bottom:14px;}
-  .f-group>label{display:block;font-size:11px;font-weight:600;color:var(--text-secondary);
-    text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-  .chics{display:flex;flex-wrap:wrap;gap:6px;}
-  .chic{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;background:var(--canvas);
-    color:var(--text-secondary);border:1px solid var(--border);cursor:pointer;transition:all .15s;}
-  .chic:hover{background:var(--border);}
-  .chic.active{background:var(--primary);color:var(--surface);border-color:var(--primary);font-weight:600;}
-  .f-group select{width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);
-    border-radius:6px;font-size:12px;color:var(--text-primary);outline:none;}
-  .f-group select:focus{border-color:var(--primary);}
-  .range-wrap{position:relative;height:26px;margin-bottom:8px;}
-  .range-wrap .track{position:absolute;top:11px;left:0;right:0;height:6px;background:var(--border);border-radius:3px;}
-  .range-wrap .fill{position:absolute;top:11px;height:6px;background:var(--primary);border-radius:3px;}
-  .range-wrap input[type=range]{position:absolute;top:5px;left:0;width:100%;-webkit-appearance:none;appearance:none;
-    background:transparent;pointer-events:none;height:16px;margin:0;}
-  .range-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;
-    border-radius:50%;background:var(--surface);border:2px solid var(--primary);pointer-events:auto;cursor:pointer;
-    box-shadow:0 1px 3px rgba(0,0,0,.25);}
-  .range-wrap input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--surface);
-    border:2px solid var(--primary);pointer-events:auto;cursor:pointer;}
-  .dates{display:flex;gap:6px;}
-  .dates input{flex:1;min-width:0;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:5px;
-    background:var(--surface);color:var(--text-primary);}
-  .dates input:focus{outline:none;border-color:var(--primary);}
-  #btnClear{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px;
-    font-size:12px;font-weight:500;color:var(--text-secondary);background:var(--surface);
-    border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;}
-  #btnClear:hover{background:var(--canvas);color:var(--text-primary);border-color:var(--primary);}
-  /* --- Contenu principal (sous le bandeau, jamais par-dessus) --- */
-  .content{position:absolute;left:262px;top:97px;right:0;bottom:40px;padding:0 20px 0 16px;
-    display:flex;flex-direction:column;box-sizing:border-box;}
-  /* --- KPI cards --- */
-  .kpi{position:relative;overflow:hidden;background:var(--card-bg);border:1px solid var(--border);
-    border-radius:8px;padding:14px 16px;box-shadow:0 1px 2px rgba(15,23,42,.05);display:flex;flex-direction:column;}
-  .kpi .accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);}
-  .kpi .k-label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;
-    letter-spacing:.05em;margin-bottom:4px;}
-  .kpi .k-value{font-size:28px;font-weight:700;color:var(--text-primary);letter-spacing:-.01em;margin:2px 0;}
-  .kpi .k-sub{font-size:11px;color:var(--text-secondary);}
-  .kpi .k-foot{margin-top:auto;padding-top:6px;display:flex;align-items:center;gap:6px;min-height:22px;}
-  .trend{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;}
-  .trend.up{background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0;}
-  .trend.down{background:#FFF1F2;color:#9F1239;border:1px solid #FECDD3;}
-  .kpi.consol{border:2px dashed #FF0000;}
-  .consol-flag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#FF0000;
-    background:rgba(255,0,0,.08);padding:2px 6px;border-radius:4px;}
-  /* --- Visuels --- */
-  .vcard{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;
-    box-shadow:0 1px 2px rgba(15,23,42,.05);display:flex;flex-direction:column;min-height:0;}
-  .vcard .v-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;
-    border-bottom:1px solid var(--border);padding-bottom:6px;}
-  .vcard .v-title{font-size:13px;font-weight:600;color:var(--text-primary);}
-  .vcard .v-sub{font-size:11px;color:var(--text-secondary);}
+  .pop-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);}
+  .pop-sub{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+  .pop-divider{height:1px;background:var(--border);margin:8px 0;}
+  .pop-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;color:var(--text-primary);}
+  .pop-item.active{font-weight:700;}
+  .pop-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .pop-item .dot.blue{background:#2563EB;}
+  .pop-item .dot.pri{background:var(--primary);}
+  .pop-now{font-size:10px;color:var(--text-secondary);font-weight:600;}
+  .filter-pane{position:absolute;left:11px;top:116px;width:235px;background:var(--surface);border-radius:10px;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);z-index:5;}
+  .pane-head{display:flex;align-items:center;gap:8px;color:var(--primary);font-weight:600;font-size:13px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+  .pane-note{font-size:10px;color:var(--text-secondary);line-height:1.3;}
+  .slicer-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-top:2px;}
+  .chiclets{display:flex;gap:8px;}
+  .chiclet{flex:1;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500;background:var(--canvas);color:var(--text-secondary);border:1px solid var(--border);text-align:center;}
+  .chiclet.active{background:var(--primary);color:var(--surface);border-color:var(--primary);font-weight:600;}
+  select{width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-primary);outline:none;}
+  .date-inputs{display:flex;align-items:center;gap:6px;}
+  .date-inputs input{flex:1;min-width:0;padding:5px 4px;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);background:var(--surface);text-align:center;outline:none;}
+  .date-inputs span{color:var(--text-secondary);font-size:11px;}
+  .range-wrap{position:relative;height:18px;}
+  .range-track{position:absolute;top:50%;left:0;right:0;height:6px;transform:translateY(-50%);background:var(--border);border-radius:9999px;}
+  .range-fill{position:absolute;top:50%;height:6px;transform:translateY(-50%);background:var(--primary);border-radius:9999px;}
+  .clear-btn{margin-top:2px;width:100%;padding:7px 10px;font-size:12px;font-weight:500;color:var(--text-secondary);background:var(--surface);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .content{position:absolute;left:262px;top:97px;right:0;bottom:40px;padding:0 20px 0 16px;display:flex;flex-direction:column;box-sizing:border-box;}
+  .nav-l1{display:flex;gap:12px;padding-top:8px;flex-shrink:0;}
+  .nav-pill{flex:1;padding:10px 16px;border-radius:8px;font-size:12px;text-align:center;cursor:pointer;transition:all .15s;box-sizing:border-box;}
+  .nav-pill.inactive{background:var(--surface);color:var(--text-secondary);border:1px solid var(--border);font-weight:500;}
+  .nav-pill.inactive:hover{border-color:var(--primary);color:var(--text-primary);}
+  .nav-pill.active{background:var(--primary);color:var(--surface);border:1px solid var(--primary);font-weight:600;cursor:default;}
+  .nav-l2{display:flex;gap:28px;align-items:center;padding:0 2px;height:36px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .l2-link{font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;background:transparent;border:0;padding:0;height:36px;display:flex;align-items:center;box-sizing:border-box;font-family:inherit;}
+  .l2-link:hover{color:var(--text-primary);}
+  .l2-link.active{color:var(--primary);font-weight:600;border-bottom:2px solid var(--primary);}
+  .kpi-row{display:flex;gap:12px;padding:12px 0 10px;flex-shrink:0;}
+  .kpi-card{flex:1;min-width:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px 10px;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .kpi-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);}
+  .kpi-card.consol{border:2px dashed #FF0000;}
+  .kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kpi-value{font-size:28px;font-weight:700;color:var(--text-primary);margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kpi-sub{font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kpi-foot{margin-top:auto;min-height:22px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:4px;}
+  .trend{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:9999px;font-size:11px;font-weight:600;}
+  .trend.up{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;}
+  .trend.down{background:#ffe4e6;color:#9f1239;border:1px solid #fecdd3;}
+  .consol-pill{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#FF0000;background:rgba(255,0,0,.08);padding:1px 6px;border-radius:4px;white-space:nowrap;}
+  .visuals{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;padding-bottom:8px;}
+  .visual-card{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;min-height:0;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .vc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:8px;flex-shrink:0;}
+  .vc-title{font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .vc-sub{font-size:11px;color:var(--text-secondary);white-space:nowrap;}
   .chart-holder{position:relative;flex:1;min-height:0;}
-  .chart-holder .chart{position:absolute;inset:0;}
-  .donut-center{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;
-    align-items:center;pointer-events:none;line-height:1;text-align:center;}
+  .chart{position:absolute;inset:0;}
+  .donut-center{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;line-height:1;text-align:center;}
   .donut-center .dc-value{font-size:22px;font-weight:700;color:var(--text-primary);}
   .donut-center .dc-sub{font-size:11px;color:var(--text-secondary);margin-top:4px;}
-  /* --- Table --- */
-  .vtable{width:100%;border-collapse:collapse;text-align:left;}
-  .vtable thead th{background:var(--primary);color:var(--surface);font-weight:600;font-size:11px;
-    padding:8px 12px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em;}
-  .vtable tbody tr{transition:background .12s;}
-  .vtable tbody tr:nth-child(odd){background:var(--canvas);}
-  .vtable tbody tr:nth-child(even){background:var(--card-bg);}
-  .vtable tbody tr:hover{background:var(--border);}
-  .vtable tbody td{padding:7px 12px;font-size:12px;color:var(--text-primary);border-bottom:1px solid var(--border);}
-  .vtable td.num{text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
-  /* --- Footer --- */
-  #footer{position:absolute;left:0;right:0;bottom:0;height:28px;display:flex;align-items:center;justify-content:center;
-    font-size:11px;color:var(--text-secondary);background:var(--canvas);border-top:1px solid var(--border);}
+  .table-wrap{flex:1;min-height:0;overflow:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  thead th{background:var(--primary);color:var(--surface);font-weight:600;text-align:left;padding:6px 10px;text-transform:uppercase;font-size:10.5px;letter-spacing:.03em;position:sticky;top:0;}
+  thead th:last-child{text-align:right;}
+  tbody td{padding:5px 10px;border-bottom:1px solid var(--border);color:var(--text-primary);font-size:11.5px;}
+  tbody tr:nth-child(even){background:var(--canvas);}
+  tbody tr:hover{background:var(--border);}
+  td.num{font-family:ui-monospace,SFMono-Regular,monospace;text-align:right;font-variant-numeric:tabular-nums;}
+  .footer{position:absolute;bottom:0;left:0;right:0;height:28px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary);border-top:1px solid var(--border);background:var(--canvas);}
 </style>
 </head>
 <body>
 <div id="viewport">
-  <div id="slide">
+  <div class="slide" id="slide">
     <div class="banner"></div>
-    <div class="logo-zone"><img src="../logo.png" alt="agiledss"></div>
-    <div class="banner-title">
+    <div class="logo-zone"><img src="../logo.png" alt="logo"></div>
+    <div class="header-text">
       <h1>VELOH — Pilotage de flotte cyclable</h1>
-      <p>Cyclistes · Flotte · Sorties · Composants — Janv. 2024 – Juil. 2025</p>
+      <p>Cyclistes · Flotte · Sorties · Composants — Pilotage annuel</p>
     </div>
     <div class="info-wrap">
-      <span class="info-btn">i</span>
-      <div class="popover" id="infoPopover"></div>
+      <div class="info-btn">i</div>
+      <div class="popover" id="popover"></div>
     </div>
 
-    <aside id="filters">
-      <div class="f-head">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-        </svg>
-        Filtres
-        <span id="fBadge"></span>
+    <div class="filter-pane">
+      <div class="pane-head">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+        <span>Filtres</span>
       </div>
-      <div class="f-group">
-        <label>Année</label>
-        <div class="chics" id="yearChics"></div>
+      <div class="pane-note">Exemple visuel — volet non fonctionnel.</div>
+      <div class="slicer-label">Année</div>
+      <div class="chiclets" id="yearChiclets"></div>
+      <div class="slicer-label">Trimestre</div>
+      <select id="quarterSel">
+        <option value="0">Tous les trimestres</option>
+        <option value="1">Trimestre 1</option>
+        <option value="2">Trimestre 2</option>
+        <option value="3">Trimestre 3</option>
+        <option value="4">Trimestre 4</option>
+      </select>
+      <div class="slicer-label">Mois</div>
+      <select id="monthSel">
+        <option value="0">Tous les mois</option>
+        <option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option>
+        <option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option>
+        <option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option>
+        <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
+      </select>
+      <div class="slicer-label">Période</div>
+      <div class="date-inputs">
+        <input type="text" id="dateStart" value="01/01/2025">
+        <span>→</span>
+        <input type="text" id="dateEnd" value="31/12/2025">
       </div>
-      <div class="f-group">
-        <label>Trimestre</label>
-        <select id="selQ">
-          <option value="0">Tous</option>
-          <option value="1">T1</option>
-          <option value="2">T2</option>
-          <option value="3">T3</option>
-          <option value="4">T4</option>
-        </select>
+      <div class="range-wrap">
+        <div class="range-track"></div>
+        <div class="range-fill" id="rangeFill" style="left:0;width:100%"></div>
       </div>
-      <div class="f-group">
-        <label>Mois</label>
-        <select id="selM"><option value="0">Tous</option></select>
-      </div>
-      <div class="f-group">
-        <label>Plage de dates</label>
-        <div class="range-wrap">
-          <div class="track"></div>
-          <div class="fill" id="rgFill"></div>
-          <input type="range" id="rgS" min="0" max="18" value="0">
-          <input type="range" id="rgE" min="0" max="18" value="18">
-        </div>
-        <div class="dates">
-          <input type="date" id="dtS" min="2024-01-01" max="2025-07-01" value="2024-01-01">
-          <input type="date" id="dtE" min="2024-01-01" max="2025-07-01" value="2025-07-01">
-        </div>
-      </div>
-      <button id="btnClear">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 9 8 9"></polyline>
-        </svg>
-        Effacer les filtres
+      <button class="clear-btn" id="clearBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M3 3l18 18M6 6a8 8 0 1011 11M6 6a8 8 0 0111-1M9 3h6"/></svg>
+        Effacer tous les filtres
       </button>
-    </aside>
+    </div>
 
-    <main class="content">
-      <div id="navL1" class="flex flex-row gap-3 w-full my-2"></div>
-      <div id="navL2" class="flex flex-row items-center gap-6 w-full mb-3 pb-1" style="border-bottom:1px solid var(--border);"></div>
-      <div id="kpis" class="grid gap-3 mb-3" style="height:130px;"></div>
-      <div id="visuals" class="grid gap-3" style="flex:1;min-height:0;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;"></div>
-    </main>
+    <div class="content">
+      <div id="navL1" class="nav-l1"></div>
+      <div id="navL2" class="nav-l2"></div>
+      <div id="kpis" class="kpi-row"></div>
+      <div id="visuals" class="visuals"></div>
+    </div>
 
-    <div id="footer">Données fictives — Maquette Power BI haute fidélité.</div>
+    <div class="footer">agiledss · Données fictives — Maquette Power BI haute-fidélité</div>
   </div>
 </div>
 
 <script>
-/* =====================================================================
-   DATA — extraites de donnees.xlsx, grain MENSUEL (19 mois, janv. 2024
-   → juil. 2025) + masques d'activité par cycliste + séries par dimension
-   ===================================================================== */
-const KM_LABELS = ["Jan 2024", "Feb 2024", "Mar 2024", "Apr 2024", "May 2024", "Jun 2024", "Jul 2024", "Aug 2024", "Sep 2024", "Oct 2024", "Nov 2024", "Dec 2024", "Jan 2025", "Feb 2025", "Mar 2025", "Apr 2025", "May 2025", "Jun 2025", "Jul 2025"];
+const KM_LABELS = ["2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07"];
 const MONTH_META = [{"year": 2024, "month": 1, "quarter": 1}, {"year": 2024, "month": 2, "quarter": 1}, {"year": 2024, "month": 3, "quarter": 1}, {"year": 2024, "month": 4, "quarter": 2}, {"year": 2024, "month": 5, "quarter": 2}, {"year": 2024, "month": 6, "quarter": 2}, {"year": 2024, "month": 7, "quarter": 3}, {"year": 2024, "month": 8, "quarter": 3}, {"year": 2024, "month": 9, "quarter": 3}, {"year": 2024, "month": 10, "quarter": 4}, {"year": 2024, "month": 11, "quarter": 4}, {"year": 2024, "month": 12, "quarter": 4}, {"year": 2025, "month": 1, "quarter": 1}, {"year": 2025, "month": 2, "quarter": 1}, {"year": 2025, "month": 3, "quarter": 1}, {"year": 2025, "month": 4, "quarter": 2}, {"year": 2025, "month": 5, "quarter": 2}, {"year": 2025, "month": 6, "quarter": 2}, {"year": 2025, "month": 7, "quarter": 3}];
 const KM = [2225.3, 3831.9, 11128.8, 19791.0, 24686.3, 24642.2, 27416.9, 25161.4, 21115.2, 16203.0, 8698.0, 3945.6, 2234.5, 5005.8, 11520.6, 18638.2, 23815.8, 25865.0, 24322.6];
 const RIDES = [40, 66, 185, 335, 410, 391, 449, 417, 350, 273, 145, 64, 38, 75, 190, 325, 404, 424, 419];
-const MINUTES = [4805, 8243, 24198, 43638, 53392, 53502, 60042, 54636, 46192, 35629, 19172, 8660, 4816, 10776, 24800, 41084, 52251, 56505, 52748];
-const USER_MASKS = {"49": 483326, "34": 524287, "42": 524286, "37": 524287, "21": 518140, "38": 520191, "11": 522236, "41": 520191, "29": 524287, "25": 520190, "43": 516095, "6": 520191, "45": 519165, "10": 524287, "22": 524287, "33": 518143, "16": 524287, "3": 524287, "15": 524287, "2": 511998, "48": 524284, "26": 509949, "39": 524284, "31": 522238, "20": 518132, "9": 524287, "50": 524287, "28": 511998, "8": 510974, "44": 524285, "30": 524286, "47": 524287, "17": 524285, "14": 517116, "32": 514046, "36": 522237, "46": 520190, "27": 514044, "40": 500731, "5": 518140};
+const MINUTES = [4805.0, 8243.0, 24198.0, 43638.0, 53392.0, 53502.0, 60042.0, 54636.0, 46192.0, 35629.0, 19172.0, 8660.0, 4816.0, 10776.0, 24800.0, 41084.0, 52251.0, 56505.0, 52748.0];
+const USER_MASKS = {"2": 511998, "3": 524287, "5": 518140, "6": 520191, "8": 510974, "9": 524287, "10": 524287, "11": 522236, "14": 517116, "15": 524287, "16": 524287, "17": 524285, "20": 518132, "21": 518140, "22": 524287, "25": 520190, "26": 509949, "27": 514044, "28": 511998, "29": 524287, "30": 524286, "31": 522238, "32": 514046, "33": 518143, "34": 524287, "36": 522237, "37": 524287, "38": 520191, "39": 524284, "40": 500731, "41": 520191, "42": 524286, "43": 516095, "44": 524285, "45": 519165, "46": 520190, "47": 524287, "48": 524284, "49": 483326, "50": 524287};
 const KM_PAYS_M = {"Canada": [1943.5, 2763.0, 6889.0, 14414.5, 16001.2, 16874.3, 18778.4, 18626.7, 14161.6, 11360.4, 6557.2, 2521.8, 1697.9, 3668.9, 8158.1, 13073.3, 16719.0, 17889.5, 16999.5], "Belgique": [164.4, 526.4, 1665.9, 2454.2, 3487.2, 2274.7, 3098.1, 1820.9, 2153.3, 2437.3, 1222.6, 456.3, 205.8, 435.7, 1778.2, 2063.8, 2775.6, 2793.1, 2524.8], "France": [117.4, 542.5, 2573.9, 2922.3, 5197.9, 5493.2, 5540.4, 4713.8, 4800.3, 2405.3, 918.2, 967.5, 330.8, 901.2, 1584.3, 3501.1, 4321.2, 5182.4, 4798.3]};
 const RIDES_PAYS_M = {"Canada": [35, 47, 113, 244, 264, 279, 316, 305, 236, 193, 110, 41, 30, 54, 129, 225, 281, 293, 295], "Belgique": [3, 10, 29, 40, 55, 34, 44, 35, 39, 39, 17, 8, 4, 8, 31, 36, 48, 48, 48], "France": [2, 9, 43, 51, 91, 78, 89, 77, 75, 41, 18, 15, 4, 13, 30, 64, 75, 83, 76]};
 const KM_MARQUE_M = {"Argon 18": [0.0, 45.3, 135.7, 305.3, 331.3, 296.1, 237.1, 135.6, 176.7, 136.7, 224.4, 54.4, 59.6, 0.0, 156.7, 0.0, 296.6, 296.8, 239.8], "Specialized": [105.7, 311.5, 1004.5, 1987.3, 2067.6, 2013.8, 2145.0, 2585.2, 1298.0, 1336.9, 721.9, 113.0, 211.1, 444.9, 1014.1, 1448.2, 2122.8, 2513.1, 2572.1], "Trek": [57.4, 235.2, 517.0, 805.8, 881.8, 1210.0, 1563.2, 1569.3, 1240.5, 859.2, 502.3, 314.1, 204.0, 383.3, 768.2, 872.2, 1114.0, 1161.0, 1458.9], "Canyon": [108.6, 426.1, 563.6, 1381.6, 1879.3, 1106.4, 2044.7, 1241.8, 1815.8, 1076.8, 693.9, 196.7, 103.8, 388.8, 676.1, 1391.0, 1604.4, 1666.9, 1732.8], "Scott": [171.8, 21.3, 186.7, 526.2, 559.2, 819.8, 1303.2, 797.7, 497.9, 256.6, 302.2, 0.0, 0.0, 399.3, 469.3, 310.1, 421.4, 585.0, 801.8], "Cervelo": [99.9, 104.1, 561.9, 622.8, 694.8, 1028.6, 1066.0, 756.7, 411.1, 516.0, 309.0, 167.0, 67.5, 114.3, 245.1, 666.1, 633.2, 404.3, 859.1], "Pinarello": [178.3, 176.2, 477.4, 1072.2, 1587.8, 1429.0, 1379.2, 1025.2, 1554.7, 836.9, 186.0, 214.9, 0.0, 222.0, 816.0, 625.3, 1439.8, 1000.2, 1242.4], "Factor": [325.4, 365.4, 1306.6, 2418.7, 3982.7, 3934.3, 2757.2, 3204.4, 2985.2, 1673.5, 1078.3, 787.2, 402.6, 568.9, 1682.2, 3178.3, 3021.6, 4099.1, 3803.3], "Ridley": [225.6, 49.7, 221.0, 616.5, 884.8, 933.5, 883.3, 1289.2, 1121.2, 604.8, 325.4, 290.4, 31.8, 341.5, 454.6, 536.5, 728.1, 918.8, 827.0], "Lapierre": [72.5, 26.1, 113.3, 274.8, 229.0, 519.3, 361.8, 110.5, 82.8, 352.3, 125.5, 43.8, 37.0, 0.0, 174.2, 140.3, 365.6, 70.3, 209.1], "Time": [231.6, 0.0, 157.8, 514.8, 501.4, 304.4, 615.4, 583.7, 286.7, 174.9, 0.0, 49.3, 0.0, 40.1, 81.2, 128.7, 641.2, 431.2, 625.6], "Giant": [110.0, 588.5, 1242.2, 2615.5, 2818.7, 3370.2, 3337.8, 3564.5, 2669.9, 2228.4, 1380.1, 351.8, 78.4, 501.3, 1189.2, 2930.0, 3637.9, 4079.9, 2753.6], "Look": [93.4, 98.3, 347.7, 535.3, 628.0, 601.0, 1011.7, 856.4, 566.1, 472.2, 190.8, 77.6, 94.5, 100.9, 416.1, 843.0, 994.4, 736.6, 809.0], "Merida": [201.5, 499.5, 2068.4, 2684.9, 3268.6, 2741.8, 2635.1, 2253.1, 1916.0, 2280.8, 813.9, 554.5, 496.2, 509.6, 2003.0, 1771.3, 2394.1, 3246.0, 2069.1], "Colnago": [110.5, 252.5, 370.5, 766.8, 1030.3, 864.6, 1137.7, 1183.0, 763.2, 789.6, 380.2, 182.0, 66.5, 316.9, 411.6, 802.3, 1113.2, 1089.7, 715.4], "Orbea": [0.0, 106.9, 528.0, 315.3, 349.2, 482.2, 355.5, 595.2, 584.5, 657.2, 260.5, 38.4, 0.0, 41.7, 244.4, 483.7, 244.9, 491.7, 536.1], "3T": [0.0, 0.0, 433.5, 817.7, 912.3, 559.0, 1021.6, 617.1, 868.6, 817.8, 301.4, 159.2, 61.0, 197.4, 211.4, 768.9, 660.0, 689.8, 577.7], "Eddy Merckx": [110.8, 449.9, 312.3, 365.0, 466.7, 1089.0, 1224.7, 1310.7, 658.8, 372.3, 373.8, 146.3, 60.5, 137.7, 283.2, 601.1, 821.6, 695.3, 551.8], "Bianchi": [0.0, 75.4, 256.4, 693.1, 798.6, 770.2, 885.3, 846.9, 1106.9, 258.5, 259.8, 205.0, 50.4, 252.1, 136.4, 648.3, 593.0, 764.8, 1455.7], "Storck": [22.3, 0.0, 177.1, 174.3, 532.8, 227.5, 1182.9, 211.4, 271.6, 320.7, 107.6, 0.0, 102.4, 45.1, 46.4, 258.5, 484.9, 527.8, 312.7], "Wilier": [0.0, 0.0, 147.2, 297.1, 281.4, 341.5, 268.5, 423.8, 239.0, 180.9, 161.0, 0.0, 107.2, 0.0, 41.2, 234.4, 483.1, 396.7, 169.6]};
@@ -217,487 +173,467 @@ const PAYS_CYCLISTES = {"Canada": 36, "France": 9, "Belgique": 5};
 const VILLE_CYCLISTES = {"Saint-Bruno-de-Montarville": 23, "Liege": 4, "Lyon": 3, "Repentigny": 3, "Annecy": 2, "Gatineau": 2, "Nantes": 2, "Bordeaux": 2, "Terrebonne": 2, "Brossard": 1, "Longueuil": 1, "Drummondville": 1, "Granby": 1, "Montreal": 1, "Quebec": 1, "Namur": 1};
 const MARQUE_VELOS = {"Trek": 6, "Giant": 6, "Specialized": 5, "Cervelo": 5, "Canyon": 5, "Pinarello": 4, "BMC": 4, "Scott": 4, "Merida": 3, "Wilier": 3, "Colnago": 3, "Bianchi": 3, "Factor": 3, "Orbea": 3, "Van Rysel": 3, "Ridley": 3, "Ribble": 2, "Lapierre": 2, "Look": 2, "Argon 18": 2, "Eddy Merckx": 2, "Time": 2, "Cube": 2, "Storck": 2, "3T": 1};
 const USURE_STATUT = {"Depasse": 95, "Critique": 10, "OK": 76, "Alerte": 19};
-const NB_UTILISATEURS = 50, NB_PAYS = 3, NB_VILLES = 16, NB_VELOS = 80, NB_MARQUES = 25;
-const ANNEE_MOY = 2023.0, USERS_AVEC_VELO = 50, VELOS_ATTRIBUES = 57;
+const NB_UTILISATEURS = 50;
+const NB_PAYS = 3;
+const NB_VILLES = 16;
+const NB_VELOS = 80;
+const NB_MARQUES = 25;
+const ANNEE_MOY = 2023.0;
+const USERS_AVEC_VELO = 50;
+const VELOS_ATTRIBUES = 57;
+const N_MONTHS = KM.length;
 
-const N_MONTHS = MONTH_META.length;
-const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-const mLabel = i => MOIS[MONTH_META[i].month-1] + ' ' + MONTH_META[i].year;
+const CUR_YEAR  = Math.max.apply(null, MONTH_META.map(function(m){return m.year;}));
+const PREV_YEAR = CUR_YEAR - 1;
+const CUR_MONTHS = {}; MONTH_META.forEach(function(m){ if (m.year===CUR_YEAR) CUR_MONTHS[m.month]=true; });
+var MONTH_AXIS = ['01','02','03','04','05','06','07','08','09','10','11','12'];
 
-/* Couleurs résolues (ECharts ne lit pas les variables CSS) */
-const C = { primary:'#B69E7F', surface:'#FFFFFF', canvas:'#F1F5F9', card:'#FFFFFF',
-            border:'#CBD5E1', text:'#0F172A', text2:'#64748B' };
-const PAL = [C.primary,'#7C6A53','#D8C6AC','#5CB57D','#2563EB','#94A3B8','#C08497','#8A9A5B'];
-
-/* ---------- Formatage ---------- */
-const fmtInt = v => Math.round(v).toLocaleString('fr-FR');
-const fmtKm  = v => v >= 10000 ? (v/1000).toLocaleString('fr-FR',{maximumFractionDigits:1}) + ' k km'
-                               : Math.round(v).toLocaleString('fr-FR') + ' km';
-const fmtMin = v => Math.round(v).toLocaleString('fr-FR') + ' min';
-const r1 = v => Math.round(v*10)/10;
-
-/* =====================================================================
-   ÉTAT DES FILTRES — source de vérité unique (§2.7)
-   ===================================================================== */
-const FILT = { years:new Set(), quarter:0, month:0, start:0, end:N_MONTHS-1 };
-function monthPass(i){ const m = MONTH_META[i];
-  if (FILT.years.size && !FILT.years.has(m.year)) return false;
-  if (FILT.quarter && m.quarter !== FILT.quarter) return false;
-  if (FILT.month   && m.month   !== FILT.month  ) return false;
-  return i >= FILT.start && i <= FILT.end; }
-function isFiltered(){ return FILT.years.size>0 || FILT.quarter>0 || FILT.month>0 ||
-                              FILT.start>0 || FILT.end<N_MONTHS-1; }
-
-/* ---------- Agrégats (point d'entrée unique de recalcul) ---------- */
-function countActive(mask){
-  let n = 0;
-  for (const k in USER_MASKS) if (USER_MASKS[k] & mask) n++;
-  return n;
-}
-function sumIdx(arr, idx){ let s = 0; idx.forEach(i => s += arr[i]); return s; }
-
-function aggregates(){
-  const idx = [];
-  for (let i = 0; i < N_MONTHS; i++) if (monthPass(i)) idx.push(i);
-  let periodMask = 0; idx.forEach(i => periodMask |= (1 << i));
-
-  let km = 0, rides = 0, minutes = 0;
-  const mLabels = [], mKm = [], mRides = [], mMin = [], mActifs = [];
-  idx.forEach(i => {
-    km += KM[i]; rides += RIDES[i]; minutes += MINUTES[i];
-    mLabels.push(mLabel(i)); mKm.push(r1(KM[i])); mRides.push(RIDES[i]); mMin.push(MINUTES[i]);
-    mActifs.push(countActive(1 << i));
-  });
-  const actifs = countActive(periodMask);
-
-  /* YoY : mois comparables i vs i-12 (jamais année partielle vs complète) */
-  let cMask = 0, pMask = 0;
-  idx.forEach(i => { if (i >= 12) { cMask |= (1 << i); pMask |= (1 << (i-12)); } });
-  let cKm = 0, pKm = 0, cRides = 0, pRides = 0, cMin = 0, pMin = 0;
-  for (let i = 0; i < N_MONTHS; i++){
-    if (cMask & (1 << i)) { cKm += KM[i]; cRides += RIDES[i]; cMin += MINUTES[i]; }
-    if (pMask & (1 << i)) { pKm += KM[i]; pRides += RIDES[i]; pMin += MINUTES[i]; }
+function hexToHsl(hex){
+  var h = hex.replace('#','');
+  var r=parseInt(h.substr(0,2),16)/255, g=parseInt(h.substr(2,2),16)/255, b=parseInt(h.substr(4,2),16)/255;
+  var mx=Math.max(r,g,b), mn=Math.min(r,g,b), hh, s, l=(mx+mn)/2;
+  if (mx===mn){ hh=0; s=0; }
+  else {
+    var d=mx-mn; s = l>0.5 ? d/(2-mx-mn) : d/(mx+mn);
+    switch(mx){
+      case r: hh=(g-b)/d+(g<b?6:0); break;
+      case g: hh=(b-r)/d+2; break;
+      default: hh=(r-g)/d+4;
+    }
+    hh*=60;
   }
-  const yoy = { has:cMask !== 0, cKm, pKm, cRides, pRides, cMin, pMin,
-                cActifs:countActive(cMask), pActifs:countActive(pMask) };
-
-  /* Dimensions filtrées */
-  const paysNames  = Object.keys(KM_PAYS_M);
-  const paysKm     = paysNames.map(p => r1(sumIdx(KM_PAYS_M[p], idx)));
-  const paysRides  = paysNames.map(p => sumIdx(RIDES_PAYS_M[p], idx));
-  const paysKmM    = paysNames.map(p => ({ name:p, data:idx.map(i => r1(KM_PAYS_M[p][i])) }));
-  const marqNames  = Object.keys(KM_MARQUE_M).sort((a,b) =>
-                       sumIdx(KM_MARQUE_M[b], idx) - sumIdx(KM_MARQUE_M[a], idx));
-  const marqKm     = marqNames.map(m => r1(sumIdx(KM_MARQUE_M[m], idx)));
-  const marqKmM    = marqNames.map(m => ({ name:m, data:idx.map(i => r1(KM_MARQUE_M[m][i])) }));
-
-  return { idx, km, rides, minutes, actifs, mLabels, mKm, mRides, mMin, mActifs, yoy,
-           paysNames, paysKm, paysRides, paysKmM, marqNames, marqKm, marqKmM };
+  return [hh, s*100, l*100];
+}
+function hslToHex(h,s,l){
+  s/=100; l/=100;
+  var k=function(n){ return (n + h/30) % 12; };
+  var a=s*Math.min(l,1-l);
+  var f=function(n){ return l - a*Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1))); };
+  var tx=function(x){ var v=Math.round(x*255).toString(16); return v.length<2?'0'+v:v; };
+  return '#'+tx(f(0))+tx(f(8))+tx(f(4));
+}
+function derivePalette(primary){
+  var c = hexToHsl(primary);
+  var h=c[0], s=c[1], l=c[2];
+  return [
+    primary,
+    hslToHex(h, s, Math.max(15, l-18)),
+    hslToHex(h, Math.max(10,s-12), Math.min(92,l+15)),
+    hslToHex((h+28)%360, Math.max(18,s-8), Math.min(62,l)),
+    hslToHex((h+180)%360, Math.max(14,s-22), Math.min(55,l)),
+    hslToHex(h, Math.max(8,s-28), l)
+  ];
 }
 
-/* =====================================================================
-   NAVIGATION (depuis CLIENT.md)
-   ===================================================================== */
-const NAV = [
-  { name:'Cyclistes',
-    desc:"Suivi de la communauté de cyclistes : activité, couverture géographique et affectation des vélos.",
-    subs:[
-      { name:"Vue d'ensemble", view:'1-0',
-        desc:"Indicateurs clés d'activité des cyclistes : kilomètres, sorties, durée et cyclistes actifs." },
-      { name:'Répartition géographique', view:'1-1',
-        desc:"Couverture par pays et par ville : cyclistes, kilomètres et sorties." },
-      { name:'Affectations vélos', view:'1-2',
-        desc:"Attribution des vélos aux cyclistes et ratio d'équipement." }
-    ]},
-  { name:'Flotte vélos',
-    desc:"Pilotage du parc de vélos : composition, marques, kilométrage et état d'usure des composants.",
-    subs:[
-      { name:"Vue d'ensemble", view:'2-0',
-        desc:"Vue synthétique du parc : taille, marques, ancienneté et kilométrage total." },
-      { name:'Répartition par marque', view:'2-1',
-        desc:"Détail du parc et des kilomètres parcourus par marque de vélo." }
-    ]}
-];
-const state = { page:0, sub:0 };
-function go(p, s){ state.page = p; state.sub = s; renderPage(); }
-
-/* =====================================================================
-   KPI — définitions par sous-page (labels = CLIENT.md ; [En consolidation])
-   ===================================================================== */
-const _pct = (c, p) => p ? (c - p) / p * 100 : null;
-const tyKm    = agg => _pct(agg.yoy.cKm, agg.yoy.pKm);
-const tyRides = agg => _pct(agg.yoy.cRides, agg.yoy.pRides);
-const tyAct   = agg => _pct(agg.yoy.cActifs, agg.yoy.pActifs);
-const tyKmPc  = agg => _pct(agg.yoy.cKm / agg.yoy.cActifs, agg.yoy.pKm / agg.yoy.pActifs);
-const tyDur   = agg => _pct(agg.yoy.cMin / agg.yoy.cRides, agg.yoy.pMin / agg.yoy.pRides);
-
-const KPIS = {
-  '1-0': [
-    { label:'Cyclistes actifs', consol:true,  sub:'sur la période', val:a=>fmtInt(a.actifs), trend:tyAct },
-    { label:'Kilomètres totaux',              sub:'cumul période',  val:a=>fmtKm(a.km),      trend:tyKm },
-    { label:'Sorties',                        sub:'nombre total',   val:a=>fmtInt(a.rides),  trend:tyRides },
-    { label:'Km / cycliste',                  sub:'moy. par actif', val:a=>a.actifs ? (a.km/a.actifs).toLocaleString('fr-FR',{maximumFractionDigits:1}) : '—', trend:tyKmPc },
-    { label:'Durée moy. / sortie',            sub:'par sortie',     val:a=>a.rides ? fmtMin(a.minutes/a.rides) : '—', trend:tyDur }
-  ],
-  '1-1': [
-    { label:'Pays couverts',   consol:true,   sub:'présence cyclistes', val:()=>fmtInt(NB_PAYS),  trend:()=>null },
-    { label:'Villes couvertes',               sub:'présence cyclistes', val:()=>fmtInt(NB_VILLES), trend:()=>null },
-    { label:'Cyclistes par pays',             sub:'actifs moyens / pays', val:a=>(a.actifs/NB_PAYS).toLocaleString('fr-FR',{maximumFractionDigits:1}), trend:tyAct }
-  ],
-  '1-2': [
-    { label:'Cyclistes avec vélo', consol:true, sub:'au moins un vélo attribué', val:()=>fmtInt(USERS_AVEC_VELO), trend:()=>null },
-    { label:'Vélos attribués',                  sub:'distincts affectés',        val:()=>fmtInt(VELOS_ATTRIBUES), trend:()=>null },
-    { label:'Ratio vélos / cycliste',           sub:'vélos attribués / cycliste', val:()=>(VELOS_ATTRIBUES/USERS_AVEC_VELO).toLocaleString('fr-FR',{maximumFractionDigits:2}), trend:()=>null }
-  ],
-  '2-0': [
-    { label:'Vélos en flotte',       sub:'parc total',       val:()=>fmtInt(NB_VELOS),   trend:()=>null },
-    { label:'Marques distinctes',    sub:'dans le parc',     val:()=>fmtInt(NB_MARQUES), trend:()=>null },
-    { label:'Année moyenne du parc', sub:'année de sortie',  val:()=>ANNEE_MOY.toLocaleString('fr-FR',{maximumFractionDigits:1}), trend:()=>null },
-    { label:'Km total parcouru',     sub:'par la flotte',    val:a=>fmtKm(a.km),         trend:tyKm }
-  ],
-  '2-1': [
-    { label:'Vélos par marque',  sub:'max (Trek · Giant)', val:()=>fmtInt(Math.max.apply(null, Object.values(MARQUE_VELOS))), trend:()=>null },
-    { label:'Marque dominante',  sub:'6 vélos chacune (7,5 % du parc)', val:()=>'Trek · Giant', trend:()=>null }
-  ]
+var C = {
+  primary:'#B69E7F', surface:'#FFFFFF', canvas:'#F1F5F9', border:'#CBD5E1',
+  cardBg:'#FFFFFF', text:'#0F172A', textSub:'#64748B', neutral:'#CBD5E1',
+  palette: derivePalette('#B69E7F')
 };
 
-function kpiCard(k, agg){
-  const v = agg.yoy.has ? k.trend(agg) : null;
-  let badge = '';
-  if (v !== null && isFinite(v)){
-    const up = v >= 0;
-    badge = '<span class="trend ' + (up ? 'up' : 'down') + '">' +
-            (up ? '+' : '−') + Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1}) + ' % vs N-1</span>';
+function yearMask(year, onlyMonths){
+  var mask = 0;
+  for (var i=0;i<N_MONTHS;i++){
+    var m = MONTH_META[i];
+    if (m.year!==year) continue;
+    if (onlyMonths && !onlyMonths[m.month]) continue;
+    mask |= (1<<i);
   }
-  const flag = k.consol ? '<span class="consol-flag">Indicateur en consolidation</span>' : '';
-  return '<div class="kpi' + (k.consol ? ' consol' : '') + '">' +
-    '<div class="accent"></div>' +
-    '<div class="k-label">' + k.label + '</div>' +
-    '<div class="k-value">' + k.val(agg) + '</div>' +
-    '<div class="k-sub">' + k.sub + '</div>' +
-    '<div class="k-foot">' + badge + flag + '</div></div>';
+  return mask;
 }
-function setKpis(view, agg){
-  const list = KPIS[view];
-  const el = document.getElementById('kpis');
-  el.style.gridTemplateColumns = 'repeat(' + list.length + ', 1fr)';
-  el.innerHTML = list.map(k => kpiCard(k, agg)).join('');
+function countActifs(mask){
+  var n = 0;
+  for (var k in USER_MASKS){ if (USER_MASKS[k] & mask) n++; }
+  return n;
+}
+function aggregates(){
+  var agg = { km:0, rides:0, min:0, actifs:0,
+    cKm:0,pKm:0,cRides:0,pRides:0,cMin:0,pMin:0,cActifs:0,pActifs:0,
+    yoyKm:null, yoyRides:null, yoyMinPerRide:null, yoyKmPerActif:null, yoyActifs:null };
+  for (var i=0;i<N_MONTHS;i++){
+    var m = MONTH_META[i];
+    if (m.year===CUR_YEAR){ agg.km+=KM[i]; agg.rides+=RIDES[i]; agg.min+=MINUTES[i];
+                            agg.cKm+=KM[i]; agg.cRides+=RIDES[i]; agg.cMin+=MINUTES[i]; }
+    else if (m.year===PREV_YEAR && CUR_MONTHS[m.month]){ agg.pKm+=KM[i]; agg.pRides+=RIDES[i]; agg.pMin+=MINUTES[i]; }
+  }
+  agg.actifs = countActifs(yearMask(CUR_YEAR));
+  agg.cActifs = agg.actifs;
+  agg.pActifs = countActifs(yearMask(PREV_YEAR, CUR_MONTHS));
+  var _pct = function(c,p){ return (p && p>0) ? (c-p)/p*100 : null; };
+  agg.yoyKm = _pct(agg.cKm, agg.pKm);
+  agg.yoyRides = _pct(agg.cRides, agg.pRides);
+  if (agg.cRides>0 && agg.pRides>0) agg.yoyMinPerRide = _pct(agg.cMin/agg.cRides, agg.pMin/agg.pRides);
+  if (agg.cActifs>0 && agg.pActifs>0) agg.yoyKmPerActif = _pct(agg.cKm/agg.cActifs, agg.pKm/agg.pActifs);
+  if (agg.cActifs>0 && agg.pActifs>0) agg.yoyActifs = _pct(agg.cActifs, agg.pActifs);
+  return agg;
 }
 
-/* =====================================================================
-   VISUELS — helpers ECharts (§3)
-   ===================================================================== */
-let charts = {};
-function disposeCharts(){ for (const k of Object.keys(charts)) charts[k].dispose(); charts = {}; }
-
-const GRID = { top:30, right:20, bottom:30, left:40, containLabel:true };
-const TIP  = { trigger:'axis', backgroundColor:'#ffffff', borderColor:'#cbd5e1', borderWidth:1,
-               padding:[8,12], textStyle:{ color:'#0f172a', fontSize:12 },
-               extraCssText:'box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1);border-radius:6px;' };
-const AX  = { axisLine:{ lineStyle:{ color:'#94a3b8' } }, axisTick:{ show:false },
-              axisLabel:{ color:C.text2, fontSize:11 } };
-const SPL = { splitLine:{ lineStyle:{ color:'#e2e8f0', type:'dashed' } } };
-
-function vcard(id, title, sub, overlay){
-  return '<div class="vcard"><div class="v-head"><span class="v-title">' + title + '</span>' +
-         '<span class="v-sub">' + (sub || '') + '</span></div>' +
-         '<div class="chart-holder"><div class="chart" id="' + id + '"></div>' + (overlay || '') + '</div></div>';
-}
-function donutOverlay(value, sub){
-  return '<div class="donut-center"><span class="dc-value">' + value + '</span>' +
-         '<span class="dc-sub">' + sub + '</span></div>';
-}
-function lineOpt(labels, data, color, area){
-  return { backgroundColor:'transparent', textStyle:{ fontFamily:'Inter, system-ui, sans-serif' },
-    tooltip:TIP, grid:GRID,
-    xAxis:Object.assign({ type:'category', data:labels }, AX),
-    yAxis:Object.assign({ type:'value' }, AX, SPL),
-    series:[{ type:'line', data:data, smooth:0.2, symbol:'circle', symbolSize:6,
-      lineStyle:{ width:2.5, color:color }, itemStyle:{ color:color, borderWidth:2, borderColor:'#ffffff' },
-      areaStyle: area ? { opacity:0.12, color:color } : undefined }] };
-}
-function barOpt(labels, data, color){
-  return { backgroundColor:'transparent', textStyle:{ fontFamily:'Inter, system-ui, sans-serif' },
-    tooltip:TIP, grid:GRID,
-    xAxis:Object.assign({ type:'category', data:labels }, AX),
-    yAxis:Object.assign({ type:'value' }, AX, SPL),
-    series:[{ type:'bar', data:data, barMaxWidth:24, itemStyle:{ color:color, borderRadius:[3,3,0,0] } }] };
-}
-function stackBarOpt(labels, series){
-  return { backgroundColor:'transparent', textStyle:{ fontFamily:'Inter, system-ui, sans-serif' },
-    tooltip:TIP, grid:GRID,
-    legend:{ top:0, textStyle:{ color:C.text2, fontSize:11 } },
-    xAxis:Object.assign({ type:'category', data:labels }, AX),
-    yAxis:Object.assign({ type:'value' }, AX, SPL),
-    series:series.map((s, i) => ({ name:s.name, type:'bar', stack:'total', data:s.data,
-      barMaxWidth:22, itemStyle:{ color:PAL[i % PAL.length] } })) };
-}
-function hbarOpt(names, values){
-  return { backgroundColor:'transparent', textStyle:{ fontFamily:'Inter, system-ui, sans-serif' },
-    tooltip:Object.assign({}, TIP, { trigger:'item' }), grid:{ top:10, right:56, bottom:10, left:10, containLabel:true },
-    xAxis:Object.assign({ type:'value' }, AX, SPL),
-    yAxis:Object.assign({ type:'category', data:names.slice().reverse(), axisLabel:{ color:C.text2, fontSize:11 } },
-                        { axisLine:AX.axisLine, axisTick:AX.axisTick }),
-    series:[{ type:'bar', data:values.slice().reverse(), barHeight:14,
-      itemStyle:{ color:C.primary, borderRadius:[0,4,4,0] },
-      label:{ show:true, position:'right', fontSize:11, fontWeight:'bold', color:C.text, distance:6 } }] };
-}
-function donutOpt(items){
-  return { backgroundColor:'transparent', textStyle:{ fontFamily:'Inter, system-ui, sans-serif' },
-    tooltip:Object.assign({}, TIP, { trigger:'item' }),
-    legend:{ orient:'vertical', right:8, top:'center', itemGap:10, textStyle:{ color:C.text2, fontSize:11 } },
-    series:[{ type:'pie', radius:['52%','72%'], center:['30%','50%'],
-      data:items.map((d, i) => ({ name:d.name, value:d.value, itemStyle:{ color:PAL[i % PAL.length] } })),
-      label:{ show:true, formatter:'{d} %', fontSize:10, color:C.text2, distanceToLabelLine:5 },
-      labelLine:{ length:8, length2:6 } }] };
-}
+var charts = {};
+function disposeCharts(){ for (var k in charts) charts[k].dispose(); charts = {}; }
 function renderCharts(list){
-  requestAnimationFrame(() => {
-    list.forEach(pair => {
-      const el = document.getElementById(pair[0]);
-      if (el){ charts[pair[0]] = echarts.init(el); charts[pair[0]].setOption(pair[1]); }
+  requestAnimationFrame(function(){
+    list.forEach(function(pair){
+      var id = pair[0], opt = pair[1];
+      var el = document.getElementById(id);
+      if (!el) return;
+      charts[id] = echarts.init(el);
+      charts[id].setOption(opt);
     });
   });
 }
 
-/* =====================================================================
-   VUES — une entrée par sous-page de CLIENT.md
-   ===================================================================== */
-const USURE_ITEMS = Object.keys(USURE_STATUT).map(k => ({
-  name: k === 'Depasse' ? 'Dépassé' : k, value: USURE_STATUT[k] }));
-const NB_COMPOSANTS = USURE_ITEMS.reduce((s, d) => s + d.value, 0);
+var fmtInt = function(n){ return Math.round(n).toLocaleString('fr-FR'); };
+function trendHtml(v){
+  if (v===null || v===undefined || !isFinite(v)) return '';
+  var up = v>=0;
+  var s = (up?'+':'−') + Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1}) + ' % vs N-1';
+  return '<span class="trend ' + (up?'up':'down') + '">' + s + '</span>';
+}
+function kpiCard(label, value, sub, trend, consol){
+  var pill = consol ? '<span class="consol-pill">Indicateur en consolidation</span>' : '';
+  return '<div class="kpi-card' + (consol?' consol':'') + '"><div class="kpi-label">' + label +
+    '</div><div class="kpi-value">' + value + '</div><div class="kpi-sub">' + sub +
+    '</div><div class="kpi-foot">' + (trend||'') + pill + '</div></div>';
+}
+function yearSeries(arr, year){
+  var out = new Array(12).fill(null);
+  for (var i=0;i<N_MONTHS;i++){ var m=MONTH_META[i]; if (m.year===year) out[m.month-1]=arr[i]; }
+  return out;
+}
+function yearRatio(num, den, year){
+  var out = new Array(12).fill(null);
+  for (var i=0;i<N_MONTHS;i++){ var m=MONTH_META[i]; if (m.year===year && den[i]) out[m.month-1]=num[i]/den[i]; }
+  return out;
+}
+function sumDimYear(dict, year){
+  var out = {};
+  for (var k in dict){ var s=0; for (var i=0;i<N_MONTHS;i++) if (MONTH_META[i].year===year) s+=dict[k][i]; out[k]=s; }
+  return out;
+}
+function sumMarqueYear(name, year){
+  var arr = KM_MARQUE_M[name] || []; var s=0;
+  for (var i=0;i<N_MONTHS;i++) if (MONTH_META[i].year===year) s+=arr[i];
+  return s;
+}
+function gridBase(){
+  return {
+    backgroundColor:'transparent',
+    fontFamily:'Inter, system-ui, -apple-system, sans-serif',
+    tooltip:{ trigger:'axis', backgroundColor:'#ffffff', borderColor:'#cbd5e1', borderWidth:1,
+      padding:[8,12], textStyle:{ color:'#0f172a', fontSize:12 },
+      extraCssText:'box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); border-radius: 6px;' },
+    grid:{ top:30, right:20, bottom:30, left:40, containLabel:true },
+    xAxis:{ type:'category', axisLine:{ lineStyle:{ color:'#94a3b8' } }, axisTick:{ show:false } },
+    yAxis:{ type:'value', splitLine:{ lineStyle:{ color:'#e2e8f0', type:'dashed' } }, axisLabel:{ color:C.textSub } },
+    legend:{ textStyle:{ color:C.textSub, fontSize:11 } }
+  };
+}
+function evoLineOption(curData, prevData, unitLabel){
+  var o = gridBase();
+  o.xAxis.data = MONTH_AXIS;
+  o.yAxis.scale = true;
+  o.legend = { show:true, bottom:0, itemGap:18, textStyle:{ color:C.textSub, fontSize:11 } };
+  o.tooltip.valueFormatter = function(v){ return v===null? '-' : fmtInt(v) + (unitLabel? ' ' + unitLabel : ''); };
+  o.series = [
+    { name:String(PREV_YEAR), type:'line', data:prevData, smooth:0.2, symbol:'circle', symbolSize:4,
+      lineStyle:{ type:'dashed', width:1.5, color:C.neutral }, itemStyle:{ color:C.neutral, opacity:0.7 },
+      connectNulls:true },
+    { name:String(CUR_YEAR), type:'line', data:curData, smooth:0.2, symbol:'circle', symbolSize:6,
+      lineStyle:{ width:2.5, color:C.primary }, itemStyle:{ color:C.primary, borderWidth:2, borderColor:'#fff' },
+      areaStyle:{ opacity:0.10, color:C.primary }, connectNulls:true }
+  ];
+  return o;
+}
+function donutOption(slices){
+  var data = slices.map(function(s,i){ return { name:s.name, value:s.value, itemStyle:{ color:C.palette[i%C.palette.length] } }; });
+  return {
+    backgroundColor:'transparent',
+    fontFamily:'Inter, system-ui, -apple-system, sans-serif',
+    tooltip:{ trigger:'item', backgroundColor:'#ffffff', borderColor:'#cbd5e1', borderWidth:1,
+      padding:[8,12], textStyle:{ color:'#0f172a', fontSize:12 },
+      formatter:function(p){ return p.name + ' : ' + fmtInt(p.value) + ' (' + p.percent + ' %)'; } },
+    legend:{ orient:'vertical', right:16, top:'center', itemGap:12, textStyle:{ color:C.textSub, fontSize:11 } },
+    series:[{
+      type:'pie', radius:['52%','72%'], center:['30%','50%'], data:data,
+      label:{ show:true, formatter:'{d} %', fontSize:10, color:C.textSub, distanceToLabelLine:5 },
+      labelLine:{ length:8, length2:6 },
+      itemStyle:{ borderRadius:4, borderColor:'#fff', borderWidth:1 }
+    }]
+  };
+}
+function hbarOption(rows){
+  var items = rows.map(function(r,i){
+    return { name:r.name, value:r.value, color: (r.name==='Autres'? C.neutral : C.palette[i%C.palette.length]) };
+  }).reverse();
+  return {
+    backgroundColor:'transparent',
+    fontFamily:'Inter, system-ui, -apple-system, sans-serif',
+    tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' }, backgroundColor:'#ffffff', borderColor:'#cbd5e1',
+      borderWidth:1, padding:[8,12], textStyle:{ color:'#0f172a', fontSize:12 } },
+    grid:{ top:8, right:70, bottom:8, left:10, containLabel:true },
+    xAxis:{ type:'value', splitLine:{ lineStyle:{ color:'#e2e8f0', type:'dashed' } }, axisLabel:{ color:C.textSub } },
+    yAxis:{ type:'category', data:items.map(function(x){return x.name;}), axisLine:{ show:false }, axisTick:{ show:false },
+      axisLabel:{ color:C.text, fontSize:11 } },
+    series:[{
+      type:'bar', barHeight:16,
+      data:items.map(function(x){ return { value:x.value, itemStyle:{ color:x.color, borderRadius:[0,4,4,0] } }; }),
+      label:{ show:true, position:'right', fontSize:11, fontWeight:'bold', color:C.text, distance:8 }
+    }]
+  };
+}
+function multiLineOption(seriesList){
+  var o = gridBase();
+  o.xAxis.data = MONTH_AXIS;
+  o.yAxis.scale = true;
+  o.legend = { show:true, bottom:0, itemGap:14, textStyle:{ color:C.textSub, fontSize:11 } };
+  o.tooltip.valueFormatter = function(v){ return v===null? '-' : fmtInt(v); };
+  o.series = seriesList.map(function(s,i){
+    var col = C.palette[i%C.palette.length];
+    return { name:s.name, type:'line', data:s.data, smooth:0.2, symbol:'circle', symbolSize:5,
+      lineStyle:{ width:2, color:col }, itemStyle:{ color:col }, connectNulls:true };
+  });
+  return o;
+}
+function topBars(dict, topN){
+  var arr = Object.keys(dict).map(function(k){ return { name:k, value:dict[k] }; }).sort(function(a,b){return b.value-a.value;});
+  var head = arr.slice(0, topN);
+  var rest = arr.slice(topN).reduce(function(s,d){return s+d.value;},0);
+  if (rest>0) head.push({ name:'Autres', value:rest });
+  return head;
+}
+function topBrandKeys(n){
+  return Object.keys(KM_MARQUE_M)
+    .map(function(k){ return { k:k, v:KM_MARQUE_M[k].reduce(function(a,b){return a+b;},0) }; })
+    .sort(function(a,b){return b.v-a.v;}).slice(0,n).map(function(o){return o.k;});
+}
+function tableHtml(headers, rows, numIdx){
+  var h = '<table><thead><tr>';
+  headers.forEach(function(x,i){ h += '<th' + (numIdx.indexOf(i)>=0?' class="num"':'') + '>' + x + '</th>'; });
+  h += '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    h += '<tr>';
+    r.forEach(function(v,i){ h += '<td' + (numIdx.indexOf(i)>=0?' class="num"':'') + '>' + v + '</td>'; });
+    h += '</tr>';
+  });
+  return h + '</tbody></table>';
+}
+function cardShell(title, sub, inner){
+  return '<div class="visual-card"><div class="vc-head"><span class="vc-title">' + title +
+    '</span><span class="vc-sub">' + sub + '</span></div>' + inner + '</div>';
+}
+function donutWithTitle(id, title, sub, slices, centerVal, centerSub){
+  return cardShell(title, sub,
+    '<div class="chart-holder"><div class="chart" id="' + id + '"></div>' +
+    '<div class="donut-center"><div class="dc-value">' + centerVal + '</div><div class="dc-sub">' + centerSub +
+    '</div></div></div>');
+}
 
-const VIEWS = {
-  /* --- Page 1 · Vue d'ensemble --- */
-  '1-0': function(agg){
-    setKpis('1-0', agg);
+var NAV = [
+  { name:'Cyclistes', desc:'Cyclistes actifs, kilométrages, répartition géographique et affectations vélos.', subs:[
+    { name:'Vue d\'ensemble', desc:'Activité globale des cyclistes : actifs, kilomètres, sorties, ratios.' },
+    { name:'Répartition géographique', desc:'Présence par pays et par ville.' },
+    { name:'Affectations vélos', desc:'Vélos attribués aux cyclistes et répartition par marque.' }
+  ]},
+  { name:'Flotte vélos', desc:'Parc de vélos, marques et état des composants.', subs:[
+    { name:'Vue d\'ensemble', desc:'Flotte, marques, ancienneté et kilométrage total.' },
+    { name:'Répartition par marque', desc:'Vélos et kilométrages détaillés par marque.' }
+  ]}
+];
+var state = { page:0, sub:0 };
+
+var VIEWS = {
+  '1.1': function(agg){
+    var kmCyc = agg.actifs>0 ? fmtInt(agg.km/agg.actifs) : '—';
+    var dur = agg.rides>0 ? fmtInt(agg.min/agg.rides) + ' min' : '—';
+    document.getElementById('kpis').innerHTML =
+      kpiCard('Cyclistes actifs', fmtInt(agg.actifs), 'cyclistes sur l\'année ' + CUR_YEAR, trendHtml(agg.yoyActifs), true) +
+      kpiCard('Kilomètres totaux', fmtInt(agg.km), 'km parcourus en ' + CUR_YEAR, trendHtml(agg.yoyKm), false) +
+      kpiCard('Sorties', fmtInt(agg.rides), 'sorties en ' + CUR_YEAR, trendHtml(agg.yoyRides), false) +
+      kpiCard('Km / cycliste', kmCyc, 'km par cycliste actif', trendHtml(agg.yoyKmPerActif), false) +
+      kpiCard('Durée moy. / sortie', dur, 'minutes par sortie', trendHtml(agg.yoyMinPerRide), false);
+    var paysRaw = sumDimYear(KM_PAYS_M, CUR_YEAR);
+    var pays = Object.keys(paysRaw).map(function(k){ return { name:k, value:paysRaw[k] }; });
+    var paysSum = pays.reduce(function(a,p){return a+p.value;},0);
+    var chartsList = [
+      ['v11a', evoLineOption(yearSeries(KM, CUR_YEAR), yearSeries(KM, PREV_YEAR), 'km')],
+      ['v11b', evoLineOption(yearSeries(RIDES, CUR_YEAR), yearSeries(RIDES, PREV_YEAR), 'sorties')],
+      ['v11c', evoLineOption(yearRatio(MINUTES, RIDES, CUR_YEAR), yearRatio(MINUTES, RIDES, PREV_YEAR), 'min')],
+      ['v11d', donutOption(pays)]
+    ];
     document.getElementById('visuals').innerHTML =
-      vcard('c10a', 'Kilomètres par mois', 'km') +
-      vcard('c10b', 'Sorties par mois', 'nombre') +
-      vcard('c10c', 'Kilomètres par pays', 'part du total', donutOverlay(fmtKm(agg.km), 'kilomètres')) +
-      vcard('c10d', 'Cyclistes actifs par mois', 'entités actives');
-    renderCharts([
-      ['c10a', lineOpt(agg.mLabels, agg.mKm, C.primary, true)],
-      ['c10b', barOpt(agg.mLabels, agg.mRides, C.primary)],
-      ['c10c', donutOpt(agg.paysNames.map((n, i) => ({ name:n, value:agg.paysKm[i] })))],
-      ['c10d', barOpt(agg.mLabels, agg.mActifs, '#7C6A53')]
-    ]);
+      cardShell('Km par mois', String(CUR_YEAR) + ' vs ' + String(PREV_YEAR), '<div class="chart-holder"><div class="chart" id="v11a"></div></div>') +
+      cardShell('Sorties par mois', String(CUR_YEAR) + ' vs ' + String(PREV_YEAR), '<div class="chart-holder"><div class="chart" id="v11b"></div></div>') +
+      cardShell('Durée moyenne / sortie', String(CUR_YEAR) + ' vs ' + String(PREV_YEAR), '<div class="chart-holder"><div class="chart" id="v11c"></div></div>') +
+      donutWithTitle('v11d', 'Répartition des km par pays', 'année ' + CUR_YEAR, pays, fmtInt(paysSum), 'km');
+    renderCharts(chartsList);
   },
-  /* --- Page 1 · Répartition géographique --- */
-  '1-1': function(agg){
-    setKpis('1-1', agg);
-    const villes = Object.keys(VILLE_CYCLISTES).slice(0, 8);
+  '1.2': function(agg){
+    var totalCyc = Object.keys(PAYS_CYCLISTES).reduce(function(a,k){return a+PAYS_CYCLISTES[k];},0);
+    var cycParPays = agg.actifs>0 ? fmtInt(agg.actifs/NB_PAYS) : '—';
+    document.getElementById('kpis').innerHTML =
+      kpiCard('Pays couverts', String(NB_PAYS), 'pays de présence', '', true) +
+      kpiCard('Villes couvertes', String(NB_VILLES), 'villes couvertes', '', false) +
+      kpiCard('Cyclistes par pays', cycParPays, 'actifs moyens par pays', trendHtml(agg.yoyActifs), false);
+    var topVilles = topBars(VILLE_CYCLISTES, 10);
+    var paysSlices = Object.keys(PAYS_CYCLISTES).map(function(k){ return { name:k, value:PAYS_CYCLISTES[k] }; });
+    var paysLines = Object.keys(KM_PAYS_M).map(function(k){ return { name:k, data:yearSeries(KM_PAYS_M[k], CUR_YEAR) }; });
+    var villeRows = topBars(VILLE_CYCLISTES, 10).map(function(v){
+      return [v.name, String(v.value), (v.value/totalCyc*100).toLocaleString('fr-FR',{maximumFractionDigits:1}) + ' %']; });
+    var chartsList = [
+      ['v12a', donutOption(paysSlices)],
+      ['v12b', hbarOption(topVilles)],
+      ['v12c', multiLineOption(paysLines)]
+    ];
     document.getElementById('visuals').innerHTML =
-      vcard('c11a', 'Cyclistes par pays', 'inscrits') +
-      vcard('c11b', 'Top villes', 'cyclistes inscrits') +
-      vcard('c11c', 'Kilomètres mensuels par pays', 'km empilés') +
-      vcard('c11d', 'Sorties par pays', 'part du total', donutOverlay(fmtInt(agg.rides), 'sorties'));
-    renderCharts([
-      ['c11a', hbarOpt(Object.keys(PAYS_CYCLISTES), Object.values(PAYS_CYCLISTES))],
-      ['c11b', hbarOpt(villes, villes.map(v => VILLE_CYCLISTES[v]))],
-      ['c11c', stackBarOpt(agg.mLabels, agg.paysKmM)],
-      ['c11d', donutOpt(agg.paysNames.map((n, i) => ({ name:n, value:agg.paysRides[i] })))]
-    ]);
+      donutWithTitle('v12a', 'Cyclistes par pays', 'répartition de la flotte', paysSlices, fmtInt(totalCyc), 'cyclistes') +
+      cardShell('Top 10 villes', 'cyclistes par ville', '<div class="chart-holder"><div class="chart" id="v12b"></div></div>') +
+      cardShell('Km par mois par pays', 'année ' + CUR_YEAR, '<div class="chart-holder"><div class="chart" id="v12c"></div></div>') +
+      cardShell('Cyclistes par ville', 'détail', '<div class="table-wrap">' +
+        tableHtml(['Ville','Cyclistes','Part'], villeRows, [1,2]) + '</div>');
+    renderCharts(chartsList);
   },
-  /* --- Page 1 · Affectations vélos --- */
-  '1-2': function(agg){
-    setKpis('1-2', agg);
-    const kmPc = agg.mKm.map((k, i) => agg.mActifs[i] ? r1(k / agg.mActifs[i]) : 0);
-    const marques = Object.keys(MARQUE_VELOS).slice(0, 8);
+  '1.3': function(){
+    var ratio = (VELOS_ATTRIBUES/USERS_AVEC_VELO).toLocaleString('fr-FR',{maximumFractionDigits:1});
+    document.getElementById('kpis').innerHTML =
+      kpiCard('Cyclistes avec vélo', String(USERS_AVEC_VELO), 'cyclistes équipés', '', true) +
+      kpiCard('Vélos attribués', String(VELOS_ATTRIBUES), 'vélos sur la flotte', '', false) +
+      kpiCard('Ratio vélos / cycliste', ratio, 'vélos par cycliste', '', false);
+    var kmMarqueRaw = sumDimYear(KM_MARQUE_M, CUR_YEAR);
+    var kmMarque = topBars(kmMarqueRaw, 10);
+    var topKeys = topBrandKeys(5);
+    var marqueLines = topKeys.map(function(k){ return { name:k, data:yearSeries(KM_MARQUE_M[k], CUR_YEAR) }; });
+    var rows = Object.keys(MARQUE_VELOS).map(function(k){ return { name:k, velos:MARQUE_VELOS[k] }; })
+      .sort(function(a,b){return b.velos-a.velos;}).slice(0,8)
+      .map(function(o){ return [o.name, String(o.velos), fmtInt(sumMarqueYear(o.name, CUR_YEAR)), (o.velos/NB_VELOS*100).toLocaleString('fr-FR',{maximumFractionDigits:1}) + ' %']; });
+    var chartsList = [
+      ['v13a', hbarOption(topBars(MARQUE_VELOS, 10))],
+      ['v13b', hbarOption(kmMarque)],
+      ['v13c', multiLineOption(marqueLines)]
+    ];
     document.getElementById('visuals').innerHTML =
-      vcard('c12a', 'Vélos attribués vs disponibles', 'parc de ' + NB_VELOS + ' vélos',
-            donutOverlay(fmtInt(VELOS_ATTRIBUES), 'vélos attribués')) +
-      vcard('c12b', 'Marques du parc (top 8)', 'vélos') +
-      vcard('c12c', 'Km mensuels par cycliste actif', 'km / actif') +
-      vcard('c12d', 'Usure des composants', NB_COMPOSANTS + ' composants suivis',
-            donutOverlay(fmtInt(NB_COMPOSANTS), 'composants'));
-    renderCharts([
-      ['c12a', donutOpt([{ name:'Attribués', value:VELOS_ATTRIBUES },
-                         { name:'Disponibles', value:NB_VELOS - VELOS_ATTRIBUES }])],
-      ['c12b', hbarOpt(marques, marques.map(m => MARQUE_VELOS[m]))],
-      ['c12c', lineOpt(agg.mLabels, kmPc, C.primary, true)],
-      ['c12d', donutOpt(USURE_ITEMS)]
-    ]);
+      cardShell('Vélos par marque', 'flotte attribuée', '<div class="chart-holder"><div class="chart" id="v13a"></div></div>') +
+      cardShell('Km par marque', 'année ' + CUR_YEAR, '<div class="chart-holder"><div class="chart" id="v13b"></div></div>') +
+      cardShell('Km par mois — top 5 marques', 'année ' + CUR_YEAR, '<div class="chart-holder"><div class="chart" id="v13c"></div></div>') +
+      cardShell('Affectations par marque', 'top 8', '<div class="table-wrap">' +
+        tableHtml(['Marque','Vélos','Km ' + CUR_YEAR,'Part'], rows, [1,2,3]) + '</div>');
+    renderCharts(chartsList);
   },
-  /* --- Page 2 · Vue d'ensemble flotte --- */
-  '2-0': function(agg){
-    setKpis('2-0', agg);
-    const marques = Object.keys(MARQUE_VELOS).slice(0, 10);
+  '2.1': function(agg){
+    document.getElementById('kpis').innerHTML =
+      kpiCard('Vélos en flotte', String(NB_VELOS), 'vélos au parc', '', false) +
+      kpiCard('Marques distinctes', String(NB_MARQUES), 'marques référencées', '', false) +
+      kpiCard('Année moyenne du parc', String(Math.round(ANNEE_MOY)), 'année moyenne', '', false) +
+      kpiCard('Km total parcouru', fmtInt(agg.km), 'km en ' + CUR_YEAR, trendHtml(agg.yoyKm), false);
+    var statut = Object.keys(USURE_STATUT).map(function(k){ return { name:k, value:USURE_STATUT[k] }; });
+    var totalComposants = statut.reduce(function(a,s){return a+s.value;},0);
+    var topKeys = topBrandKeys(5);
+    var marqueLines = topKeys.map(function(k){ return { name:k, data:yearSeries(KM_MARQUE_M[k], CUR_YEAR) }; });
+    var chartsList = [
+      ['v21a', evoLineOption(yearSeries(KM, CUR_YEAR), yearSeries(KM, PREV_YEAR), 'km')],
+      ['v21b', donutOption(statut)],
+      ['v21c', hbarOption(topBars(MARQUE_VELOS, 10))],
+      ['v21d', multiLineOption(marqueLines)]
+    ];
     document.getElementById('visuals').innerHTML =
-      vcard('c20a', 'Vélos par marque (top 10)', 'parc') +
-      vcard('c20b', 'État d\'usure des composants', 'statut d\'alerte',
-            donutOverlay(fmtInt(NB_COMPOSANTS), 'composants')) +
-      vcard('c20c', 'Kilomètres parcourus par mois', 'km flotte') +
-      vcard('c20d', 'Km mensuels — top marques', 'km empilés');
-    renderCharts([
-      ['c20a', hbarOpt(marques, marques.map(m => MARQUE_VELOS[m]))],
-      ['c20b', donutOpt(USURE_ITEMS)],
-      ['c20c', lineOpt(agg.mLabels, agg.mKm, C.primary, true)],
-      ['c20d', stackBarOpt(agg.mLabels, agg.marqKmM.slice(0, 4))]
-    ]);
+      cardShell('Km par mois', String(CUR_YEAR) + ' vs ' + String(PREV_YEAR), '<div class="chart-holder"><div class="chart" id="v21a"></div></div>') +
+      donutWithTitle('v21b', 'Usure des composants', 'statut de contrôle', statut, fmtInt(totalComposants), 'composants') +
+      cardShell('Top 10 marques (flotte)', 'vélos au parc', '<div class="chart-holder"><div class="chart" id="v21c"></div></div>') +
+      cardShell('Km par mois — top 5 marques', 'année ' + CUR_YEAR, '<div class="chart-holder"><div class="chart" id="v21d"></div></div>');
+    renderCharts(chartsList);
   },
-  /* --- Page 2 · Répartition par marque --- */
-  '2-1': function(agg){
-    setKpis('2-1', agg);
-    const marques = Object.keys(MARQUE_VELOS).slice(0, 12);
-    const topKm = agg.marqNames.slice(0, 6);
-    const topKmItems = topKm.map(m => ({ name:m, value:agg.marqKm[agg.marqNames.indexOf(m)] }));
-    const autresKm = r1(agg.marqKm.slice(6).reduce((s, v) => s + v, 0));
-    if (autresKm > 0) topKmItems.push({ name:'Autres', value:autresKm });
-    const rows = agg.marqNames.slice(0, 10).map(m => {
-      const km = agg.marqKm[agg.marqNames.indexOf(m)];
-      const nb = MARQUE_VELOS[m] || 0;
-      const part = agg.km ? (km / agg.km * 100).toLocaleString('fr-FR',{maximumFractionDigits:1}) : '0';
-      return '<tr><td>' + m + '</td><td class="num">' + fmtInt(nb) + '</td>' +
-             '<td class="num">' + fmtKm(km) + '</td><td class="num">' + part + ' %</td></tr>';
-    }).join('');
+  '2.2': function(){
+    var top = Object.keys(MARQUE_VELOS).map(function(k){ return { k:k, v:MARQUE_VELOS[k] }; }).sort(function(a,b){return b.v-a.v;});
+    var dominante = top.filter(function(o){return o.v===top[0].v;}).map(function(o){return o.k;}).join(' · ');
+    document.getElementById('kpis').innerHTML =
+      kpiCard('Vélos par marque', String(NB_VELOS), 'vélos répartis', '', false) +
+      kpiCard('Marque dominante', dominante, top[0].v + ' vélos chacune', '', false);
+    var kmMarqueRaw = sumDimYear(KM_MARQUE_M, CUR_YEAR);
+    var kmMarque = topBars(kmMarqueRaw, 10);
+    var topKeys = topBrandKeys(5);
+    var marqueLines = topKeys.map(function(k){ return { name:k, data:yearSeries(KM_MARQUE_M[k], CUR_YEAR) }; });
+    var rows = top.slice(0,8).map(function(o){
+      return [o.k, String(o.v), fmtInt(sumMarqueYear(o.k, CUR_YEAR)), (o.v/NB_VELOS*100).toLocaleString('fr-FR',{maximumFractionDigits:1}) + ' %']; });
+    var chartsList = [
+      ['v22a', hbarOption(topBars(MARQUE_VELOS, 10))],
+      ['v22b', hbarOption(kmMarque)],
+      ['v22c', multiLineOption(marqueLines)]
+    ];
     document.getElementById('visuals').innerHTML =
-      vcard('c21a', 'Vélos par marque', 'parc') +
-      vcard('c21b', 'Kilomètres par marque', 'part du total', donutOverlay(fmtKm(agg.km), 'kilomètres')) +
-      vcard('c21c', 'Km mensuels — top marques', 'km empilés') +
-      '<div class="vcard"><div class="v-head"><span class="v-title">Détail par marque (top 10)</span>' +
-      '<span class="v-sub">période filtrée</span></div>' +
-      '<div style="flex:1;min-height:0;overflow:auto;">' +
-      '<table class="vtable"><thead><tr><th>Marque</th><th style="text-align:right;">Vélos</th>' +
-      '<th style="text-align:right;">Km</th><th style="text-align:right;">Part</th></tr></thead>' +
-      '<tbody>' + rows + '</tbody></table></div></div>';
-    renderCharts([
-      ['c21a', hbarOpt(marques, marques.map(m => MARQUE_VELOS[m]))],
-      ['c21b', donutOpt(topKmItems)],
-      ['c21c', stackBarOpt(agg.mLabels, agg.marqKmM.slice(0, 5))]
-    ]);
+      cardShell('Vélos par marque', 'top 10 + Autres', '<div class="chart-holder"><div class="chart" id="v22a"></div></div>') +
+      cardShell('Km par marque', 'année ' + CUR_YEAR, '<div class="chart-holder"><div class="chart" id="v22b"></div></div>') +
+      cardShell('Km par mois — top 5 marques', 'année ' + CUR_YEAR, '<div class="chart-holder"><div class="chart" id="v22c"></div></div>') +
+      cardShell('Détail par marque', 'top 8', '<div class="table-wrap">' +
+        tableHtml(['Marque','Vélos','Km ' + CUR_YEAR,'Part'], rows, [1,2,3]) + '</div>');
+    renderCharts(chartsList);
   }
 };
 
-/* =====================================================================
-   RENDU — navigation, info popover, badge filtres, page active
-   ===================================================================== */
 function renderNav(){
-  document.getElementById('navL1').innerHTML = NAV.map((p, i) =>
-    '<div class="flex-1 py-2.5 px-4 rounded-lg text-xs text-center ' +
-    (i === state.page
-      ? 'font-semibold shadow-sm cursor-default" style="background:var(--primary);color:var(--surface);'
-      : 'font-medium cursor-pointer shadow-sm" style="background:var(--surface);color:var(--text-secondary);border:1px solid var(--border);') +
-    '" onclick="go(' + i + ',0)">' + p.name + '</div>').join('');
-  document.getElementById('navL2').innerHTML = NAV[state.page].subs.map((s, i) =>
-    '<span class="' + (i === state.sub
-      ? 'font-semibold cursor-default" style="font-size:12px;color:var(--primary);border-bottom:2px solid var(--primary);padding-bottom:4px;'
-      : 'font-medium cursor-pointer" style="font-size:12px;color:var(--text-secondary);padding-bottom:4px;') +
-    '" onclick="go(' + state.page + ',' + i + ')">' + s.name + '</span>').join('');
+  var l1 = '';
+  NAV.forEach(function(p,pi){
+    var cls = pi===state.page ? 'nav-pill active' : 'nav-pill inactive';
+    l1 += '<div class="' + cls + '" data-page="' + pi + '">' + p.name + '</div>';
+  });
+  var l1El = document.getElementById('navL1');
+  l1El.innerHTML = l1;
+  var page = NAV[state.page];
+  var l2 = '';
+  page.subs.forEach(function(s,si){
+    var cls = si===state.sub ? 'l2-link active' : 'l2-link';
+    l2 += '<button class="' + cls + '" data-page="' + state.page + '" data-sub="' + si + '">' + s.name + '</button>';
+  });
+  document.getElementById('navL2').innerHTML = l2;
+  l1El.querySelectorAll('[data-page]').forEach(function(el){
+    el.addEventListener('click', function(){ go(parseInt(el.getAttribute('data-page'),10), 0); });
+  });
+  document.getElementById('navL2').querySelectorAll('[data-sub]').forEach(function(el){
+    el.addEventListener('click', function(){
+      go(parseInt(el.getAttribute('data-page'),10), parseInt(el.getAttribute('data-sub'),10));
+    });
+  });
 }
-function renderInfo(){
-  const p = NAV[state.page];
-  document.getElementById('infoPopover').innerHTML =
-    '<h3>' + p.name + '</h3><p class="pdesc">' + p.desc + '</p>' +
-    p.subs.map((s, i) =>
-      '<div class="sub-item"><span class="dot' + (i === state.sub ? ' active' : '') + '"></span>' +
-      '<div><div class="sub-name' + (i === state.sub ? ' active' : '') + '">' + s.name + '</div>' +
-      '<div class="sub-desc">' + s.desc + '</div></div></div>').join('');
+function renderPopover(){
+  var p = NAV[state.page];
+  var h = '<div class="pop-title">' + p.name + '</div><div class="pop-sub">Page active — ' + p.subs[state.sub].name + ' affichée</div>';
+  h += '<div class="pop-divider"></div>';
+  p.subs.forEach(function(s,si){
+    var active = si===state.sub;
+    h += '<div class="pop-item' + (active?' active':'') + '"><span class="dot ' + (active?'blue':'pri') + '"></span>' +
+      '<span>' + s.name + (active?' <span class="pop-now">(affichée)</span>':'') + '</span></div>' +
+      '<div style="font-size:10.5px;color:var(--text-secondary);margin:-2px 0 2px 16px;">' + s.desc + '</div>';
+  });
+  document.getElementById('popover').innerHTML = h;
 }
-function updateBadge(){
-  document.getElementById('fBadge').textContent = isFiltered() ? '● Filtres actifs' : '';
+function renderDecorativePane(){
+  var years = []; MONTH_META.forEach(function(m){ if (years.indexOf(m.year)<0) years.push(m.year); });
+  years.sort();
+  var yc = document.getElementById('yearChiclets');
+  var h = '';
+  years.forEach(function(y){ h += '<div class="chiclet' + (y===CUR_YEAR?' active':'') + '">' + y + '</div>'; });
+  yc.innerHTML = h;
 }
 function renderPage(){
-  const agg = aggregates();
-  renderNav();
-  renderInfo();
-  updateBadge();
   disposeCharts();
-  VIEWS[NAV[state.page].subs[state.sub].view](agg);
+  var agg = aggregates();
+  renderNav();
+  var key = (state.page+1) + '.' + (state.sub+1);
+  VIEWS[key](agg);
+  renderPopover();
 }
-
-/* =====================================================================
-   FILTRES FONCTIONNELS — chaque slicer pilote FILT puis renderPage()
-   ===================================================================== */
-function monthToDateStr(i){
-  const m = MONTH_META[i];
-  return m.year + '-' + String(m.month).padStart(2, '0') + '-01';
+function go(pi, si){
+  state.page = pi; state.sub = si;
+  renderPage();
 }
-function dateStrToMonth(v){
-  const d = new Date(v);
-  if (isNaN(d)) return null;
-  for (let i = 0; i < N_MONTHS; i++)
-    if (MONTH_META[i].year === d.getFullYear() && MONTH_META[i].month === d.getMonth() + 1) return i;
-  return null;
-}
-function syncRangeUI(){
-  document.getElementById('rgS').value = FILT.start;
-  document.getElementById('rgE').value = FILT.end;
-  document.getElementById('dtS').value = monthToDateStr(FILT.start);
-  document.getElementById('dtE').value = monthToDateStr(FILT.end);
-  const f = document.getElementById('rgFill');
-  f.style.left  = (FILT.start / (N_MONTHS - 1) * 100) + '%';
-  f.style.width = ((FILT.end - FILT.start) / (N_MONTHS - 1) * 100) + '%';
-}
-function initFilters(){
-  /* Années — chiclets multi-sélection */
-  const years = [];
-  MONTH_META.forEach(m => { if (years.indexOf(m.year) < 0) years.push(m.year); });
-  const yc = document.getElementById('yearChics');
-  yc.innerHTML = years.map(y => '<span class="chic" data-year="' + y + '">' + y + '</span>').join('');
-  yc.querySelectorAll('.chic').forEach(el => el.addEventListener('click', () => {
-    const y = +el.dataset.year;
-    if (FILT.years.has(y)) { FILT.years.delete(y); el.classList.remove('active'); }
-    else { FILT.years.add(y); el.classList.add('active'); }
-    renderPage();
-  }));
-  /* Trimestre / Mois — mutuellement exclusifs */
-  document.getElementById('selQ').addEventListener('change', e => {
-    FILT.quarter = +e.target.value;
-    if (FILT.quarter) { FILT.month = 0; document.getElementById('selM').value = '0'; }
-    renderPage();
-  });
-  const selM = document.getElementById('selM');
-  selM.innerHTML = '<option value="0">Tous</option>' +
-    MOIS.map((m, i) => '<option value="' + (i + 1) + '">' + m + '</option>').join('');
-  selM.addEventListener('change', e => {
-    FILT.month = +e.target.value;
-    if (FILT.month) { FILT.quarter = 0; document.getElementById('selQ').value = '0'; }
-    renderPage();
-  });
-  /* Plage de dates — slider + champs synchronisés */
-  const rgS = document.getElementById('rgS'), rgE = document.getElementById('rgE');
-  rgS.max = rgE.max = N_MONTHS - 1;
-  rgS.addEventListener('input', () => {
-    FILT.start = Math.min(+rgS.value, FILT.end); syncRangeUI(); renderPage();
-  });
-  rgE.addEventListener('input', () => {
-    FILT.end = Math.max(+rgE.value, FILT.start); syncRangeUI(); renderPage();
-  });
-  document.getElementById('dtS').addEventListener('change', e => {
-    const i = dateStrToMonth(e.target.value); if (i === null) return;
-    FILT.start = Math.min(i, FILT.end); syncRangeUI(); renderPage();
-  });
-  document.getElementById('dtE').addEventListener('change', e => {
-    const i = dateStrToMonth(e.target.value); if (i === null) return;
-    FILT.end = Math.max(i, FILT.start); syncRangeUI(); renderPage();
-  });
-  /* Effacer */
-  document.getElementById('btnClear').addEventListener('click', () => {
-    FILT.years.clear(); FILT.quarter = 0; FILT.month = 0;
-    FILT.start = 0; FILT.end = N_MONTHS - 1;
-    document.getElementById('selQ').value = '0';
-    document.getElementById('selM').value = '0';
-    yc.querySelectorAll('.chic').forEach(el => el.classList.remove('active'));
-    syncRangeUI();
-    renderPage();
-  });
-  syncRangeUI();
-}
-
-/* ---------- Mise à l'échelle du canevas 1920×1080 ---------- */
 function fit(){
-  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-  const sl = document.getElementById('slide');
-  sl.style.transform = 'translate(' + ((window.innerWidth - 1920 * s) / 2) + 'px,' +
-                       ((window.innerHeight - 1080 * s) / 2) + 'px) scale(' + s + ')';
+  var w = window.innerWidth, h = window.innerHeight;
+  var s = Math.min(w/1920, h/1080);
+  document.getElementById('slide').style.transform =
+    'translate(' + ((w-1920*s)/2) + 'px,' + ((h-1080*s)/2) + 'px) scale(' + s + ')';
 }
 window.addEventListener('resize', fit);
-
-/* ---------- Démarrage ---------- */
-initFilters();
-fit();
+renderDecorativePane();
 renderPage();
+fit();
 </script>
 </body>
 </html>

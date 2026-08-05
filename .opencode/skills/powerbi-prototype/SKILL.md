@@ -130,25 +130,28 @@ client **cyclisme existant** (Veloh, agiledss), garder le contrat historique via
 `--profile cyclisme`. Voir `references/POWERBI_COMPONENTS.md` §6.1 pour le
 contrat complet et le mapping `CLIENT.md` → séries.
 
-**Agréger au grain MENSUEL pour l'interactivité** (obligatoire — voir
-`references/POWERBI_COMPONENTS.md` §6). En plus des tableaux finaux par
-sous-page, le skill pré-calcule et **embarque dans le HTML** :
+**Agréger au grain MENSUEL pour l'année N et la variation N-1** (obligatoire —
+voir `references/POWERBI_COMPONENTS.md` §6). Le tableau de bord affiche
+toujours **l'année N** (`CUR_YEAR` = année la plus récente de `MONTH_META`).
+En plus des tableaux finaux par sous-page, le skill pré-calcule et **embarque
+dans le HTML** :
 - les **séries mensuelles** des mesures cœur (ex. `KM[]`, `RIDES[]`,
   `MINUTES[]`), chronologiques, avec `MONTH_META` (`{year, month, quarter}`) ;
-- les **séries mensuelles par dimension** pour chaque dimension filtrée ou
-  chartée (ex. `KM_PAYS_M`, `KM_MARQUE_M`) ;
+- les **séries mensuelles par dimension** chartée (ex. `KM_PAYS_M`,
+  `KM_MARQUE_M`), agrégées sur les mois de l'année N pour les visuels non-
+  temporels ;
 - un **masque d'activité par entité** (bit `i` = actif au mois `i`) pour les KPI
-  de type « entités actives », correct sous n'importe quel filtre ;
-- la **comparaison N-1** sur mois comparables (`i` vs `i-12`), jamais une année
-  partielle contre une année complète (voir §1.4).
+  de type « entités actives » (actifs en N = mask ∩ masque des mois de N) ;
+- la **comparaison N vs N-1** sur mois comparables (mêmes mois que N), jamais
+  une année N partielle contre une N-1 complète (voir §1.4).
 
-Sans ce grain mensuel, ni les **filtres fonctionnels** ni la **variation vs
-N-1** ne sont possibles — c'est la régression à éviter.
+Sans ce grain mensuel, ni l'**année N** ni la **variation vs N-1** ne sont
+possibles — c'est la régression à éviter.
 
 ## Phase 3 — Génération de la maquette HTML
 
 1. Lire `CLIENT.md` (+ `references/POWERBI_LAYOUT.md` et
-   `POWERBI_COMPONENTS.md`), et les données dans `donnees.xlsx` (model/filtres).
+   `POWERBI_COMPONENTS.md`), et les données dans `donnees.xlsx` (model/séries).
 2. Produire `clients/<client>/maquette/index.html` — fichier **auto-suffisant** :
    - Tailwind via CDN, Apache ECharts via CDN.
    - Canevas 1920×1080 fixe, scaling CSS pour s'adapter au viewport (pas de scroll).
@@ -171,16 +174,17 @@ N-1** ne sont possibles — c'est la régression à éviter.
       ~0-97px), en `var(--surface)`, **centrés horizontalement dans la zone du
       bandeau** (à droite de la cassure, ex. `left:360px; right:48px;
       text-align:center`).
-   - Pane filtres à gauche avec **"Filtres" + icône en `var(--primary)`**,
-     fond **`var(--surface)`** (blanc, identique à Surface/Cards), **panneau
-     arrondi flottant** fidèle au template : `left:11px`, `top:116px` (gap ~19px
-     sous le bandeau), `width:235px`, `border-radius:10px`, **sans bordure**.
-     **Filtres FONCTIONNELS (obligatoire)** : chaque slicer (année en chiclets
-     multi-sélection, trimestre et mois en dropdowns mutuellement exclusifs,
-     plage de dates slider + champs synchronisés, bouton « Effacer ») pilote un
-     **état de filtre JS unique** et relance le rendu complet (KPIs + visuels)
-     — voir `POWERBI_COMPONENTS.md` §2.7 et §6. Badge **« ● Filtres actifs »**
-     affiché dès qu'un filtre diffère du défaut.
+    - Pane filtres à gauche avec **"Filtres" + icône en `var(--primary)`**,
+      fond **`var(--surface)`** (blanc, identique à Surface/Cards), **panneau
+      arrondi flottant** fidèle au template : `left:11px`, `top:116px` (gap ~19px
+      sous le bandeau), `width:235px`, `border-radius:10px`, **sans bordure**.
+      **Filtres DÉCORATIFS (le pane n'est pas fonctionnel)** : on rend les slicers
+      (année en chiclets, trimestre et mois en dropdowns, plage de dates slider +
+      champs, bouton « Effacer ») comme un **exemple visuel statique** — chiclet
+      année N pré-sélectionné, trimestre/mois sur « Tous », plage sur la fenêtre
+      de N — mais **aucune logique de recompute** : cliquer un slicer ne change ni
+      KPI ni visuel. Pas d'état de filtre JS, pas de badge « Filtres actifs ». Le
+      tableau de bord montre toujours l'année N. Voir `POWERBI_COMPONENTS.md` §2.7.
    - **Icône information unique** en haut à droite du bandeau (~36px, circulaire,
      sur `var(--surface)`) : au **survol**, un popover explique la **page active
      ET la sous-page actuellement sélectionnée** (en évidence), puis liste les
@@ -193,11 +197,13 @@ N-1** ne sont possibles — c'est la régression à éviter.
      un **petit routeur JS** (`state = { page, subpage }`) rendant la **page et
      les sous-pages cliquables** ; chaque sous-page de `CLIENT.md` reçoit un
      **layout complet** (KPIs + visuels ECharts).
-   - Cartes KPI (avec état consolidation si flag présent) + visuels ECharts
-     depuis la carte visuelle déduite de `donnees.xlsx`. **Variation vs N-1
-     obligatoire** sur **tout KPI dérivé de la série temporelle, sur toutes les
-     pages** (badge `±x,x % vs N-1`, vert/rouge, calculé sur mois comparables
-     `i` vs `i-1`, masqué si non calculable) — voir `POWERBI_COMPONENTS.md` §1.4.
+    - Cartes KPI (avec état consolidation si flag présent) + visuels ECharts
+      depuis la carte visuelle déduite de `donnees.xlsx`. **KPI = valeur de
+      l'année N + variation N vs N-1 obligatoire** sur **tout KPI dérivé de la
+      série temporelle, sur toutes les pages** (badge `±x,x % vs N-1`,
+      vert/rouge, calculé sur mois comparables, masqué si non calculable) — voir
+      `POWERBI_COMPONENTS.md` §1.4. **Visuels non-temporels** (donut, hbar,
+      table) : agrégats de l'année N. **Visuels temporels** : N vs N-1.
    - **Visuels principaux** : grille à **hauteurs égales** (`grid-template-rows:
      1fr 1fr`, aucune hauteur fixe en px), par défaut **2×2 avec 4 visuels** si
      les données supportent 4 visuels pertinents (sinon 3, le 3ᵉ en pleine
@@ -269,8 +275,14 @@ N-1** ne sont possibles — c'est la régression à éviter.
   `POWERBI_LAYOUT.md` §4 Rows 2–3.
 - **Un KPI = une valeur parlante (bloquant)** : jamais de concaténation brute
   (`36 / 9 / 5`). Choisir le chiffre unique que le libellé signifie (comptage,
-  ratio/moyenne recalculée sous filtres, ou valeur nommée courte). Voir
+  ratio/moyenne recalculée pour l'année N, ou valeur nommée courte). Voir
   `POWERBI_COMPONENTS.md` §1.5.
+- **Palette de visuels dérivée du primaire (bloquant)** : **jamais** de palette
+  arc-en-ciel (vert/bleu/jaune/violet). Toute couleur catégorielle (tranches de
+  donut, barres hbar, multi-séries) vient de `derivePalette(--primary)` (primaire
+  + nuances harmonisées). Seuls « Autres » et la courbe N-1 utilisent un neutre.
+  Couleurs sémantiques réservées : rouge consolidation `#FF0000`, vert/rouge des
+  badges de variation. Voir `POWERBI_COMPONENTS.md` § palette.
 - **Hauteurs des visuels normalisées** : les visuels principaux d'une sous-page
   sont rendus dans une grille à lignes égales (`grid-template-rows: 1fr 1fr`) —
   **jamais** de hauteur fixe en px. Disposition **par défaut 2×2 avec 4 visuels**
@@ -286,24 +298,26 @@ N-1** ne sont possibles — c'est la régression à éviter.
 - Dériver `--text-primary`/`--text-secondary` selon la luminance de `--canvas`.
 - Responsive : le canevas 1920×1080 est scaled pour s'adapter au viewport sans
   scrollbars, via `transform: scale(...)` calculé par un petit script.
-- **Filtres FONCTIONNELS (bloquant)** : les slicers du pane ne sont jamais
-  décoratifs — chacun pilote un état de filtre JS unique et relance le rendu
-  complet (KPIs + visuels). Voir `POWERBI_COMPONENTS.md` §2.7. **Données au
-  grain mensuel embarquées** (séries mensuelles + séries par dimension + masques
-  d'activité) pour rendre ce filtrage possible. Voir §6.
+- **Filtres DÉCORATIFS (bloquant)** : les slicers du pane sont un **exemple
+  visuel statique** — jamais de logique de recompute. Le tableau de bord montre
+  toujours **l'année N** (KPIs : valeur N + variation N vs N-1 ; visuels non-
+  temporels : N ; visuels temporels : N vs N-1). Aucun état de filtre JS, pas de
+  `monthPass`, pas de badge « Filtres actifs ». Données au grain mensuel
+  embarquées (séries mensuelles + séries par dimension + masques d'activité)
+  pour calculer l'année N et la variation N-1. Voir `POWERBI_COMPONENTS.md` §2.7
+  et §6.
 - **Variation vs N-1 (bloquant)** : tout KPI dérivé de la série temporelle
-  affiche sa variation vs N-1, sur toutes les pages, calculée sur mois
-  comparables (`i` vs `i-12`) ; badge masqué si non calculable, jamais inventé.
+  affiche sa variation N vs N-1, sur toutes les pages, calculée sur mois
+  comparables (mêmes mois que N) ; badge masqué si non calculable, jamais inventé.
   Voir `POWERBI_COMPONENTS.md` §1.4.
-- **Visuels temporels (axe mois) — Jan→Déc fixe, courant vs N-1, hors filtres
-  (bloquant)** : tout line/bar d'évolution sur un axe mois affiche **12 points
-  `01`..`12`** (Jan→Déc, jamais la liste plate des mois), en **2 séries** — année
-  courante en `--primary` foncé, N-1 en ton neutre/secondaire — avec **légende**,
-  et `yAxis.scale:true` (ne pas ancrer la courbe à 0, ex. *Durée moy. / sortie*).
-  **Ces visuels ignorent les filtres** : `monthPass` ne s'applique qu'aux KPI et
-  aux visuels non-temporels (donuts, hbar, tables). Multi-séries par dimension
-  (top marques, empilé par pays) → axe Jan→Déc de l'année courante uniquement
-  (pas de split N-1, illisible). Voir `POWERBI_COMPONENTS.md` §3.3.
+- **Visuels temporels (axe mois) — Jan→Déc fixe, N vs N-1 (bloquant)** : tout
+  line/bar d'évolution sur un axe mois affiche **12 points `01`..`12`**
+  (Jan→Déc, jamais la liste plate des mois), en **2 séries** — **année N** en
+  `--primary` **solide/fort**, **N-1 en pointillé + plus léger** (neutre, fin) —
+  avec **légende**, et `yAxis.scale:true` (ne pas ancrer la courbe à 0, ex.
+  *Durée moy. / sortie*). Multi-séries par dimension (top marques, empilé par
+  pays) → axe Jan→Déc de l'**année N uniquement** (pas de split N-1, illisible),
+  couleurs issues de la palette dérivée. Voir `POWERBI_COMPONENTS.md` §3.3.
 - **Icône info** : une seule, en haut à droite du bandeau ; le popover explique
   la page active + la sous-page sélectionnée (re-rendu à chaque navigation) et
   reste atteignable au survol (conteneur de survol partagé). Voir §4.3.
