@@ -20,7 +20,7 @@ Deux modes
   META. Aucun nom de feuille/colonne n'est codé en dur.
 * **`--profile cyclisme`** : émet le contrat *legacy* (consts `KM`, `RIDES`,
   `USURE_STATUT`, `USER_MASKS`, `KM_PAYS_M`, `KM_MARQUE_M`, …) utilisé par les
-  maquettes cyclisme existantes (Veloh, agiledss). C'est un **contrat de
+  maquettes cyclisme (compat descendante avec d'anciens clients cyclisme). C'est un **contrat de
   données** (format des `const` émises), **pas** un layout de maquette à
   copier. Compat descendante.
 

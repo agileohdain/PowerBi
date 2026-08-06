@@ -164,7 +164,7 @@ Les **données sont générées par le skill** — jamais fournies par l'utilisa
    Je **raffine** ensuite `views.json` pour épouser l'arbre validé (pages →
    sous-pages → KPIs + visuels, ≤ 4 visuels par sous-page). C'est la **seule**
    étape de curation : aucun HTML n'est écrit à la main. Schéma :
-   `clients/_template/views.json` ; exemple : `clients/agileDSS/views.json`.
+   `clients/_template/views.json`.
    J'humanise les libellés bruts via `labels` (accents, casse — ex. `Liege` →
    `Liège`).
 2. **Génération** (parse `CLIENT.md` → variables CSS dont `--on-primary` WCAG,

@@ -9,7 +9,7 @@ Génère clients/<client>/presentation/maquette.html depuis :
 
 Usage :
   python render.py <client>
-  python render.py agileDSS
+  python render.py MonClient
 
 Étapes : parse CLIENT.md -> variables CSS (dont --on-primary WCAG),
 extraction DATA normalisée, injection DATA/SPEC/CSS/titre dans le template,
