@@ -1,0 +1,40 @@
+{
+  "_comment": "Spec de génération des données fictives (lu par scripts/generate-data.py). Écrit PAR LE SKILL après validation du questionnaire — jamais par l'utilisateur. Le script produit donnees.xlsx (2 années civiles closes) respectant par construction les contraintes de extract-data.py. Période : dynamique (en 2026 -> 2024+2025).",
+  "seed": 42,
+
+  "_comment_fact": "Table de faits : une ligne = un événement daté. rows_per_month = bornes [min,max] du nb de lignes par mois.",
+  "fact": {"name": "FAIT_ABONNEMENT", "pk": "ID_ABONNEMENT", "date_col": "DATE", "rows_per_month": [120, 160]},
+
+  "_comment_measures": "Mesures de la faits. trend_pct = croissance annuelle (%). seasonality = 12 multiplicateurs (Jan..Déc).",
+  "measures": [
+    {"name": "MRR", "avg": 1300, "std": 550, "min": 80, "decimals": 0, "trend_pct": 14,
+     "seasonality": [0.9, 0.85, 0.95, 1.0, 1.05, 1.1, 1.05, 1.05, 1.1, 1.15, 1.25, 1.4]},
+    {"name": "FLAG_CHURN", "avg": 0.02, "std": 0.02, "min": 0, "decimals": 2,
+     "seasonality": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}
+  ],
+
+  "_comment_dimensions": "Dimensions jointes directement à la faits (FK = pk). values = {modalité: poids}. Max 40 modalités/colonne. La feuille 'personne' (DIM_CLIENT ici -> regex client) devient l'entité active.",
+  "dimensions": [
+    {"sheet": "DIM_CLIENT", "pk": "ID_CLIENT", "size": 200, "columns": [
+      {"name": "Segment", "values": {"PME": 0.55, "ETI": 0.3, "Grand compte": 0.15}},
+      {"name": "Region", "values": {"France": 0.5, "Europe": 0.25, "Amérique du Nord": 0.15, "APAC": 0.1}}
+    ]},
+    {"sheet": "DIM_PLAN", "pk": "ID_PLAN", "size": 60, "columns": [
+      {"name": "Plan", "values": {"Essentiel": 0.5, "Business": 0.3, "Entreprise": 0.2}},
+      {"name": "Canal", "values": {"Inbound": 0.45, "Partenaires": 0.3, "Vente directe": 0.15, "Événements": 0.1}}
+    ]}
+  ],
+
+  "_comment_bridges": "Ponts N-N optionnels. Ici : aucun.",
+  "bridges": [],
+
+  "_comment_extra_sheets": "Feuilles NON jointes à la faits : colonnes catégorielles -> CATEGORY_COUNTS (donuts), numériques -> SCALARS AVG_*, id -> DISTINCT_*.",
+  "extra_sheets": [
+    {"name": "SUIVI_CHURN", "pk": "ID_SUIVI", "size": 90, "columns": [
+      {"name": "Motif", "type": "categorical", "values": {"Prix": 0.35, "Fonctionnalités manquantes": 0.3, "Support": 0.2, "Migré vers concurrent": 0.15}},
+      {"name": "COUT_ACQ", "type": "numeric", "avg": 5200, "std": 1400, "min": 800, "decimals": 0},
+      {"name": "DUREE_MOIS", "type": "numeric", "avg": 26, "std": 7, "min": 3, "decimals": 0},
+      {"name": "ID_CLIENT", "type": "id", "pool": 200}
+    ]}
+  ]
+}

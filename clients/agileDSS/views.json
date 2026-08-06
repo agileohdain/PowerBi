@@ -1,0 +1,370 @@
+{
+  "labels": {
+    "Grand compte": "Grand compte",
+    "Amérique du Nord": "Amérique du Nord",
+    "Événements": "Événements",
+    "Fonctionnalités manquantes": "Fonctionnalités manquantes",
+    "Migré vers concurrent": "Migré vers concurrent"
+  },
+  "pages": [
+    {
+      "name": "Performances financières",
+      "desc": "Croissance du chiffre d'affaires récurrent et santé du portefeuille sur {CUR_YEAR} vs {PREV_YEAR}.",
+      "subs": [
+        {
+          "name": "Vue d'ensemble",
+          "kpis": [
+            {
+              "label": "CA récurrent (MRR)",
+              "agg": "sum",
+              "measure": "MRR",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "en {CUR_YEAR}",
+              "pitch": true
+            },
+            {
+              "label": "Abonnements",
+              "agg": "sum",
+              "measure": "_count",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}"
+            },
+            {
+              "label": "Clients actifs",
+              "agg": "active",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "actifs en {CUR_YEAR}"
+            },
+            {
+              "label": "Revenu moyen / abonné",
+              "agg": "ratio",
+              "num": "MRR",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "· {CUR_YEAR}"
+            },
+            {
+              "label": "Taux d'attrition",
+              "agg": "ratio",
+              "num": "FLAG_CHURN",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "pct",
+              "sub": "· {CUR_YEAR}"
+            }
+          ],
+          "visuals": [
+            {
+              "type": "line",
+              "measure": "MRR",
+              "title": "MRR mensuel",
+              "unit": "int",
+              "pitch": true
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Segment.MRR",
+              "top": 6,
+              "title": "MRR par segment",
+              "unit": "int",
+              "centerSub": "mrr",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "hbar",
+              "from": "BY_DIM.Canal.MRR",
+              "top": 10,
+              "title": "MRR par canal",
+              "unit": "int",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "stacked-bars",
+              "from": "BY_DIM.Plan.MRR",
+              "title": "MRR mensuel par plan",
+              "unit": "int"
+            }
+          ]
+        },
+        {
+          "name": "Profitabilité client",
+          "kpis": [
+            {
+              "label": "Coût d'acquisition moyen",
+              "agg": "scalar",
+              "from": "SCALARS.AVG_COUT_ACQ",
+              "fmt": "eur",
+              "sub": "par nouveau client"
+            },
+            {
+              "label": "Durée de vie moyenne",
+              "agg": "scalar",
+              "from": "SCALARS.AVG_DUREE_MOIS",
+              "fmt": "int",
+              "sub": "mois"
+            },
+            {
+              "label": "Revenu moyen / abonné",
+              "agg": "ratio",
+              "num": "MRR",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "· {CUR_YEAR}"
+            },
+            {
+              "label": "Segment dominant",
+              "agg": "top",
+              "from": "DIM_COUNTS.Segment",
+              "fmt": "text",
+              "sub": "en tête"
+            }
+          ],
+          "visuals": [
+            {
+              "type": "donut",
+              "from": "BY_DIM.Segment._count",
+              "top": 6,
+              "title": "Clients par segment",
+              "unit": "int",
+              "centerSub": "total",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "table",
+              "from": "BY_DIM.Region.MRR",
+              "title": "MRR et résiliations par région",
+              "sortBy": "self",
+              "sub": "année {CUR_YEAR}",
+              "cols": [
+                {
+                  "label": "Region",
+                  "source": "name"
+                },
+                {
+                  "label": "MRR",
+                  "source": "self",
+                  "num": true,
+                  "fmt": "int"
+                },
+                {
+                  "label": "Flag Churn",
+                  "source": "measure:FLAG_CHURN",
+                  "num": true,
+                  "fmt": "int"
+                }
+              ]
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Region._count",
+              "top": 6,
+              "title": "Clients par région",
+              "unit": "int",
+              "centerSub": "total",
+              "sub": "année {CUR_YEAR}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rétention & acquisition",
+      "desc": "Attrition, motifs de départ et coût d'acquisition : ce qui joue sur la rétention en {CUR_YEAR}.",
+      "subs": [
+        {
+          "name": "Attrition",
+          "kpis": [
+            {
+              "label": "Taux d'attrition",
+              "agg": "ratio",
+              "num": "FLAG_CHURN",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "pct",
+              "sub": "· {CUR_YEAR}",
+              "pitch": true
+            },
+            {
+              "label": "Abonnements résiliés",
+              "agg": "sum",
+              "measure": "FLAG_CHURN",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}"
+            },
+            {
+              "label": "Clients actifs",
+              "agg": "active",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "actifs en {CUR_YEAR}"
+            },
+            {
+              "label": "Plan dominant",
+              "agg": "top",
+              "from": "DIM_COUNTS.Plan",
+              "fmt": "text",
+              "sub": "en tête"
+            },
+            {
+              "label": "Régions couvertes",
+              "agg": "scalar",
+              "from": "SCALARS.NB_REGION",
+              "fmt": "int",
+              "sub": "zones de présence"
+            }
+          ],
+          "visuals": [
+            {
+              "type": "ratio-line",
+              "num": "FLAG_CHURN",
+              "den": "_count",
+              "title": "Taux d'attrition mensuel",
+              "unit": "int",
+              "pitch": true
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Plan.FLAG_CHURN",
+              "top": 6,
+              "title": "Résiliations par plan",
+              "unit": "int",
+              "centerSub": "flag churn",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "donut",
+              "from": "CATEGORY_COUNTS.SUIVI_CHURN.Motif",
+              "top": 6,
+              "title": "Motifs de départ",
+              "unit": "int",
+              "centerSub": "motif",
+              "sub": "instantané"
+            },
+            {
+              "type": "table",
+              "from": "CATEGORY_COUNTS.SUIVI_CHURN.Motif",
+              "title": "Détail des motifs",
+              "sortBy": "self",
+              "sub": "instantané",
+              "cols": [
+                {
+                  "label": "Motif",
+                  "source": "name"
+                },
+                {
+                  "label": "Départs",
+                  "source": "self",
+                  "num": true,
+                  "fmt": "int"
+                },
+                {
+                  "label": "Part",
+                  "ratio": {
+                    "num": "self",
+                    "den": "SCALARS.NB_SUIVI_CHURN",
+                    "pct": true
+                  },
+                  "num": true,
+                  "fmt": "pct"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Acquisition",
+          "kpis": [
+            {
+              "label": "CAC moyen",
+              "agg": "scalar",
+              "from": "SCALARS.AVG_COUT_ACQ",
+              "fmt": "eur",
+              "sub": "par nouveau client"
+            },
+            {
+              "label": "Revenu moyen / abonné",
+              "agg": "ratio",
+              "num": "MRR",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "· {CUR_YEAR}"
+            },
+            {
+              "label": "Région dominante",
+              "agg": "top",
+              "from": "DIM_COUNTS.Region",
+              "fmt": "text",
+              "sub": "en tête"
+            },
+            {
+              "label": "MRR généré",
+              "agg": "sum",
+              "measure": "MRR",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "en {CUR_YEAR}"
+            }
+          ],
+          "visuals": [
+            {
+              "type": "donut",
+              "from": "BY_DIM.Region.MRR",
+              "top": 6,
+              "title": "MRR par région",
+              "unit": "int",
+              "centerSub": "mrr",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "stacked-bars",
+              "from": "BY_DIM.Segment.MRR",
+              "title": "MRR mensuel par segment",
+              "unit": "int"
+            },
+            {
+              "type": "table",
+              "from": "BY_DIM.Plan.MRR",
+              "title": "MRR & résiliations par plan",
+              "sortBy": "self",
+              "sub": "année {CUR_YEAR}",
+              "cols": [
+                {
+                  "label": "Plan",
+                  "source": "name"
+                },
+                {
+                  "label": "MRR",
+                  "source": "self",
+                  "num": true,
+                  "fmt": "int"
+                },
+                {
+                  "label": "Flag Churn",
+                  "source": "measure:FLAG_CHURN",
+                  "num": true,
+                  "fmt": "int"
+                }
+              ]
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Canal._count",
+              "top": 6,
+              "title": "Clients par canal d'acquisition",
+              "unit": "int",
+              "centerSub": "total",
+              "sub": "année {CUR_YEAR}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
