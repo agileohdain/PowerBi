@@ -560,6 +560,11 @@ def main():
     ap.add_argument("--manifest", help="chemin vers data-manifest.json (override)")
     ap.add_argument("--suggest-views", action="store_true",
                     help="émet un brouillon de views.json (JSON) au lieu du bloc DATA")
+    ap.add_argument("-o", "--out", help="écrit la sortie dans ce fichier (UTF-8) "
+                                        "au lieu de stdout — évite les redirections "
+                                        "shell (ex. '>' PowerShell 5.1 = UTF-16)")
+    ap.add_argument("--print-manifest", action="store_true",
+                    help="imprime le manifeste proposé sur stderr (débogage)")
     args = ap.parse_args()
 
     sheets = load_wb(args.xlsx)
@@ -588,18 +593,29 @@ def main():
         sys.exit(1)
 
     if args.suggest_views:
-        sys.stdout.write(json.dumps(suggest_views(data), ensure_ascii=False, indent=2) + "\n")
-        sys.stderr.write("OK: brouillon views.json émis (à raffiner).\n")
+        payload = json.dumps(suggest_views(data), ensure_ascii=False, indent=2) + "\n"
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as f:
+                f.write(payload)
+            sys.stderr.write("OK: brouillon views.json écrit dans %s (à raffiner).\n" % args.out)
+        else:
+            sys.stdout.write(payload)
+            sys.stderr.write("OK: brouillon views.json émis (à raffiner).\n")
         return
 
-    sys.stdout.write(emit_normalized(data))
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as f:
+            f.write(emit_normalized(data))
+    else:
+        sys.stdout.write(emit_normalized(data))
     meta = data["META"]
     sys.stderr.write(
         "OK: faits='%s' date='%s' | %d mois | mesures=%s | dims=%s | entité_active=%s\n"
         % (meta["fact_sheet"], meta["date_col"], data["N"], meta["measures"],
            [d["name"] for d in meta["dims"]], meta["activity_entity"]))
-    sys.stderr.write("--- Manifeste proposé (copiez dans data-manifest.json pour corriger) ---\n")
-    sys.stderr.write(json.dumps(proposed, ensure_ascii=False, indent=2) + "\n")
+    if args.print_manifest:
+        sys.stderr.write("--- Manifeste proposé (copiez dans data-manifest.json pour corriger) ---\n")
+        sys.stderr.write(json.dumps(proposed, ensure_ascii=False, indent=2) + "\n")
 
 
 if __name__ == "__main__":

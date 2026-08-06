@@ -46,12 +46,10 @@ Dépendance : openpyxl (pip install openpyxl)
 """
 import sys
 import os
-import re
 import json
 import random
 import argparse
 import datetime
-import subprocess
 
 try:
     import openpyxl
@@ -60,7 +58,8 @@ except ImportError:
     sys.exit(2)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-EXTRACTOR = os.path.join(HERE, "extract-data.py")
+sys.path.insert(0, HERE)
+import data_cache
 CAT_MAX = 40  # aligné sur extract-data.py
 
 for _s in (sys.stdout, sys.stderr):
@@ -257,18 +256,9 @@ def write_workbook(path, sheets):
 # Auto-contrôle via extract-data.py
 # ---------------------------------------------------------------------------
 def self_check(xlsx_path, spec):
-    env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
-    out = subprocess.run([sys.executable, EXTRACTOR, xlsx_path],
-                         capture_output=True, text=True, encoding="utf-8",
-                         errors="replace", env=env)
-    sys.stderr.write(out.stderr or "")
-    if out.returncode != 0:
-        raise SystemExit("ERREUR auto-contrôle: extract-data.py a échoué sur "
-                         "le fichier généré.")
-    m = re.search(r"const DATA = (\{.*\});\s*$", out.stdout, re.S)
-    if not m:
-        raise SystemExit("ERREUR auto-contrôle: bloc DATA introuvable.")
-    data = json.loads(m.group(1))
+    # data_cache écrit aussi .data-cache.json à côté du xlsx : render.py et
+    # generate-pitch.py réutiliseront ce contrat sans re-parser le classeur.
+    data = data_cache.get_data(xlsx_path)
     meta = data["META"]
     problems = []
     if meta["fact_sheet"] != spec["fact"]["name"]:

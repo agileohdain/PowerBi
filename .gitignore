@@ -20,6 +20,11 @@
 ~$*.xlsb
 *.tmp
 
+# === Skill powerbi-prototype ===
+# Cache du contrat DATA (régénéré automatiquement par les scripts)
+clients/*/.data-cache.json
+__pycache__/
+
 # === OS ===
 Thumbs.db
 desktop.ini

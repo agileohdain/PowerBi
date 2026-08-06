@@ -28,7 +28,6 @@ import sys
 import os
 import re
 import json
-import subprocess
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -38,24 +37,20 @@ for _s in (sys.stdout, sys.stderr):
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 SKILL = os.path.join(ROOT, ".opencode", "skills", "powerbi-prototype")
-EXTRACTOR = os.path.join(SKILL, "scripts", "extract-data.py")
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import data_cache
 
 
 # ---------------------------------------------------------------------------
 # Extraction & agrégats (miroir de template.html : aggregates/kpiValue/kpiYoy)
 # ---------------------------------------------------------------------------
 def extract_data(xlsx):
-    env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
-    out = subprocess.run([sys.executable, EXTRACTOR, xlsx],
-                         capture_output=True, text=True, encoding="utf-8",
-                         errors="replace", env=env)
-    if out.returncode != 0:
-        sys.stderr.write(out.stderr or "")
-        raise SystemExit("ERREUR: extract-data.py a échoué.")
-    m = re.search(r"const DATA = (\{.*\});\s*$", out.stdout, re.S)
-    if not m:
-        raise SystemExit("ERREUR: bloc DATA introuvable.")
-    return json.loads(m.group(1))
+    """Contrat DATA parsé — via le cache partagé (.data-cache.json). Le
+    manifeste éventuel (data-manifest.json à côté du xlsx) est honoré,
+    comme dans render.py."""
+    manifest = os.path.join(os.path.dirname(os.path.abspath(xlsx)), "data-manifest.json")
+    return data_cache.get_data(xlsx, manifest)
 
 
 def aggregates(DATA, cur, prev):

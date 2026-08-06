@@ -22,6 +22,9 @@ import json
 import subprocess
 import html as htmllib
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import data_cache
+
 # Console Windows (cp1252) : force utf-8 pour afficher les accents/flèches.
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -32,7 +35,6 @@ for _s in (sys.stdout, sys.stderr):
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 SKILL = os.path.join(ROOT, ".opencode", "skills", "powerbi-prototype")
 TEMPLATE = os.path.join(SKILL, "references", "template.html")
-EXTRACTOR = os.path.join(SKILL, "scripts", "extract-data.py")
 SMOKE = os.path.join(SKILL, "scripts", "smoke-test.js")
 
 
@@ -100,20 +102,8 @@ def css_vars(c):
 
 # ----------------------------- extraction ---------------------------------
 def extract_data(xlsx, manifest=None):
-    env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
-    cmd = [sys.executable, EXTRACTOR, xlsx]
-    if manifest and os.path.exists(manifest):
-        cmd += ["--manifest", manifest]
-    out = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
-                         errors="replace", env=env)
-    if out.returncode != 0:
-        sys.stderr.write(out.stderr or "")
-        raise SystemExit("ERREUR: extract-data.py a échoué.")
-    sys.stderr.write(out.stderr or "")
-    m = re.search(r"const DATA = (\{.*\});\s*$", out.stdout, re.S)
-    if not m:
-        raise SystemExit("ERREUR: bloc DATA introuvable dans la sortie de l'extracteur.")
-    return m.group(1)
+    """Littéral JS du contrat DATA — via le cache partagé (.data-cache.json)."""
+    return data_cache.literal(data_cache.get_data(xlsx, manifest))
 
 
 # ----------------------------- rendu --------------------------------------

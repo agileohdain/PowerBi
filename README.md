@@ -39,8 +39,9 @@ opencode
 
 1. **Fournissez** `logo.png` (fond transparent) + la **couleur primaire** (hex,
    ex. `#FA8FF8`).
-2. **Validez** le questionnaire guidé : domaine métier → modèle de données →
-   navigation + KPIs → couleurs secondaires (nommées en clair) → titre.
+2. **Validez** le questionnaire guidé — **2 questions** : le domaine métier,
+   puis une proposition globale unique (modèle de données + navigation & KPIs +
+   couleurs secondaires nommées en clair + titre) à valider ou ajuster.
 3. Ouvrez le rendu : `start clients/MonClient/presentation/maquette.html`. **Fait.**
    Un **pitch de présentation** (`presentation/pitch.md`) est proposé à la fin
    pour scénariser la démo.
@@ -79,6 +80,10 @@ Le skill **refuse de livrer une maquette cassée** :
   exit 0 exigé.
 - **Données conformes par construction** : le générateur relance l'extracteur
   en auto-contrôle **bloquant**.
+- **Carte visuelle validée avant rendu** : `build-views.py` étend `nav.json`
+  en `views.json` et vérifie chaque référence (mesure, dimension, scalaire)
+  contre les données réelles — une référence inconnue est bloquante, avec la
+  liste des identifiants disponibles.
 - **Contraste WCAG AA** dérivé automatiquement (`--on-primary`) — un primaire
   clair ne rend jamais le titre illisible.
 
@@ -90,7 +95,8 @@ clients/MonClient/
 ├── data-spec.json    ← écrit par le skill (spec des données)
 ├── donnees.xlsx      ← GÉNÉRÉ par le skill (2 années closes)
 ├── logo.png          ← fourni par vous — SEUL fichier déposé
-├── views.json        ← carte visuelle déclarative
+├── nav.json          ← écrit par le skill (arbre de navigation validé)
+├── views.json        ← GÉNÉRÉ par build-views.py depuis nav.json
 └── presentation/
     ├── maquette.html ← le rendu, prêt à ouvrir
     └── pitch.md      ← script du conseiller (storytelling + chiffres réels)

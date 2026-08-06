@@ -1,5 +1,5 @@
 {
-  "_comment": "Spec déclarative des vues (lue par scripts/render.py). Copiez ce fichier dans clients/<client>/views.json et adaptez. Lancez `python extract-data.py <xlsx> --suggest-views > views.json` pour un brouillon auto, puis raffinez. Au plus 4 visuels par sous-page (grille 2x2).",
+  "_comment": "Spec déclarative des vues (lue par scripts/render.py). GÉNÉRÉE mécaniquement par `python build-views.py <client>` depuis clients/<client>/nav.json — ne pas écrire à la main (ce fichier documente le schéma de sortie). Au plus 4 visuels par sous-page (grille 2x2).",
 
   "labels": {
     "_comment_label": "Mappings de libellés bruts -> affichage humanisé (accents, casses). Clé = valeur exacte issue de l'Excel."

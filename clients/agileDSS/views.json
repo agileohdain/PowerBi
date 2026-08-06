@@ -1,7 +1,5 @@
 {
-  "labels": {
-    "_comment": "Humanisation optionnelle — clés déjà propres (aucune soulignure/accents à corriger)."
-  },
+  "labels": {},
   "pages": [
     {
       "name": "Performance logistique",
@@ -10,51 +8,242 @@
         {
           "name": "Vue d'ensemble",
           "kpis": [
-            {"label": "Livraisons", "agg": "sum", "measure": "_count", "yoy": true, "fmt": "int", "sub": "en {CUR_YEAR}"},
-            {"label": "Coût transport", "agg": "sum", "measure": "COUT_TRANSPORT", "yoy": true, "fmt": "eur", "sub": "en {CUR_YEAR}"},
-            {"label": "Taux OTIF", "agg": "ratio", "num": "OTIF_PCT", "den": "_count", "yoy": true, "fmt": "pct", "sub": "conformité · {CUR_YEAR}"},
-            {"label": "Colis livrés", "agg": "sum", "measure": "NB_COLIS", "yoy": true, "fmt": "int", "sub": "en {CUR_YEAR}"}
+            {
+              "label": "Livraisons",
+              "agg": "sum",
+              "measure": "_count",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}"
+            },
+            {
+              "label": "Coût transport",
+              "agg": "sum",
+              "measure": "COUT_TRANSPORT",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "en {CUR_YEAR}"
+            },
+            {
+              "label": "Taux OTIF",
+              "agg": "ratio",
+              "num": "OTIF_PCT",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "pct",
+              "sub": "conformité · {CUR_YEAR}"
+            },
+            {
+              "label": "Colis livrés",
+              "agg": "sum",
+              "measure": "NB_COLIS",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}"
+            }
           ],
           "visuals": [
-            {"type": "line", "measure": "COUT_TRANSPORT", "title": "Coût de transport mensuel", "unit": "eur"},
-            {"type": "ratio-line", "num": "RETARD", "den": "_count", "title": "Retard moyen mensuel", "unit": "dur"},
-            {"type": "donut", "from": "BY_DIM.Type._count", "top": 6, "title": "Livraisons par type", "unit": "int", "centerSub": "livraisons", "sub": "année {CUR_YEAR}"},
-            {"type": "donut", "from": "BY_DIM.Segment.NB_COLIS", "top": 6, "title": "Colis par segment", "unit": "int", "centerSub": "colis", "sub": "année {CUR_YEAR}"}
+            {
+              "type": "line",
+              "measure": "COUT_TRANSPORT",
+              "title": "Coût de transport mensuel",
+              "unit": "eur"
+            },
+            {
+              "type": "ratio-line",
+              "num": "RETARD",
+              "den": "_count",
+              "title": "Retard moyen mensuel",
+              "unit": "dur"
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Type._count",
+              "top": 6,
+              "title": "Livraisons par type",
+              "unit": "int",
+              "centerSub": "livraisons",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Segment.NB_COLIS",
+              "top": 6,
+              "title": "Colis par segment",
+              "unit": "int",
+              "centerSub": "colis",
+              "sub": "année {CUR_YEAR}"
+            }
           ]
         },
         {
           "name": "Précision OTIF",
           "kpis": [
-            {"label": "Taux OTIF", "agg": "ratio", "num": "OTIF_PCT", "den": "_count", "yoy": true, "fmt": "pct", "sub": "livraisons conformes · {CUR_YEAR}"},
-            {"label": "Retard moyen", "agg": "ratio", "num": "RETARD", "den": "_count", "yoy": true, "fmt": "dur", "sub": "par livraison · {CUR_YEAR}"},
-            {"label": "Coût moyen / livraison", "agg": "ratio", "num": "COUT_TRANSPORT", "den": "_count", "yoy": true, "fmt": "eur", "sub": "par livraison · {CUR_YEAR}"},
-            {"label": "Livraisons", "agg": "sum", "measure": "_count", "yoy": true, "fmt": "int", "sub": "en {CUR_YEAR}"}
+            {
+              "label": "Taux OTIF",
+              "agg": "ratio",
+              "num": "OTIF_PCT",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "pct",
+              "sub": "livraisons conformes · {CUR_YEAR}"
+            },
+            {
+              "label": "Retard moyen",
+              "agg": "ratio",
+              "num": "RETARD",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "dur",
+              "sub": "par livraison · {CUR_YEAR}"
+            },
+            {
+              "label": "Coût moyen / livraison",
+              "agg": "ratio",
+              "num": "COUT_TRANSPORT",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "par livraison · {CUR_YEAR}"
+            },
+            {
+              "label": "Livraisons",
+              "agg": "sum",
+              "measure": "_count",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}"
+            }
           ],
           "visuals": [
-            {"type": "ratio-line", "num": "OTIF_PCT", "den": "_count", "title": "Taux OTIF mensuel", "unit": "pct"},
-            {"type": "ratio-line", "num": "RETARD", "den": "_count", "title": "Retard moyen mensuel", "unit": "dur"},
-            {"type": "donut", "from": "BY_DIM.Prestataire.RETARD", "top": 5, "title": "Retard par transporteur", "unit": "dur", "centerSub": "minutes", "sub": "année {CUR_YEAR}"},
-            {"type": "donut", "from": "BY_DIM.Zone.NB_COLIS", "top": 6, "title": "Colis par zone", "unit": "int", "centerSub": "colis", "sub": "année {CUR_YEAR}"}
+            {
+              "type": "ratio-line",
+              "num": "OTIF_PCT",
+              "den": "_count",
+              "title": "Taux OTIF mensuel",
+              "unit": "pct"
+            },
+            {
+              "type": "ratio-line",
+              "num": "RETARD",
+              "den": "_count",
+              "title": "Retard moyen mensuel",
+              "unit": "dur"
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Prestataire.RETARD",
+              "top": 5,
+              "title": "Retard par transporteur",
+              "unit": "dur",
+              "centerSub": "minutes",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Zone.NB_COLIS",
+              "top": 6,
+              "title": "Colis par zone",
+              "unit": "int",
+              "centerSub": "colis",
+              "sub": "année {CUR_YEAR}"
+            }
           ]
         },
         {
           "name": "Transporteurs",
           "kpis": [
-            {"label": "Transporteurs", "agg": "scalar", "from": "SCALARS.NB_PRESTATAIRE", "fmt": "int", "sub": "sous contrat"},
-            {"label": "Coût moyen / livraison", "agg": "ratio", "num": "COUT_TRANSPORT", "den": "_count", "yoy": true, "fmt": "eur", "sub": "tous transporteurs · {CUR_YEAR}"},
-            {"label": "Taux OTIF global", "agg": "ratio", "num": "OTIF_PCT", "den": "_count", "yoy": true, "fmt": "pct", "sub": "conformité · {CUR_YEAR}"},
-            {"label": "Colis livrés", "agg": "sum", "measure": "NB_COLIS", "yoy": true, "fmt": "int", "sub": "en {CUR_YEAR}"}
+            {
+              "label": "Transporteurs",
+              "agg": "scalar",
+              "from": "SCALARS.NB_PRESTATAIRE",
+              "fmt": "int",
+              "sub": "sous contrat"
+            },
+            {
+              "label": "Coût moyen / livraison",
+              "agg": "ratio",
+              "num": "COUT_TRANSPORT",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "tous transporteurs · {CUR_YEAR}"
+            },
+            {
+              "label": "Taux OTIF global",
+              "agg": "ratio",
+              "num": "OTIF_PCT",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "pct",
+              "sub": "conformité · {CUR_YEAR}"
+            },
+            {
+              "label": "Colis livrés",
+              "agg": "sum",
+              "measure": "NB_COLIS",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}"
+            }
           ],
           "visuals": [
-            {"type": "hbar", "from": "BY_DIM.Prestataire.COUT_TRANSPORT", "top": 10, "title": "Coût par transporteur", "unit": "eur", "sub": "année {CUR_YEAR}"},
-            {"type": "hbar", "from": "BY_DIM.Prestataire.OTIF_PCT", "top": 10, "title": "Performance OTIF par transporteur", "unit": "int", "sub": "cumul conformité · {CUR_YEAR}"},
-            {"type": "donut", "from": "BY_DIM.Prestataire.NB_COLIS", "top": 5, "title": "Part des colis par transporteur", "unit": "int", "centerSub": "colis", "sub": "année {CUR_YEAR}"},
-            {"type": "table", "from": "BY_DIM.Prestataire.NB_COLIS", "title": "Détail par transporteur", "sortBy": "measure:COUT_TRANSPORT", "sub": "année {CUR_YEAR}", "cols": [
-              {"label": "Transporteur", "name": true},
-              {"label": "Colis", "source": "measure:NB_COLIS", "num": true, "fmt": "int"},
-              {"label": "Coût (€)", "source": "measure:COUT_TRANSPORT", "num": true, "fmt": "eur"},
-              {"label": "OTIF", "source": "measure:OTIF_PCT", "num": true, "fmt": "int"}
-            ]}
+            {
+              "type": "hbar",
+              "from": "BY_DIM.Prestataire.COUT_TRANSPORT",
+              "top": 10,
+              "title": "Coût par transporteur",
+              "unit": "eur",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "hbar",
+              "from": "BY_DIM.Prestataire.OTIF_PCT",
+              "top": 10,
+              "title": "Performance OTIF par transporteur",
+              "unit": "pct",
+              "sub": "cumul conformité · {CUR_YEAR}"
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Prestataire.NB_COLIS",
+              "top": 5,
+              "title": "Part des colis par transporteur",
+              "unit": "int",
+              "centerSub": "colis",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "table",
+              "from": "BY_DIM.Prestataire.NB_COLIS",
+              "title": "Détail par transporteur",
+              "sortBy": "measure:COUT_TRANSPORT",
+              "sub": "année {CUR_YEAR}",
+              "cols": [
+                {
+                  "label": "Prestataire",
+                  "source": "name"
+                },
+                {
+                  "label": "Nb Colis",
+                  "source": "self",
+                  "num": true,
+                  "fmt": "int"
+                },
+                {
+                  "label": "Cout Transport",
+                  "source": "measure:COUT_TRANSPORT",
+                  "num": true,
+                  "fmt": "eur"
+                },
+                {
+                  "label": "Otif Pct",
+                  "source": "measure:OTIF_PCT",
+                  "num": true,
+                  "fmt": "pct"
+                }
+              ]
+            }
           ]
         }
       ]
@@ -66,36 +255,156 @@
         {
           "name": "État des stocks",
           "kpis": [
-            {"label": "Unités en stock", "agg": "scalar", "from": "SCALARS.AVG_NB_UNITES", "fmt": "int", "sub": "moyenne par référence"},
-            {"label": "Références suivies", "agg": "scalar", "from": "SCALARS.NB_FAIT_STOCK", "fmt": "int", "sub": "dans FAIT_STOCK"},
-            {"label": "Statut dominant", "agg": "top", "from": "CATEGORY_COUNTS.FAIT_STOCK.Statut", "fmt": "text", "sub": "en {CUR_YEAR}"}
+            {
+              "label": "Unités en stock",
+              "agg": "scalar",
+              "from": "SCALARS.AVG_NB_UNITES",
+              "fmt": "int",
+              "sub": "moyenne par référence"
+            },
+            {
+              "label": "Références suivies",
+              "agg": "scalar",
+              "from": "SCALARS.NB_FAIT_STOCK",
+              "fmt": "int",
+              "sub": "dans FAIT_STOCK"
+            },
+            {
+              "label": "Statut dominant",
+              "agg": "top",
+              "from": "CATEGORY_COUNTS.FAIT_STOCK.Statut",
+              "fmt": "text",
+              "sub": "en {CUR_YEAR}"
+            }
           ],
           "visuals": [
-            {"type": "donut", "from": "CATEGORY_COUNTS.FAIT_STOCK.Statut", "top": 6, "title": "Répartition des statuts", "unit": "int", "centerSub": "références", "sub": "instantané"},
-            {"type": "table", "from": "CATEGORY_COUNTS.FAIT_STOCK.Statut", "title": "Détail des statuts", "cols": [
-              {"label": "Statut", "name": true},
-              {"label": "Références", "source": "self", "num": true, "fmt": "int"},
-              {"label": "Part", "ratio": {"num": "self", "den": "SCALARS.NB_FAIT_STOCK", "pct": true}, "num": true, "fmt": "pct"}
-            ]}
+            {
+              "type": "donut",
+              "from": "CATEGORY_COUNTS.FAIT_STOCK.Statut",
+              "top": 6,
+              "title": "Répartition des statuts",
+              "unit": "int",
+              "centerSub": "références",
+              "sub": "instantané"
+            },
+            {
+              "type": "table",
+              "from": "CATEGORY_COUNTS.FAIT_STOCK.Statut",
+              "title": "Détail des statuts",
+              "sortBy": "self",
+              "sub": "instantané",
+              "cols": [
+                {
+                  "label": "Statut",
+                  "source": "name"
+                },
+                {
+                  "label": "Références",
+                  "source": "self",
+                  "num": true,
+                  "fmt": "int"
+                },
+                {
+                  "label": "Part",
+                  "ratio": {
+                    "num": "self",
+                    "den": "SCALARS.NB_FAIT_STOCK",
+                    "pct": true
+                  },
+                  "num": true,
+                  "fmt": "pct"
+                }
+              ]
+            }
           ]
         },
         {
           "name": "Coûts de transport",
           "kpis": [
-            {"label": "Coût transport", "agg": "sum", "measure": "COUT_TRANSPORT", "yoy": true, "fmt": "eur", "sub": "en {CUR_YEAR}"},
-            {"label": "Coût moyen / livraison", "agg": "ratio", "num": "COUT_TRANSPORT", "den": "_count", "yoy": true, "fmt": "eur", "sub": "· {CUR_YEAR}"},
-            {"label": "Coût moyen / colis", "agg": "ratio", "num": "COUT_TRANSPORT", "den": "NB_COLIS", "yoy": true, "fmt": "eur", "sub": "· {CUR_YEAR}"},
-            {"label": "Colis livrés", "agg": "sum", "measure": "NB_COLIS", "yoy": true, "fmt": "int", "sub": "en {CUR_YEAR}"}
+            {
+              "label": "Coût transport",
+              "agg": "sum",
+              "measure": "COUT_TRANSPORT",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "en {CUR_YEAR}"
+            },
+            {
+              "label": "Coût moyen / livraison",
+              "agg": "ratio",
+              "num": "COUT_TRANSPORT",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "· {CUR_YEAR}"
+            },
+            {
+              "label": "Coût moyen / colis",
+              "agg": "ratio",
+              "num": "COUT_TRANSPORT",
+              "den": "NB_COLIS",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "· {CUR_YEAR}"
+            },
+            {
+              "label": "Colis livrés",
+              "agg": "sum",
+              "measure": "NB_COLIS",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}"
+            }
           ],
           "visuals": [
-            {"type": "line", "measure": "COUT_TRANSPORT", "title": "Coût de transport mensuel", "unit": "eur"},
-            {"type": "hbar", "from": "BY_DIM.Region.COUT_TRANSPORT", "top": 10, "title": "Coût par région", "unit": "eur", "sub": "année {CUR_YEAR}"},
-            {"type": "donut", "from": "BY_DIM.Zone.COUT_TRANSPORT", "top": 6, "title": "Coût par zone client", "unit": "eur", "centerSub": "coût", "sub": "année {CUR_YEAR}"},
-            {"type": "table", "from": "BY_DIM.Region.COUT_TRANSPORT", "title": "Détail par région", "sortBy": "measure:NB_COLIS", "sub": "année {CUR_YEAR}", "cols": [
-              {"label": "Région", "name": true},
-              {"label": "Coût (€)", "source": "self", "num": true, "fmt": "eur"},
-              {"label": "Colis", "source": "measure:NB_COLIS", "num": true, "fmt": "int"}
-            ]}
+            {
+              "type": "line",
+              "measure": "COUT_TRANSPORT",
+              "title": "Coût de transport mensuel",
+              "unit": "eur"
+            },
+            {
+              "type": "hbar",
+              "from": "BY_DIM.Region.COUT_TRANSPORT",
+              "top": 10,
+              "title": "Coût par région",
+              "unit": "eur",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Zone.COUT_TRANSPORT",
+              "top": 6,
+              "title": "Coût par zone client",
+              "unit": "eur",
+              "centerSub": "coût",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "table",
+              "from": "BY_DIM.Region.COUT_TRANSPORT",
+              "title": "Détail par région",
+              "sortBy": "measure:NB_COLIS",
+              "sub": "année {CUR_YEAR}",
+              "cols": [
+                {
+                  "label": "Region",
+                  "source": "name"
+                },
+                {
+                  "label": "Cout Transport",
+                  "source": "self",
+                  "num": true,
+                  "fmt": "eur"
+                },
+                {
+                  "label": "Nb Colis",
+                  "source": "measure:NB_COLIS",
+                  "num": true,
+                  "fmt": "int"
+                }
+              ]
+            }
           ]
         }
       ]

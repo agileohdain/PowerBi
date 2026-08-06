@@ -416,7 +416,7 @@ function buildTableRows(v){
   return keys.map(k=>{
     const self=flat[k];
     return v.cols.map(col=>{
-      if(col.name==='name' || col.source==='name') return LBL(k);
+      if(col.name==='name' || col.name===true || col.source==='name') return LBL(k);
       if(col.source==='self' || !col.source) return fmtVal(self, col.fmt||'int');
       if(col.source && col.source.indexOf('measure:')===0){ const m=col.source.split(':')[1]; const val=(BY_DIM[dim]&&BY_DIM[dim][k]&&BY_DIM[dim][k][m])?sumYearArr(BY_DIM[dim][k][m]):0; return fmtVal(val, col.fmt||'int'); }
       if(col.source && col.source.indexOf('SCALARS.')===0){ return fmtVal(resolveScalar(col.source), col.fmt||'int'); }

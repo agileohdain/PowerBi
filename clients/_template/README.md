@@ -9,8 +9,11 @@ Contenu du template :
 - `CLIENT.md` — **écrit par le skill** à partir de vos réponses au
   questionnaire guidé (identité, couleurs, contexte & données, arbre de
   navigation). Vous ne le remplissez pas.
+- `nav.example.json` — exemple documenté de l'arbre de navigation en
+  intentions (écrit par le skill, étendu en `views.json` par
+  `scripts/build-views.py`).
 - `views.json` — schéma de la carte visuelle déclarative (pages → sous-pages →
-  KPIs + visuels), raffiné par le skill après génération d'un brouillon.
+  KPIs + visuels), **générée mécaniquement** depuis `nav.json`.
 - `data-spec.example.json` — exemple documenté du spec de génération des
   données (lu par `scripts/generate-data.py`).
 - `bg.svg` (ou `bg.png`) — **optionnel** : si vous déposez une image de fond
@@ -26,7 +29,9 @@ Fichier déposé par l'utilisateur (le skill ne le crée jamais) :
 Fichiers produits par le skill (ne pas créer à la main) :
 - `CLIENT.md` et `data-spec.json` — écrits après le questionnaire guidé
 - `donnees.xlsx` — **données fictives générées** (2 années civiles closes)
-- `views.json` — carte visuelle raffinée
+- `nav.json` — arbre de navigation validé (intentions courtes)
+- `views.json` — carte visuelle **générée par `build-views.py`** depuis
+  `nav.json` (validée contre les données réelles)
 - `presentation/maquette.html` — la maquette, **interactive** : panneau de
   filtres fonctionnel (année, trimestre, mois, plage de dates, bouton
   Réinitialiser) et KPIs temporels avec **variation vs N-1**.
