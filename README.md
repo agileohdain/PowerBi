@@ -33,7 +33,9 @@ opencode
    ex. `#FA8FF8`).
 2. **Validez** le questionnaire guidé : domaine métier → modèle de données →
    navigation + KPIs → couleurs secondaires (nommées en clair) → titre.
-3. Ouvrez le rendu : `start clients/MonClient/maquette/index.html`. **Fait.**
+3. Ouvrez le rendu : `start clients/MonClient/presentation/maquette.html`. **Fait.**
+   Un **pitch de présentation** (`presentation/pitch.md`) est proposé à la fin
+   pour scénariser la démo.
 
 > Les **données fictives sont générées par le skill** (2 années civiles closes,
 > ex. 2024–2025) — vous ne fournissez jamais d'Excel. Le skill ne crée jamais
@@ -44,7 +46,8 @@ opencode
 
 ## Ce que vous obtenez
 
-Un **`maquette/index.html`** auto-suffisant, fidèle au langage visuel Power BI :
+Un **`presentation/maquette.html`** auto-suffisant, fidèle au langage visuel
+Power BI :
 
 - **Canevas 1920×1080** (16:9) scaled au viewport — zéro scrollbar.
 - **Bandeau trapézoïdal** aux couleurs exactes du client + zone logo.
@@ -79,8 +82,9 @@ clients/MonClient/
 ├── donnees.xlsx      ← GÉNÉRÉ par le skill (2 années closes)
 ├── logo.png          ← fourni par vous — SEUL fichier déposé
 ├── views.json        ← carte visuelle déclarative
-└── maquette/
-    └── index.html    ← le rendu, prêt à ouvrir
+└── presentation/
+    ├── maquette.html ← le rendu, prêt à ouvrir
+    └── pitch.md      ← script du conseiller (storytelling + chiffres réels)
 ```
 
 Modèle de départ : `clients/_template/`.

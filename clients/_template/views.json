@@ -31,6 +31,7 @@
   ],
 
   "_schema_kpi_agg": "sum (measure) | active | scalar (from SCALARS.) | ratio (num/den, den peut être _count, ACTIVE, SCALARS.x, ou une mesure) | top (from DIM_COUNTS., renvoie le top-1 + ex aequo)",
+  "_schema_pitch": "pitch : true (optionnel) sur un KPI ou un visuel = à mettre en avant dans presentation/pitch.md (généré par generate-pitch.py) ; à défaut, heuristique (2 KPI à plus forte |variation| + 1 visuel par sous-page développée)",
   "_schema_kpi_fmt": "int | km | eur | f1 | dur | pct | text",
   "_schema_kpi_tokens": "{CUR_YEAR} {PREV_YEAR} {SCALARS.XXX} substitués dans sub",
   "_schema_visual_type": "line | ratio-line | donut | parts-donut | hbar | table",

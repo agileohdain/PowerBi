@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Génère clients/<client>/maquette/index.html depuis :
+Génère clients/<client>/presentation/maquette.html depuis :
   * references/template.html  (scaffold + moteur générique)
   * clients/<client>/CLIENT.md (couleurs, titre, sous-titre)
   * clients/<client>/views.json (pages / sous-pages / KPI / visuels)
@@ -13,7 +13,7 @@ Usage :
 
 Étapes : parse CLIENT.md -> variables CSS (dont --on-primary WCAG),
 extraction DATA normalisée, injection DATA/SPEC/CSS/titre dans le template,
-écriture de maquette/index.html, puis smoke test (exit 0 exigé).
+écriture de presentation/maquette.html, puis smoke test (exit 0 exigé).
 """
 import sys
 import os
@@ -148,9 +148,9 @@ def render(client):
     for k, v in repl.items():
         out = out.replace(k, v)
 
-    maq = os.path.join(cdir, "maquette")
-    os.makedirs(maq, exist_ok=True)
-    idx = os.path.join(maq, "index.html")
+    prs = os.path.join(cdir, "presentation")
+    os.makedirs(prs, exist_ok=True)
+    idx = os.path.join(prs, "maquette.html")
     open(idx, "w", encoding="utf-8").write(out)
     sys.stderr.write("OK: %s généré.\n" % idx)
 

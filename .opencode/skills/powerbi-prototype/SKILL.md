@@ -32,7 +32,8 @@ l'utilisateur ne fournit **jamais** de données, et je ne crée **jamais** le lo
    arbre de navigation, couleurs secondaires, titre — avec validation à chaque
    étape.
 8. Je **génère** `CLIENT.md`, `data-spec.json`, `donnees.xlsx` (Phase 2), puis la
-   maquette (Phase 3 : `views.json` + `render.py` + smoke test).
+   maquette (Phase 3 : `views.json` + `render.py` + smoke test + boucle
+   d'ajustement + `presentation/pitch.md`).
 
 ## Phase 0 — Nom + logo + couleur primaire
 
@@ -154,7 +155,7 @@ Les **données sont générées par le skill** — jamais fournies par l'utilisa
    bloquante** (corriger le spec, relancer). Je présente le modèle détecté à
    l'utilisateur (faits / mesures / dimensions / entité active) en une ligne.
 
-## Phase 3 — Maquette (`views.json` + `render.py`)
+## Phase 3 — Maquette & pitch (`views.json` + `render.py` + `generate-pitch.py`)
 
 1. **Brouillon déclaratif** depuis le contrat normalisé :
    ```bash
@@ -168,7 +169,7 @@ Les **données sont générées par le skill** — jamais fournies par l'utilisa
    `Liège`).
 2. **Génération** (parse `CLIENT.md` → variables CSS dont `--on-primary` WCAG,
    extraction → DATA, injection DATA + SPEC dans le template, écriture de
-   `maquette/index.html`, **puis smoke test**) :
+   `presentation/maquette.html`, **puis smoke test**) :
    ```bash
    python .opencode/skills/powerbi-prototype/scripts/render.py <client>
    ```
@@ -176,18 +177,39 @@ Les **données sont générées par le skill** — jamais fournies par l'utilisa
    l'extracteur (override de l'auto-détection — format = celui du « manifeste
    proposé » : `dims` = liste de **noms**).
 3. **Référencer** `logo.png` (+ `bg.*` si présent) **depuis le dossier parent**
-   via `src="../logo.png"` — **ne pas copier** le logo dans `maquette/`.
+   via `src="../logo.png"` — **ne pas copier** le logo dans `presentation/`.
 4. **Validation d'exécution (OBLIGATOIRE, bloquant)** — le smoke test est lancé
    par `render.py`, exit code 0 exigé :
    ```bash
-   node .opencode/skills/powerbi-prototype/scripts/smoke-test.js clients/<client>/maquette/index.html
+   node .opencode/skills/powerbi-prototype/scripts/smoke-test.js clients/<client>/presentation/maquette.html
    ```
    Il exécute le JS de la maquette dans Node (DOM et ECharts simulés), appelle
    `renderPage()`, parcourt **toutes** les sous-pages, vérifie que chaque rendu
    appelle `echarts.init` (autant de charts que de conteneurs) **et qu'aucun
    visuel n'est sans données** (un `from:`/`measure` de `views.json` qui ne
    résout rien dans DATA = échec). **Ne jamais livrer une maquette qui échoue.**
-5. Indiquer à l'utilisateur comment ouvrir le rendu (`start index.html`).
+5. **Boucle de validation avant pitch** — une fois `maquette.html` généré et le
+   smoke test vert, je pose **via l'outil `question`** (jamais un prompt texte
+   seul) : *« La maquette est prête. Passer au pitch de présentation ? Sinon
+   « Type your own answer » pour ajuster la maquette (elle sera régénérée). »* —
+   option cliquable : **Génération de pitch.md**.
+   - Si l'utilisateur saisit du texte libre (ajustement) : j'applique la
+     modification (views / `CLIENT.md` / `data-spec.json` + regénération de
+     `donnees.xlsx` si nécessaire), je relance `render.py` (smoke test exit 0
+     exigé), puis je **repose la même question**. On boucle jusqu'à ce que
+     l'utilisateur choisisse « **Génération de pitch.md** ».
+6. **Pitch du conseiller** — quand « Génération de pitch.md » est choisi :
+   ```bash
+   python .opencode/skills/powerbi-prototype/scripts/generate-pitch.py <client>
+   ```
+   Il écrit `presentation/pitch.md` : scénarisation narrative (ouverture, pages →
+   sous-pages, clôture) qui ne reprend **que les KPI/visuels les plus percutants**
+   (flag `pitch: true` dans `views.json`, à défaut heuristique), avec les
+   **valeurs réelles année N et la variation vs N-1**, des transitions et des
+   durées — le conseiller répète ainsi son storytelling avant la démo.
+7. Indiquer l'ouverture du rendu :
+   `start clients/<client>/presentation/maquette.html` (et lire
+   `presentation/pitch.md` avant de présenter).
 
 ## Sources de données
 
@@ -208,6 +230,12 @@ Les **données sont générées par le skill** — jamais fournies par l'utilisa
 - `logo.png` — **fourni par l'utilisateur** (jamais créé par le skill).
 - `bg.svg`/`bg.png` — optionnel, fourni par l'utilisateur (fond personnalisé).
 - `views.json` — carte visuelle déclarative (brouillon auto + raffinement).
+  Un KPI/visuel peut porter `"pitch": true` = à mettre en avant dans `pitch.md`.
+- `presentation/maquette.html` — le rendu HTML (anc. `maquette/index.html`),
+  logo référencé via `../logo.png`.
+- `presentation/pitch.md` — **script du conseiller**, généré par
+  `generate-pitch.py` à la demande (fin de Phase 3) : storytelling + valeurs
+  réelles ; écrit par le skill, jamais par l'utilisateur.
 - Modèle de départ : `clients/_template/`.
 
 ## Règles de qualité
@@ -220,7 +248,7 @@ Les **données sont générées par le skill** — jamais fournies par l'utilisa
   que nom + logo + couleur primaire. Toute donnée vient de `generate-data.py`
   via un `data-spec.json` validé ; ne jamais réclamer un Excel à l'utilisateur.
 - **Pas de maquette de référence (bloquant)** : ne **jamais** rechercher ni lire
-  `clients/<autre>/maquette/index.html` (pas de `glob clients/*/maquette`).
+  `clients/<autre>/presentation/maquette.html` (pas de `glob clients/*/presentation`).
   Chaque maquette est générée depuis `POWERBI_LAYOUT.md` +
   `POWERBI_COMPONENTS.md` + `CLIENT.md` + les données extraites. Le « profil
   cyclisme legacy » (`--profile cyclisme`) est un **contrat de données** de

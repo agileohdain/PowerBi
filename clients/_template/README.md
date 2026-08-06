@@ -27,6 +27,8 @@ Fichiers produits par le skill (ne pas créer à la main) :
 - `CLIENT.md` et `data-spec.json` — écrits après le questionnaire guidé
 - `donnees.xlsx` — **données fictives générées** (2 années civiles closes)
 - `views.json` — carte visuelle raffinée
-- `maquette/index.html` — la maquette, **interactive** : panneau de filtres
-  fonctionnel (année, trimestre, mois, plage de dates, bouton Réinitialiser)
-  et KPIs temporels avec **variation vs N-1**.
+- `presentation/maquette.html` — la maquette, **interactive** : panneau de
+  filtres fonctionnel (année, trimestre, mois, plage de dates, bouton
+  Réinitialiser) et KPIs temporels avec **variation vs N-1**.
+- `presentation/pitch.md` — **script du conseiller** (storytelling + chiffres
+  réels), généré par `generate-pitch.py` à la fin de la Phase 3.

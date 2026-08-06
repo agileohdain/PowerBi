@@ -13,7 +13,7 @@
  *   - parcourt toutes les sous-pages via `go(page, sub)` (si `NAV`/`go` existent) ;
  *   - exécute chaque vue de `VIEWS` avec `aggregates()` (si présents).
  *
- * Usage :  node smoke-test.js <chemin/vers/index.html>
+ * Usage :  node smoke-test.js <chemin/vers/maquette.html>
  * Sortie : exit code 0 = OK, 1 = au moins un échec, 2 = mauvaise invocation.
  *
  * Pourquoi ce test existe : une seule erreur JS fatale (ReferenceError,
@@ -25,7 +25,7 @@ const fs = require('fs');
 
 const target = process.argv[2];
 if (!target) {
-  console.error('usage: node smoke-test.js <chemin/vers/index.html>');
+  console.error('usage: node smoke-test.js <chemin/vers/maquette.html>');
   process.exit(2);
 }
 if (!fs.existsSync(target)) {
