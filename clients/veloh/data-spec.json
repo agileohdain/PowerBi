@@ -1,0 +1,49 @@
+{
+  "_comment": "Spec de génération des données fictives — veloh (Pilotage Supply Chain). Écrit PAR LE SKILL powerbi-prototype après validation du questionnaire. Produit donnees.xlsx (2 années civiles closes : 2024+2025) respectant par construction les contraintes de extract-data.py.",
+  "_comment_seed": "Reproductibilité : même seed + même spec = même classeur.",
+  "seed": 42,
+
+  "_comment_fact": "Table de faits : une ligne = une livraison expédiée datée. rows_per_month = bornes [min,max] du nb de lignes par mois (~95-150).",
+  "fact": {"name": "FAIT_LIVRAISON", "pk": "ID_LIVRAISON", "date_col": "DATE", "rows_per_month": [95, 150]},
+
+  "_comment_measures": "Mesures additives (COUT_TRANSPORT, QUANTITE, DISTANCE_KM) + flag 0/1 A_TEMPS (livraison à temps). trend_pct = croissance annuelle (%). seasonality = 12 multiplicateurs (Jan..Déc) — pic juin & novembre, creux août. A_TEMPS sans saisonnalité ni tendance (taire comparable N vs N-1).",
+  "measures": [
+    {"name": "COUT_TRANSPORT", "avg": 420, "std": 120, "min": 40, "decimals": 2, "trend_pct": 5,
+     "seasonality": [0.9, 0.88, 0.95, 1.0, 1.05, 1.15, 1.0, 0.82, 1.05, 1.1, 1.2, 1.1]},
+    {"name": "QUANTITE", "avg": 110, "std": 35, "min": 10, "decimals": 0, "trend_pct": 3,
+     "seasonality": [0.9, 0.88, 0.95, 1.0, 1.05, 1.15, 1.0, 0.82, 1.05, 1.1, 1.2, 1.1]},
+    {"name": "DISTANCE_KM", "avg": 160, "std": 55, "min": 15, "decimals": 0, "trend_pct": 0},
+    {"name": "A_TEMPS", "avg": 0.93, "std": 0.27, "min": 0, "decimals": 0, "trend_pct": 0}
+  ],
+
+  "_comment_dimensions": "Dimensions jointes directement à la faits (FK = pk). DIM_CLIENT = entité « personne » (-> KPI actifs). Univers/Famille = hiérarchie (Famille dépend d'Univers). Toutes les colonnes <= 40 modalités.",
+  "dimensions": [
+    {"sheet": "DIM_CLIENT", "pk": "ID_CLIENT", "size": 140, "columns": [
+      {"name": "Type", "values": {"Distributeur": 0.3, "Grossiste": 0.25, "Magasin": 0.3, "Direct": 0.15}},
+      {"name": "Zone", "values": {"Nord": 0.25, "Sud": 0.2, "Est": 0.2, "Ouest": 0.2, "Centre": 0.15}}
+    ]},
+    {"sheet": "DIM_PRODUIT", "pk": "ID_PRODUIT", "size": 36, "columns": [
+      {"name": "Univers", "values": {"Équipement": 0.4, "Consommable": 0.35, "Périphérique": 0.25}},
+      {"name": "Famille", "parent": "Univers", "values": {
+        "Équipement": {"Machines": 0.5, "Outillage": 0.5},
+        "Consommable": {"Pièces": 0.5, "Fournitures": 0.5},
+        "Périphérique": {"Accessoires": 1.0}
+      }}
+    ]},
+    {"sheet": "DIM_TRANSPORTEUR", "pk": "ID_TRANSPORTEUR", "size": 8, "columns": [
+      {"name": "Mode", "values": {"Route": 0.55, "Fer": 0.15, "Maritime": 0.1, "Messagerie": 0.2}}
+    ]}
+  ],
+
+  "_comment_bridges": "Aucun pont N-N : chaque dimension est jointe directement à la faits.",
+  "bridges": [],
+
+  "_comment_extra_sheets": "Feuilles NON jointes à la faits. FAIT_INCIDENT alimente CATEGORY_COUNTS (donut Statut) + SCALARS (NB_FAIT_INCIDENT, AVG_DELAI_HEURES).",
+  "extra_sheets": [
+    {"name": "FAIT_INCIDENT", "pk": "ID_INCIDENT", "size": 150, "columns": [
+      {"name": "Statut", "type": "categorical", "values": {"Ouvert": 0.2, "En cours": 0.3, "Résolu": 0.5}},
+      {"name": "DELAI_HEURES", "type": "numeric", "avg": 24, "std": 10, "min": 1, "decimals": 0},
+      {"name": "ID_PRODUIT", "type": "id", "pool": 36}
+    ]}
+  ]
+}

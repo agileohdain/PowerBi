@@ -1,0 +1,94 @@
+{
+  "_comment": "Arbre de navigation en INTENTIONS — veloh (Pilotage Supply Chain). Écrit PAR LE SKILL après validation du questionnaire (Phase 3). build-views.py l'étend mécaniquement en views.json complet : dispatch KPI/visuels, donut si <= 6 modalités sinon hbar top-10, humanisation, formats inférés. Ne jamais écrire views.json à la main.",
+
+  "labels": {
+    "Équipement": "Équipement",
+    "Consommable": "Consommable",
+    "Périphérique": "Périphérique",
+    "Résolu": "Résolu",
+    "En cours": "En cours",
+    "Distributeur": "Distributeur",
+    "Grossiste": "Grossiste",
+    "Magasin": "Magasin",
+    "Machines": "Machines",
+    "Outillage": "Outillage",
+    "Fournitures": "Fournitures",
+    "Accessoires": "Accessoires",
+    "Messagerie": "Messagerie"
+  },
+
+  "pages": [
+    {
+      "name": "Livraisons",
+      "desc": "Performance opérationnelle : volumes livrés, respect des délais et coût transport sur {CUR_YEAR} vs {PREV_YEAR}.",
+      "subs": [
+        {
+          "name": "Vue d'ensemble",
+          "kpis": [
+            {"type": "count", "label": "Livraisons", "pitch": true},
+            {"type": "ratio", "num": "A_TEMPS", "den": "_count", "label": "Taux à temps", "fmt": "pct"},
+            {"type": "active", "label": "Clients livrés"},
+            {"type": "sum", "m": "QUANTITE", "label": "Quantité livrée"}
+          ],
+          "visuals": [
+            {"type": "line", "m": "COUT_TRANSPORT", "title": "Coût transport mensuel", "pitch": true},
+            {"type": "dim", "dim": "Zone", "m": "COUT_TRANSPORT", "title": "Coût par zone", "centerSub": "Coût"},
+            {"type": "dim", "dim": "Type", "title": "Livraisons par type de client"},
+            {"type": "table", "dim": "Zone", "m": "COUT_TRANSPORT", "cols": ["QUANTITE"], "title": "Détail par zone"}
+          ]
+        },
+        {
+          "name": "Coût & distance",
+          "kpis": [
+            {"type": "sum", "m": "COUT_TRANSPORT", "label": "Coût transport", "fmt": "eur", "pitch": true},
+            {"type": "ratio", "num": "COUT_TRANSPORT", "den": "DISTANCE_KM", "label": "Coût/km", "fmt": "eur", "sub": "€/km"},
+            {"type": "ratio", "num": "DISTANCE_KM", "den": "_count", "label": "Distance moyenne", "fmt": "km"}
+          ],
+          "visuals": [
+            {"type": "ratio-line", "num": "COUT_TRANSPORT", "den": "DISTANCE_KM", "title": "Coût par km mensuel"},
+            {"type": "stacked", "dim": "Mode", "m": "COUT_TRANSPORT", "title": "Coût par mode de transport"},
+            {"type": "dim", "dim": "Mode", "m": "COUT_TRANSPORT", "title": "Répartition par mode", "centerSub": "Coût"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stocks & flux",
+      "desc": "Écoulement des produits : volumes livrés et mix par famille sur {CUR_YEAR} vs {PREV_YEAR}.",
+      "subs": [
+        {
+          "name": "Écoulement",
+          "kpis": [
+            {"type": "sum", "m": "QUANTITE", "label": "Quantité écoulée", "pitch": true},
+            {"type": "scalar", "from": "NB_FAMILLE", "label": "Familles actives"},
+            {"type": "top", "from": "Famille", "label": "Famille dominante"},
+            {"type": "ratio", "num": "COUT_TRANSPORT", "den": "QUANTITE", "label": "Coût unitaire", "fmt": "eur", "sub": "€/unité"}
+          ],
+          "visuals": [
+            {"type": "stacked", "dim": "Famille", "m": "QUANTITE", "title": "Quantité par famille (mensuel)", "pitch": true},
+            {"type": "dim", "dim": "Famille", "m": "QUANTITE", "title": "Répartition par famille", "centerSub": "Quantité"},
+            {"type": "line", "m": "QUANTITE", "title": "Quantité mensuelle"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Qualité & incidents",
+      "desc": "Tickets d'incidents de livraison : statuts et délais de résolution.",
+      "subs": [
+        {
+          "name": "Incidents",
+          "kpis": [
+            {"type": "scalar", "from": "NB_FAIT_INCIDENT", "label": "Tickets", "pitch": true},
+            {"type": "scalar", "from": "AVG_DELAI_HEURES", "label": "Délai moyen", "fmt": "int", "sub": "heures"},
+            {"type": "top", "from": "CATEGORY_COUNTS.FAIT_INCIDENT.Statut", "label": "Statut dominant"}
+          ],
+          "visuals": [
+            {"type": "cat", "from": "FAIT_INCIDENT.Statut", "title": "Répartition des statuts", "pitch": true},
+            {"type": "table", "cat": "FAIT_INCIDENT.Statut", "share": "NB_FAIT_INCIDENT", "self_label": "Tickets", "title": "Détail des statuts"}
+          ]
+        }
+      ]
+    }
+  ]
+}

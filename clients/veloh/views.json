@@ -1,0 +1,312 @@
+{
+  "labels": {
+    "Équipement": "Équipement",
+    "Consommable": "Consommable",
+    "Périphérique": "Périphérique",
+    "Résolu": "Résolu",
+    "En cours": "En cours",
+    "Distributeur": "Distributeur",
+    "Grossiste": "Grossiste",
+    "Magasin": "Magasin",
+    "Machines": "Machines",
+    "Outillage": "Outillage",
+    "Fournitures": "Fournitures",
+    "Accessoires": "Accessoires",
+    "Messagerie": "Messagerie"
+  },
+  "pages": [
+    {
+      "name": "Livraisons",
+      "desc": "Performance opérationnelle : volumes livrés, respect des délais et coût transport sur {CUR_YEAR} vs {PREV_YEAR}.",
+      "subs": [
+        {
+          "name": "Vue d'ensemble",
+          "kpis": [
+            {
+              "label": "Livraisons",
+              "agg": "sum",
+              "measure": "_count",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}",
+              "pitch": true
+            },
+            {
+              "label": "Taux à temps",
+              "agg": "ratio",
+              "num": "A_TEMPS",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "pct",
+              "sub": "· {CUR_YEAR}"
+            },
+            {
+              "label": "Clients livrés",
+              "agg": "active",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "actifs en {CUR_YEAR}"
+            },
+            {
+              "label": "Quantité livrée",
+              "agg": "sum",
+              "measure": "QUANTITE",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}"
+            }
+          ],
+          "visuals": [
+            {
+              "type": "line",
+              "measure": "COUT_TRANSPORT",
+              "title": "Coût transport mensuel",
+              "unit": "eur",
+              "pitch": true
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Zone.COUT_TRANSPORT",
+              "top": 6,
+              "title": "Coût par zone",
+              "unit": "eur",
+              "centerSub": "Coût",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Type._count",
+              "top": 6,
+              "title": "Livraisons par type de client",
+              "unit": "int",
+              "centerSub": "total",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "table",
+              "from": "BY_DIM.Zone.COUT_TRANSPORT",
+              "title": "Détail par zone",
+              "sortBy": "self",
+              "sub": "année {CUR_YEAR}",
+              "cols": [
+                {
+                  "label": "Zone",
+                  "source": "name"
+                },
+                {
+                  "label": "Cout Transport",
+                  "source": "self",
+                  "num": true,
+                  "fmt": "eur"
+                },
+                {
+                  "label": "QUANTITE",
+                  "source": "measure:QUANTITE",
+                  "num": true,
+                  "fmt": "int"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Coût & distance",
+          "kpis": [
+            {
+              "label": "Coût transport",
+              "agg": "sum",
+              "measure": "COUT_TRANSPORT",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "en {CUR_YEAR}",
+              "pitch": true
+            },
+            {
+              "label": "Coût/km",
+              "agg": "ratio",
+              "num": "COUT_TRANSPORT",
+              "den": "DISTANCE_KM",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "€/km"
+            },
+            {
+              "label": "Distance moyenne",
+              "agg": "ratio",
+              "num": "DISTANCE_KM",
+              "den": "_count",
+              "yoy": true,
+              "fmt": "km",
+              "sub": "· {CUR_YEAR}"
+            }
+          ],
+          "visuals": [
+            {
+              "type": "ratio-line",
+              "num": "COUT_TRANSPORT",
+              "den": "DISTANCE_KM",
+              "title": "Coût par km mensuel",
+              "unit": "eur"
+            },
+            {
+              "type": "stacked-bars",
+              "from": "BY_DIM.Mode.COUT_TRANSPORT",
+              "title": "Coût par mode de transport",
+              "unit": "eur"
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Mode.COUT_TRANSPORT",
+              "top": 6,
+              "title": "Répartition par mode",
+              "unit": "eur",
+              "centerSub": "Coût",
+              "sub": "année {CUR_YEAR}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stocks & flux",
+      "desc": "Écoulement des produits : volumes livrés et mix par famille sur {CUR_YEAR} vs {PREV_YEAR}.",
+      "subs": [
+        {
+          "name": "Écoulement",
+          "kpis": [
+            {
+              "label": "Quantité écoulée",
+              "agg": "sum",
+              "measure": "QUANTITE",
+              "yoy": true,
+              "fmt": "int",
+              "sub": "en {CUR_YEAR}",
+              "pitch": true
+            },
+            {
+              "label": "Familles actives",
+              "agg": "scalar",
+              "from": "SCALARS.NB_FAMILLE",
+              "fmt": "int",
+              "sub": ""
+            },
+            {
+              "label": "Famille dominante",
+              "agg": "top",
+              "from": "DIM_COUNTS.Famille",
+              "fmt": "text",
+              "sub": "en tête"
+            },
+            {
+              "label": "Coût unitaire",
+              "agg": "ratio",
+              "num": "COUT_TRANSPORT",
+              "den": "QUANTITE",
+              "yoy": true,
+              "fmt": "eur",
+              "sub": "€/unité"
+            }
+          ],
+          "visuals": [
+            {
+              "type": "stacked-bars",
+              "from": "BY_DIM.Famille.QUANTITE",
+              "title": "Quantité par famille (mensuel)",
+              "unit": "int",
+              "pitch": true
+            },
+            {
+              "type": "donut",
+              "from": "BY_DIM.Famille.QUANTITE",
+              "top": 6,
+              "title": "Répartition par famille",
+              "unit": "int",
+              "centerSub": "Quantité",
+              "sub": "année {CUR_YEAR}"
+            },
+            {
+              "type": "line",
+              "measure": "QUANTITE",
+              "title": "Quantité mensuelle",
+              "unit": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Qualité & incidents",
+      "desc": "Tickets d'incidents de livraison : statuts et délais de résolution.",
+      "subs": [
+        {
+          "name": "Incidents",
+          "kpis": [
+            {
+              "label": "Tickets",
+              "agg": "scalar",
+              "from": "SCALARS.NB_FAIT_INCIDENT",
+              "fmt": "int",
+              "sub": "",
+              "pitch": true
+            },
+            {
+              "label": "Délai moyen",
+              "agg": "scalar",
+              "from": "SCALARS.AVG_DELAI_HEURES",
+              "fmt": "int",
+              "sub": "heures"
+            },
+            {
+              "label": "Statut dominant",
+              "agg": "top",
+              "from": "CATEGORY_COUNTS.FAIT_INCIDENT.Statut",
+              "fmt": "text",
+              "sub": "en tête"
+            }
+          ],
+          "visuals": [
+            {
+              "type": "donut",
+              "from": "CATEGORY_COUNTS.FAIT_INCIDENT.Statut",
+              "top": 6,
+              "title": "Répartition des statuts",
+              "unit": "int",
+              "centerSub": "statut",
+              "sub": "instantané",
+              "pitch": true
+            },
+            {
+              "type": "table",
+              "from": "CATEGORY_COUNTS.FAIT_INCIDENT.Statut",
+              "title": "Détail des statuts",
+              "sortBy": "self",
+              "sub": "instantané",
+              "cols": [
+                {
+                  "label": "Statut",
+                  "source": "name"
+                },
+                {
+                  "label": "Tickets",
+                  "source": "self",
+                  "num": true,
+                  "fmt": "int"
+                },
+                {
+                  "label": "Part",
+                  "ratio": {
+                    "num": "self",
+                    "den": "SCALARS.NB_FAIT_INCIDENT",
+                    "pct": true
+                  },
+                  "num": true,
+                  "fmt": "pct"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
