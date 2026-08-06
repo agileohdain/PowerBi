@@ -39,9 +39,23 @@ Les données (`donnees.xlsx`) sont **générées par moi** (`scripts/generate-da
    seule fois**.
 5. Je crée `clients/<client>/` avec `CLIENT.md` (copie du template, nom
    pré-rempli). Aucun logo créé.
-6. Je demande les **deux fournitures en UNE seule question** : le **logo**
-   (`logo.png` à déposer) **et** la **couleur primaire** (hex). Je m'arrête
-   pour attendre.
+6. Je demande les **deux fournitures en UNE seule question** directive dont
+   voici le libellé canonique (à recopier, `<Nom>` substitué) :
+
+   > **2 fournitures pour démarrer :**
+   >
+   > 1. **LOGO** — déposez votre logo (PNG, fond transparent) **exactement**
+   >    ici : `clients/<Nom>/logo.png`
+   > 2. **COULEUR PRIMAIRE** — ci-dessous, **sélectionnez « Type your own
+   >    answer »** puis saisissez **uniquement** le code hex (ex. `#00A1B1`).
+   >
+   > ⚠️ Ne cochez pas d'option : choisissez « Type your own answer » et
+   > collez le code hex.
+
+   Options : **une seule**, échappatoire —
+   `{"label": "Pas encore prêt", "description": "Je dépose le logo / cherche le hex d'abord"}`.
+   Le chemin normal est la **saisie libre** (le hex) ; je n'accepte que ça.
+   Un clic sur l'échappatoire → j'attends. Je m'arrête pour attendre.
 7. Questionnaire guidé (Phase 1, **2 questions**), génération (Phase 2),
    maquette + pitch (Phase 3).
 
