@@ -5,9 +5,25 @@ obtenir un dashboard interactif, prêt à montrer en démo ou en pré-vente. Pas
 Power BI Desktop, pas de licence, **pas de données à préparer** : le skill
 **propose**, vous **validez**.
 
+## Prérequis
+
+Avant de lancer `/maquette`, votre poste doit disposer de :
+
+| Outil | Pourquoi | Installation |
+|---|---|---|
+| **Node.js 18+** | exécuter opencode + le smoke test | [nodejs.org](https://nodejs.org) |
+| **Python 3** | générer et extraire les données (`donnees.xlsx`) | [python.org](https://python.org) |
+| **openpyxl** (Python) | lecture/écriture du `.xlsx` — **bloquant sans lui** | `pip install openpyxl` |
+| **opencode** (CLI) | l'agent IA qui pilote le skill | `npm install -g opencode-ai` |
+| **Clé de modèle** | ex. OpenRouter (`sk-or-…`) | `opencode auth login` |
+
+> ⚠️ Sans `openpyxl`, la Phase 2 (génération des données) échoue avec
+> `ERREUR: openpyxl manquant -> pip install openpyxl`.
+
 ## Quickstart
 
 ```powershell
+pip install openpyxl   # une seule fois — requis pour la génération des données
 opencode
 # puis, dans opencode :
 > /maquette MonClient
