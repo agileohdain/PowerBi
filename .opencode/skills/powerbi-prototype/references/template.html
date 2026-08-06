@@ -266,11 +266,9 @@ function gridBase(){
 function evoLineOption(cur, prev){
   const o=gridBase(); o.xAxis.data=MONTH_AXIS; o.yAxis.scale=true;
   o.legend={show:true,bottom:0,itemGap:18,textStyle:{color:C.textSub,fontSize:11},data:[String(PREV_YEAR),String(CUR_YEAR)]};
-  let lastIdx=-1; cur.forEach((v,i)=>{ if(v!==null&&v!==undefined) lastIdx=i; });
   o.series=[
     {name:String(PREV_YEAR),type:'line',data:prev,smooth:0.2,symbol:'circle',symbolSize:4,lineStyle:{type:'dashed',width:1.5,color:C.neutral},itemStyle:{color:C.neutral,opacity:0.7},connectNulls:true},
-    {name:String(CUR_YEAR),type:'line',data:cur,smooth:0.2,symbol:'circle',symbolSize:6,lineStyle:{width:2.5,color:C.primary},itemStyle:{color:C.primary,borderWidth:2,borderColor:'#ffffff'},connectNulls:true,
-      markLine:{silent:true,symbol:'none',lineStyle:{type:'dashed',color:C.neutral,width:1},label:{show:true,formatter:'année en cours',fontSize:10,color:C.textSub,position:'insideEndTop'},data:lastIdx>=0?[{xAxis:MONTH_AXIS[lastIdx]}]:[]}}
+    {name:String(CUR_YEAR),type:'line',data:cur,smooth:0.2,symbol:'circle',symbolSize:6,lineStyle:{width:2.5,color:C.primary},itemStyle:{color:C.primary,borderWidth:2,borderColor:'#ffffff'},connectNulls:true}
   ];
   return o;
 }

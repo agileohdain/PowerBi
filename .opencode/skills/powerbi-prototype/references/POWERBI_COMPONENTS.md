@@ -400,22 +400,13 @@ function evoLineOption(curData, prevData){
   o.xAxis.data = MONTH_AXIS;                  // 01..12 fixe, jamais la liste plate
   o.yAxis.scale = true;                       // ne pas ancrer à 0 (line/area seulement)
   o.legend = { show:true, bottom:0, itemGap:18, textStyle:{ color:C.textSub, fontSize:11 } };
-  // Dernier mois connu de l'année N (année en cours → données partielles) :
-  let lastIdx = -1;
-  curData.forEach((v,i)=>{ if (v !== null && v !== undefined) lastIdx = i; });
   o.series = [
     { name:String(PREV_YEAR), type:'line', data:prevData, smooth:0.2, symbol:'circle', symbolSize:4,
       lineStyle:{ type:'dashed', width:1.5, color:C.neutral }, itemStyle:{ color:C.neutral, opacity:0.7 },
       connectNulls:true },
     { name:String(CUR_YEAR),  type:'line', data:curData,  smooth:0.2, symbol:'circle', symbolSize:6,
       lineStyle:{ width:2.5, color:C.primary }, itemStyle:{ color:C.primary, borderWidth:2, borderColor:'#fff' },
-      connectNulls:true,
-      // Marqueur "année en cours" au lieu d'une areaStyle qui s'arrête net
-      // (un rectangle gris abrupt évoque un bug / une sélection, pas une zone).
-      markLine:{ silent:true, symbol:'none',
-        lineStyle:{ type:'dashed', color:C.neutral, width:1 },
-        label:{ show:true, formatter:'année en cours', fontSize:10, color:C.textSub, position:'insideEndTop' },
-        data: lastIdx >= 0 ? [{ xAxis: MONTH_AXIS[lastIdx] }] : [] } }
+      connectNulls:true }
   ];
   return o;
 }
@@ -429,11 +420,11 @@ For a month-bar evolution use two clustered `bar` series on the same fixed axis,
   `itemStyle:{ borderWidth:2, borderColor:'#ffffff' }`. `connectNulls:true` so a
   partial current year (e.g. data stops in July) still draws a clean line.
   **Do NOT fill the area under the current-year line in a 2-series YoY chart** —
-  an `areaStyle` that ends mid-axis (year N is partial) renders as an abrupt
-  grey rectangle that looks like a selection box or a rendering bug. Use the
-  `markLine` "année en cours" cue (above) to signal partial data instead. A
-  solid area fill is acceptable only on a **complete** single series, never on a
-  partial current year.
+  an `areaStyle` that ends mid-axis renders as an abrupt grey rectangle that
+  looks like a selection box or a rendering bug. The generated data covers 2
+  complete closed years, so no partial-year cue is needed. A solid area fill is
+  acceptable only on a **complete** single series, never on a partial current
+  year.
 
 ---
 

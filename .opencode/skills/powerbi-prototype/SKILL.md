@@ -17,8 +17,9 @@ l'utilisateur ne fournit **jamais** de données, et je ne crée **jamais** le lo
 1. Le **déclencheur est la commande `/maquette`** suivie du nom du client (ex.
    `/maquette Veloh`). Le nom vient de l'argument ; si absent, je le demande. La
    **casse est respectée telle quelle**, **je ne propose pas de nom**.
-2. Je **confirme le nom** par écrit : « Est-ce bien le client « X » ? — Oui /
-   Modifier ». **Je ne crée rien tant que le nom n'est pas confirmé.**
+2. Je **confirme le nom** par écrit : « Est-ce bien le client « X » ? Sinon
+   « Type your own answer ». ». **Je ne crée rien tant que le nom n'est pas
+   confirmé.**
 3. **Garde client existant** : si `clients/<Nom>/` existe déjà, je demande quoi
    faire (régénérer la maquette, refaire le questionnaire, ou modifier le nom).
 4. Si l'utilisateur est en mode **PLAN**, je lui demande de se mettre en mode
@@ -41,11 +42,12 @@ l'utilisateur ne fournit **jamais** de données, et je ne crée **jamais** le lo
    tel quel à nommer le dossier (ex. `Veloh` → `clients/Veloh/`). **Ne proposer
    aucun nom** — l'utilisateur saisit lui-même le client. Ne pas transformer en
    slug minuscule.
-2. **Confirmer le nom** : poser « Est-ce bien le client « X » ? » **via l'outil
-   `question`** (jamais un prompt texte seul) avec les options cliquables
-   **Oui** / **Modifier** (la saisie libre est ajoutée d'office par l'outil).
-   L'utilisateur peut corriger ; boucler tant que le nom n'est pas validé.
-   **Ne créer rien** tant que le nom n'est pas confirmé.
+2. **Confirmer le nom** : poser « Est-ce bien le client « X » ? Sinon
+   « Type your own answer ». » **via l'outil `question`** (jamais un prompt
+   texte seul) avec l'option cliquable **Oui** seule (la saisie libre est
+   ajoutée d'office par l'outil). L'utilisateur corrige via cette saisie
+   libre ; boucler tant que le nom n'est pas validé. **Ne créer rien**
+   tant que le nom n'est pas confirmé.
 3. **Garde client existant** : si `clients/<Nom>/` existe déjà, demander via
    l'outil `question` :
    - **Régénérer la maquette** → réutilise `CLIENT.md` + `data-spec.json`
@@ -77,11 +79,14 @@ voit jamais : les décisions techniques (formules KPI, nombre de visuels, types 
 charts) — je les prends seul.
 
 **Validation interactive (bloquant)** : **toute** demande de validation passe par
-l'outil `question` — des **options cliquables prédéfinies** (Valider / Ajuster /
-…), **jamais** un prompt texte seul. La saisie libre est ajoutée d'office par
-l'outil (« Type your own answer ») : « Ajuster » est une option cliquable qui
-débouche sur le texte libre. Même règle pour les questions ouvertes : proposer
-des **exemples cliquables** + saisie libre plutôt qu'une question nue.
+l'outil `question` — des **options cliquables prédéfinies** concrètes (Valider,
+et le cas échéant des variantes explicites), **jamais** un prompt texte seul.
+**Ne jamais** proposer d'option « Ajuster » (ni « Modifier ») : la saisie libre
+est ajoutée d'office par l'outil (« Type your own answer » en bas de liste) et
+couvre tout ajustement. À la place, **terminer le texte de chaque question** par
+la clause courte : « Sinon « Type your own answer ». ». Même règle pour les
+questions ouvertes : proposer des **exemples cliquables** + saisie libre plutôt
+qu'une question nue.
 
 1. **Domaine métier** : « Que pilote ce dashboard ? » — question posée **via
    l'outil `question`** avec des domaines d'exemple cliquables (Ventes /
@@ -97,16 +102,18 @@ des **exemples cliquables** + saisie libre plutôt qu'une question nue.
    - **entité « personne »** nommée pour matcher `PERSON_RE` (`DIM_CLIENT`,
      `DIM_UTILISATEUR`, `DIM_EMPLOYE`…) — requis pour les KPI « actifs » ;
    - tables catégorielles annexes éventuelles (ex. statuts d'alerte).
-   → **Validation** via l'outil `question` : **Valider** / **Ajuster** (saisie
-   libre pour changer tailles, modalités, mesures).
+   → **Validation** via l'outil `question` : option cliquable **Valider**
+   (texte terminé par « Sinon « Type your own answer ». » — pour changer
+   tailles, modalités, mesures).
 3. **Arbre de navigation proposé** : pages → sous-pages → KPIs, présenté en clair
    dans le chat, cohérent avec le schéma validé (chaque KPI est calculable depuis
-   le modèle).    Question unique posée **via l'outil `question`** : **Valider** / **Ajuster** /
-   **Version plus riche** / **Version plus compacte**. *Ajuster* = saisie libre
-   (« renomme X », « fusionne 1.2 et 1.3 », « ajoute une page Maintenance ») →
-   je re-présente la version corrigée. **Je décide seul** : nombre de KPIs par
-   sous-page (3-5), visuels associés (≤ 4 par sous-page, grille 2×2), formules
-   (sum/ratio/scalar/top), badges de variation.
+   le modèle).    Question unique posée **via l'outil `question`** : **Valider** /
+   **Version plus riche** / **Version plus compacte** (texte terminé par
+   « Sinon « Type your own answer ». » — ex. « renomme X », « fusionne 1.2 et
+   1.3 », « ajoute une page Maintenance ») → je re-présente la version
+   corrigée. **Je décide seul** : nombre de KPIs par sous-page (3-5), visuels
+   associés (≤ 4 par sous-page, grille 2×2), formules (sum/ratio/scalar/top),
+   badges de variation.
 4. **Couleurs secondaires + titre/sous-titre proposés** :
    - le **Primary** vient du client (Phase 0) ; je détermine le **mode** (clair /
      sombre) et je propose les valeurs canoniques (`POWERBI_LAYOUT.md` §6.1) ;
@@ -121,7 +128,8 @@ des **exemples cliquables** + saisie libre plutôt qu'une question nue.
      (ex. « VELOH — Pilotage de flotte cyclable » / « Cyclistes · Flotte ·
      Sorties — 2024–2025 »).
    → **Validation** unique pour l'ensemble, posée **via l'outil `question`** :
-   **Valider** / **Ajuster** (saisie libre).
+   option cliquable **Valider** (texte terminé par « Sinon « Type your own
+   answer ». »).
 
 ## Phase 2 — Génération (CLIENT.md + data-spec.json + donnees.xlsx)
 
@@ -279,8 +287,8 @@ Les **données sont générées par le skill** — jamais fournies par l'utilisa
   affichent `${CUR_YEAR} vs ${PREV_YEAR}` (ex. `2025 vs 2024`), jamais `N vs
   N-1`. Voir `POWERBI_COMPONENTS.md` §5.1 & §1.3.
 - **Aire sous la courbe N interdite si année partielle (bloquant)** : pas
-  d'`areaStyle` sur N ; signaler l'année en cours par une `markLine` verticale
-  pointillée. Voir `POWERBI_COMPONENTS.md` §3.3.
+  d'`areaStyle` sur N (les 2 années du jeu de données sont closes et
+  complètes — aucune courbe partielle). Voir `POWERBI_COMPONENTS.md` §3.3.
 - **Donut anti-rognage (bloquant)** : `center:['35%','50%']`,
   `radius:['48%','66%']`, overlay `left:35%`. Labels `%` au format français
   (`10,5 %`). Voir `POWERBI_COMPONENTS.md` §3.4.
