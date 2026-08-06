@@ -37,18 +37,22 @@ opencode
 > /maquette MonClient
 ```
 
-1. **Fournissez** `logo.png` (fond transparent) + la **couleur primaire** (hex,
-   ex. `#FA8FF8`).
+1. **Répondez en une seule question** de fournitures : `logo.png` (fond
+   transparent) déposé + la **couleur primaire** (hex, ex. `#FA8FF8`).
 2. **Validez** le questionnaire guidé — **2 questions** : le domaine métier,
    puis une proposition globale unique (modèle de données + navigation & KPIs +
    couleurs secondaires nommées en clair + titre) à valider ou ajuster.
+   Le skill **assemble** cette proposition depuis sa section « Patterns
+   réutilisables » (structure factorisée, contenu 100 % spécifique au client) —
+   pas de gabarits par domaine, pour ne jamais brider la personnalisation.
 3. Ouvrez le rendu : `start clients/MonClient/presentation/maquette.html`. **Fait.**
    Un **pitch de présentation** (`presentation/pitch.md`) est proposé à la fin
    pour scénariser la démo.
 
 > Les **données fictives sont générées par le skill** (2 années civiles closes,
 > ex. 2024–2025) — vous ne fournissez jamais d'Excel. Le skill ne crée jamais
-> le logo, et ne lit jamais la maquette d'un autre client.
+> le logo, ne lit jamais la maquette d'un autre client, et ne relit pas les
+> scripts de génération à chaque run (les 2 exemples du template suffisent).
 
 > Chaque validation du questionnaire est un **menu à choix cliquable**
 > (Valider / Ajuster / …) — la saisie libre reste toujours possible.

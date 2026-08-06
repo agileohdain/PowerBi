@@ -21,6 +21,9 @@ Les données (`donnees.xlsx`) sont **générées par moi** (`scripts/generate-da
 - **Ne JAMAIS lire la maquette d'un autre client** (pas de
   `glob clients/*/presentation`). Chaque maquette dérive de `CLIENT.md` +
   `nav.json` + les données extraites.
+- **Ne pas relire `generate-data.py` / `extract-data.py` à chaque run** — la
+  section « Patterns réutilisables » + les 2 fichiers d'exemple
+  (`clients/_template/data-spec.example.json`, `nav.example.json`) suffisent.
 - **Ne JAMAIS relancer le smoke test à la main** : `render.py` l'exécute déjà
   (exit 0 exigé — s'il échoue, `render.py` échoue).
 
@@ -36,8 +39,9 @@ Les données (`donnees.xlsx`) sont **générées par moi** (`scripts/generate-da
    seule fois**.
 5. Je crée `clients/<client>/` avec `CLIENT.md` (copie du template, nom
    pré-rempli). Aucun logo créé.
-6. Je demande le **logo** (`logo.png` à déposer) **et** la **couleur primaire**
-   (hex). Je m'arrête pour attendre.
+6. Je demande les **deux fournitures en UNE seule question** : le **logo**
+   (`logo.png` à déposer) **et** la **couleur primaire** (hex). Je m'arrête
+   pour attendre.
 7. Questionnaire guidé (Phase 1, **2 questions**), génération (Phase 2),
    maquette + pitch (Phase 3).
 
@@ -129,7 +133,9 @@ jamais un problème.
    ≤ 6 modalités sinon hbar top-10, humanisation, formats) et **valide chaque
    référence** contre les données (mesure/dimension/scalaire inconnu = erreur
    bloquante avec la liste des identifiants disponibles — corriger `nav.json`,
-   relancer).
+   relancer). Peut se chaîner avec `render.py` : `build-views.py <client>
+   && render.py <client>` (render lance déjà le smoke test — ne pas le
+   relancer à la main).
 3. **Génération de la maquette** :
    ```bash
    python .opencode/skills/powerbi-prototype/scripts/render.py <client>
@@ -210,6 +216,41 @@ si `nav.json` existe je passe à l'étape 2, sinon je l'écris depuis l'arbre de
   sous-page (6 KPI max) ; toute référence inconnue = erreur listant les
   identifiants disponibles.
 - Exemple complet : `clients/_template/nav.example.json`.
+
+## Patterns réutilisables (assemblage, pas invention)
+
+> La STRUCTURE d'une maquette est générique (schéma en étoile + catalogue de
+> types KPI/visuels). Seul le CONTENU (mesures, dimensions, libellés, arbre,
+> couleurs) est spécifique au client. Phase 2 = ASSEMBLER depuis cette section,
+> jamais réinventer la structure.
+
+### Checklist structurelle (toujours vraie)
+- 1 faits `FAIT_*`, pk `ID_*`, date_col `DATE`, « 1 ligne = 1 événement daté ».
+- Mesures : ≤ 3 additives (somme sensée) + au plus 1 mesure flag 0/1 PAR KPI
+  de taux nécessaire.
+- Dimensions : colonnes ≤ 40 modalités (viser 3-6 → donut) ; 1 feuille « personne »
+  (regex client|utilisateur|employe|...) pour les KPI `active`.
+- 1 `extra_sheet` si besoin d'un donut « statut » ET/OU de scalars hors-ligne
+  (`AVG_<col>`).
+
+### Catalogue de motifs (intention métier → recette)
+
+| Intention | data-spec | nav.json |
+|---|---|---|
+| Volume | faits | `{type:"count"}` |
+| Total d'une grandeur | mesure additive | `{type:"sum", m, fmt:auto}` |
+| Moyenne / panier | mesure | `{type:"ratio", num:M, den:"_count", fmt:eur\|km}` |
+| Taux / précision / respect | mesure 0/1 (avg ~p, std ~0.05, min 0) | `{type:"ratio", num:FLAG, den:"_count", fmt:"pct"}` |
+| Coût par unité | 2 mesures (€ + volume) | `{type:"ratio", num:€, den:VOL, sub:"€/unité"}` |
+| Actifs / entités servies | dim personne | `{type:"active"}` |
+| Couverture / cardinalité | dim col | `{type:"scalar", from:"NB_<COL>"}` |
+| Valeur dominante | dim col / cat | `{type:"top", from:"<Col>"}` ou `from:"CATEGORY_COUNTS.<SHEET>.<COL>"` |
+| Répartition ≤ 6 | dim/cat | `{type:"dim"\|"cat"}` → donut auto |
+| Répartition > 6 | dim | `{type:"dim", as:"hbar", top:10}` |
+| Détail tabulaire | dim/cat + mesure | `{type:"table", dim\|cat, m?, cols?, share:"NB_<X>"}` |
+| Évolution | mesure / flag | `{type:"line", m}` / `{type:"ratio-line", num, den}` |
+
+Formats auto : PCT/TAUX→pct, COUT/PRIX/MONTANT→eur, KM→km, DUREE/DELAI→dur.
 
 ## Sources de données
 
