@@ -1,0 +1,46 @@
+{
+  "_comment": "Spec de génération des données fictives (lu par scripts/generate-data.py). Écrit PAR LE SKILL après validation du questionnaire — jamais par l'utilisateur. Le script produit donnees.xlsx (2 années civiles closes) respectant par construction les contraintes de extract-data.py. Période : dynamique (en 2026 -> 2024+2025).",
+  "_comment_seed": "Reproductibilité : même seed + même spec = même classeur.",
+  "seed": 2406,
+
+  "_comment_fact": "Table de faits : une ligne = une livraison datée. rows_per_month = [min,max] lignes par mois.",
+  "fact": {"name": "FAIT_LIVRAISON", "pk": "ID_LIVRAISON", "date_col": "DATE", "rows_per_month": [550, 800]},
+
+  "_comment_measures": "COUT_TRANSPORT +2%/an pic fin d'année ; NB_COLIS +3%/an ; RETARD en baisse (précision) — min 0 (à l'heure).",
+  "measures": [
+    {"name": "COUT_TRANSPORT", "avg": 85, "std": 42, "min": 8, "decimals": 2, "trend_pct": 2,
+     "seasonality": [0.7, 0.7, 0.8, 0.85, 0.9, 0.95, 0.95, 1.0, 1.05, 1.1, 1.15, 1.25]},
+    {"name": "NB_COLIS", "avg": 2.4, "std": 1.5, "min": 1, "decimals": 0, "trend_pct": 3,
+     "seasonality": [0.85, 0.85, 0.9, 0.95, 1.0, 1.0, 1.0, 1.0, 1.05, 1.1, 1.15, 1.2]},
+    {"name": "RETARD", "avg": 8, "std": 18, "min": 0, "decimals": 0, "trend_pct": -6},
+    {"name": "OTIF_PCT", "avg": 92, "std": 12, "min": 0, "decimals": 0, "trend_pct": 3}
+  ],
+
+  "_comment_dimensions": "Jointes à la faits (FK = pk). DIM_CLIENT = entité active (match PERSON_RE). Le libellé des transporteurs est une colonne 'Prestataire' (jamais 'Nom' : NAME_RE de l'extracteur reclasserait la colonne en 'mixed').",
+  "dimensions": [
+    {"sheet": "DIM_CLIENT", "pk": "ID_CLIENT", "size": 30, "columns": [
+      {"name": "Segment", "values": {"Grand compte": 0.1, "PME": 0.4, "ETI": 0.5}},
+      {"name": "Zone", "values": {"Nord": 0.3, "Sud": 0.25, "Est": 0.25, "Ouest": 0.2}}
+    ]},
+    {"sheet": "DIM_ENTREPOT", "pk": "ID_ENTREPOT", "size": 6, "columns": [
+      {"name": "Region", "values": {"Nord": 0.3, "Sud": 0.2, "Est": 0.3, "Ouest": 0.2}}
+    ]},
+    {"sheet": "DIM_TYPE_LIVRAISON", "pk": "ID_TYPE", "size": 3, "columns": [
+      {"name": "Type", "values": {"Express": 0.3, "Standard": 0.5, "Cross-dock": 0.2}}
+    ]},
+    {"sheet": "DIM_TRANSPORTEUR", "pk": "ID_TRANSPORTEUR", "size": 8, "columns": [
+      {"name": "Prestataire", "values": {"Geodis": 0.2, "DHL": 0.2, "Chronopost": 0.15, "Stef": 0.15, "Flotte interne": 0.2, "DPD": 0.1}}
+    ]}
+  ],
+
+  "_comment_bridges": "Ponts N-N optionnels — aucun ici.",
+  "bridges": [],
+
+  "_comment_extra_sheets": "FAIT_STOCK (non jointe) -> CATEGORY_COUNTS (donut statut) + SCALAR AVG_NB_UNITES.",
+  "extra_sheets": [
+    {"name": "FAIT_STOCK", "pk": "ID_STOCK", "size": 200, "columns": [
+      {"name": "Statut", "type": "categorical", "values": {"Rupture": 0.08, "Tension": 0.22, "Nominal": 0.55, "Surstock": 0.15}},
+      {"name": "NB_UNITES", "type": "numeric", "avg": 450, "std": 180, "min": 0, "decimals": 0}
+    ]}
+  ]
+}

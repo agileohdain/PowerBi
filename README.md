@@ -1,9 +1,17 @@
-# PowerBi — Une maquette Power BI en 5 minutes, pas en 5 heures
+# PowerBi — Une maquette Power BI en HTML, pour valider votre futur rapport
 
 Un **nom**, un **logo**, une **couleur primaire** — trois choses suffisent pour
 obtenir un dashboard interactif, prêt à montrer en démo ou en pré-vente. Pas de
 Power BI Desktop, pas de licence, **pas de données à préparer** : le skill
 **propose**, vous **validez**.
+
+> **Maquette HTML, pas Power BI.** Le rendu (`presentation/maquette.html`) est
+> une **maquette web auto-suffisante** qui imite fidèlement le langage visuel de
+> Power BI — ce n'est **pas** un fichier `.pbix` ni une application Power BI
+> Desktop/Service. Son objectif est double : **valider le contenu** de votre
+> futur rapport (navigation, KPIs, visuels) avant de le construire dans l'outil
+> final, et permettre au client de **se projeter sur l'outil final** en amont du
+> développement.
 
 ## Prérequis
 
@@ -47,7 +55,8 @@ opencode
 ## Ce que vous obtenez
 
 Un **`presentation/maquette.html`** auto-suffisant, fidèle au langage visuel
-Power BI :
+Power BI (à **ouvrir dans le navigateur** — aucune application Power BI
+requise) :
 
 - **Canevas 1920×1080** (16:9) scaled au viewport — zéro scrollbar.
 - **Bandeau trapézoïdal** aux couleurs exactes du client + zone logo.
