@@ -297,6 +297,12 @@ Formats auto : PCT/TAUX→pct, COUT/PRIX/MONTANT→eur, KM→km, DUREE/DELAI→d
 - **Un KPI = une valeur parlante** : je choisis le chiffre unique que le
   libellé signifie (build-views.py fait le reste).
 - **Formats `fmt`/`unit`** : `int | km | eur | f1 | dur | pct | text`.
+- **Espacement : grille 8px stricte (bloquant)** : tout gap/padding/margin du
+  template est un multiple de 8 (8/16/24) — le rythme structural est
+  `var(--gap)` (= 16px). Si j'ajuste la maquette (boucle d'ajustement), je ne
+  réintroduis **jamais** de valeur hors-grille (6, 10, 12, 14 px), ni le footer
+  (supprimé) : la mention « Données fictives » reste dans l'infobulle
+  (`.pop-note`, rendue par `renderInfo()`).
 - **Aucune erreur JS tolérée (bloquant)** : le smoke test de `render.py` doit
   passer (exit 0) avant toute livraison — s'il échoue, je corrige `nav.json`
   (jamais le HTML) et je relance `build-views.py` + `render.py`.

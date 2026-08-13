@@ -15,11 +15,14 @@
   `transform: scale(...)` avec centrage par translate — jamais de scrollbars,
   jamais de centrage flexbox sur la boîte non-scalée (rogne le canevas à gauche
   si viewport < 1920).
-- Échelle d'espacement unique : **4/8/12/16/20/24 px**. La colonne `.content`
-  est un flex à **un seul `gap:12px`** — aucun padding-top/bottom ad hoc par
-  bloc (rythme visuel brouillon sinon).
-- `.content` commence **sous** le bandeau (`top:97px`, `bottom:40px`) — `top:0`
-  ferait chevaucher la navigation par-dessus le titre.
+- Échelle d'espacement unique : **grille 8px stricte (8/16/24 px)** — aucun
+  gap/padding/margin hors-grille (jamais 6, 10, 12, 14…). La colonne `.content`
+  est un flex à **un seul `gap:var(--gap)` (= 16px)** défini dans `:root` ;
+  aucun padding-top/bottom ad hoc par bloc (rythme visuel brouillon sinon).
+- `.content` commence **sous** le bandeau (`top:calc(97px + var(--gap))`,
+  `right`/`bottom:var(--gap)`) — `top:0` ferait chevaucher la navigation par-dessus
+  le titre. **Plus de footer** : la mention « données fictives » est dans
+  l'infobulle d'info (`.pop-note`).
 - Conteneurs statiques dédiés `#navL1` / `#navL2` / `#kpis` / `#visuals`,
   chacun réécrit indépendamment — composer par concaténation d'`innerHTML`
   dans un conteneur partagé détruit les nœuds DOM des charts et leurs listeners.
@@ -29,8 +32,9 @@
 - `.wide` (`grid-column: 1 / -1`) **uniquement pour 3 visuels** — avec 4 il crée
   une 3ᵉ ligne implicite qui tronque la carte (régression « table tronquée »).
   Avec 4 visuels, la table de détail est l'une des 4 cartes (corps scrollable).
-- Footer unique ~40px, fond `--canvas`, bordure haute `--border`, mention
-  « données fictives ».
+- **Pas de footer** : la mention « Données fictives — Maquette Power BI
+  haute-fidélité. » est rendue dans l'infobulle d'info (`.pop-note`, italique,
+  bordure haute) par `renderInfo()`.
 
 ## 2. Couleurs
 
@@ -64,7 +68,7 @@
 
 ## 4. Pane filtres (gauche)
 
-- Pleine hauteur (`top:116px; bottom:40px`), largeur 235px, radius 10px, sans
+- Pleine hauteur (`top:calc(97px + var(--gap)); bottom:var(--gap)`), largeur 235px, radius 10px, sans
   bordure ; « Réinitialiser » épinglé en bas (`margin-top:auto`).
 - Typographie unique : labels 11px/600/uppercase/`--text-secondary` ;
   contrôles 12px, hauteur 32px, radius 8px (une chiclet et un select alignés).
@@ -89,7 +93,7 @@
   jamais « N-1 ». Même règle pour les sous-titres de visuels.
 - KPI statiques (comptages de dimensions) : pas de badge YoY.
 - Typographie carte : label 11px/600/uppercase, valeur 28px/700, sub-label
-  11px, footer = badge uniquement (`min-height:22px`).
+  11px, footer = badge uniquement (`min-height:24px`).
 
 ## 6. Visuels (ECharts)
 
